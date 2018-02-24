@@ -24,7 +24,7 @@ func TestMock(t *testing.T) {
 
 	c := db.From("store")
 
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= 6; i++ {
 		collection := &catalog.Collection{
 			Name: fmt.Sprintf("Collection %d", i),
 		}
