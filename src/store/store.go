@@ -93,7 +93,17 @@ func createRouter(store *Store) http.Handler {
 	r.Use(gin.Recovery())
 
 	// CORS Request
-	r.Use(cors.Default())
+	//r.Use(cors.Default())
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:3000"},
+		//AllowAllOrigins: true,
+		AllowMethods: []string{"GET", "POST", "PUT", "HEAD", "PATCH", "DELETE"},
+		AllowHeaders: []string{"Origin", "Content-Type"},
+		ExposeHeaders: []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
 
 	// the jwt middleware
 	authMiddleware := &jwt.GinJWTMiddleware{

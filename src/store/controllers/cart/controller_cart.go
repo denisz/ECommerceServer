@@ -36,7 +36,7 @@ func WriteToResponse(c *gin.Context, cart *Cart) {
 		return
 	}
 
-	c.SetCookie(CookieName, tokenString, 0, "/","",false, true)
+	c.SetCookie(CookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
 }
 
 func (p *Controller) DetailGET(c *gin.Context) {

@@ -37,6 +37,12 @@ func TestMock(t *testing.T) {
 				CollectionID: collection.ID,
 				Slug: fmt.Sprintf("product_%d", i),
 				Name: fmt.Sprintf("Product %d", i),
+				Price: 3500,
+				CurrencyID: 643,
+				Pictures: []string {
+					fmt.Sprintf("/products/%d.jpg", i),
+				},
+				Producer: fmt.Sprintf("Producer %d", i),
 				Desc: fmt.Sprintf("Description %d", i),
 			}
 
@@ -68,7 +74,7 @@ func TestMock(t *testing.T) {
 	fmt.Printf(" %v", products)
 }
 
-func TestSendHermes(t *testing.T) {
+func _TestSendHermes(t *testing.T) {
 	// Configure hermes by setting a theme and your product info
 	h := hermes.Hermes{
 		// Optional Theme

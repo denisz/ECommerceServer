@@ -27,6 +27,7 @@ type Product struct {
 	Slug string `storm:"index" json:"slug"`
 	Desc string `json:"desc"`
 	Spec string `json:"spec"`
+	Producer string `json:"producer"`
 	Quantity int `json:"quantity"`
 	Price int `json:"price"`
 	CurrencyID int `json:"currencyID"`
