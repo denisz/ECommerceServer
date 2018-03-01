@@ -40,7 +40,7 @@ func TestMock(t *testing.T) {
 				Price: 3500,
 				CurrencyID: 643,
 				Pictures: []string {
-					fmt.Sprintf("/products/%d.jpg", i),
+					fmt.Sprintf("/products/%d/main.jpg", i),
 				},
 				Producer: fmt.Sprintf("Producer %d", i),
 				Desc: fmt.Sprintf("Description %d", i),

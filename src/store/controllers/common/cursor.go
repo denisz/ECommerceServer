@@ -1,7 +1,7 @@
 package common
 
 type Cursor struct {
-	Last bool `json:"last"`
 	Limit int `json:"limit"`
+	Total int `json:"totalElements"`
 	Offset int `json:"offset"`
 }

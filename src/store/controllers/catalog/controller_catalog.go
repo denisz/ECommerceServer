@@ -6,7 +6,7 @@ import (
 	"github.com/asdine/storm"
 	"github.com/gin-gonic/gin"
 	"strconv"
-	"github.com/cznic/mathutil"
+	"github.com/asdine/storm/q"
 )
 
 type Controller struct {
@@ -49,9 +49,9 @@ func (p *Controller) CollectionsGET(c *gin.Context) {
 	c.JSON(http.StatusOK, PageCollections{
 		Content: collections,
 		Cursor: common.Cursor{
+			Total: len(collections),
 			Limit: len(collections),
 			Offset: 0,
-			Last: true,
 		},
 	})
 }
@@ -76,19 +76,25 @@ func (p *Controller) ProductsGET(c *gin.Context) {
 	}
 
 	var products []Product
-	err = p.GetStoreNode().Find("CollectionID", id, &products, storm.Limit(limit + 1), storm.Skip(offset))
+	err = p.GetStoreNode().Find("CollectionID", id, &products, storm.Limit(limit), storm.Skip(offset))
 
 	if err != nil && err != storm.ErrNotFound {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
+	total, err := p.GetStoreNode().Select(q.Eq("CollectionID", id)).Count(new(Product))
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, PageProducts{
-		Content: products[:mathutil.Max(len(products) - 1, 0)],
+		Content: products,
 		Cursor: common.Cursor{
+			Total: total,
 			Limit: limit,
 			Offset: offset,
-			Last: len(products) < limit,
 		},
 	})
 }

@@ -1,4 +1,4 @@
-package shipping
+package shipment
 
 import (
 	"store/controllers/common"

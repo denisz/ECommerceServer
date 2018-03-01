@@ -9,7 +9,7 @@ import (
 	"store/controllers/info"
 	"store/controllers/session"
 	"store/controllers/common"
-	"store/controllers/shipping"
+	"store/controllers/shipment"
 	"store/controllers/order"
 	"store/controllers/catalog"
 	"github.com/appleboy/gin-jwt"
@@ -21,13 +21,14 @@ import (
 )
 
 type Store struct {
-	Cart cart.Controller
-	Info info.Controller
-	Order order.Controller
-	Account account.Controller
-	Session session.Controller
-	Catalog catalog.Controller
-	Shipping shipping.Controller
+	Config *Config
+	Cart     cart.Controller
+	Info     info.Controller
+	Order    order.Controller
+	Account  account.Controller
+	Session  session.Controller
+	Catalog  catalog.Controller
+	Shipment shipment.Controller
 }
 
 func createShutdown(db *storm.DB) func(ctx context.Context) {
@@ -43,13 +44,14 @@ func createShutdown(db *storm.DB) func(ctx context.Context) {
 	}
 }
 
-func NewStore() (http.Handler, func(ctx context.Context), error) {
+func NewStore(config *Config) (http.Handler, func(ctx context.Context), error) {
 	db, err := storm.Open("store.db")
 	if err != nil {
 		return nil, nil, err
 	}
 
 	s := &Store{
+		Config: config,
 		Cart: cart.Controller{
 			Controller: common.Controller{DB: db},
 		},
@@ -62,7 +64,7 @@ func NewStore() (http.Handler, func(ctx context.Context), error) {
 		Session: session.Controller{
 			Controller: common.Controller{DB: db},
 		},
-		Shipping: shipping.Controller{
+		Shipment: shipment.Controller{
 			Controller: common.Controller{DB: db},
 		},
 		Order: order.Controller {
@@ -93,11 +95,8 @@ func createRouter(store *Store) http.Handler {
 	r.Use(gin.Recovery())
 
 	// CORS Request
-	//r.Use(cors.Default())
-
 	r.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"},
-		//AllowAllOrigins: true,
+		AllowOrigins: []string{store.Config.ServerURL},
 		AllowMethods: []string{"GET", "POST", "PUT", "HEAD", "PATCH", "DELETE"},
 		AllowHeaders: []string{"Origin", "Content-Type"},
 		ExposeHeaders: []string{"Content-Length"},
@@ -146,7 +145,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/cart/insert", Instrument("/cart/insert"), store.Cart.InsertPOST)
 		v1.POST("/order/checkout", Instrument("/order/checkout"), store.Order.CheckoutPOST)
 		v1.POST("/order/cancel", Instrument("/order/checkout"), store.Order.UserCanceledPOST)
-		v1.POST("/shipping", Instrument("/shipping"), store.Shipping.Index)
+		v1.POST("/shipment", Instrument("/shipment"), store.Shipment.Index)
 		v1.POST("/account/login", authMiddleware.LoginHandler)
 		v1.POST("/account/register", store.Account.RegisterPOST)
 		v1.POST("/account/resetPwd", store.Account.ResetPasswordPOST)
