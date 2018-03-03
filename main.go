@@ -40,7 +40,7 @@ func main() {
 	wait := time.Second * 1
 
 	s, shutdownStore, err := store.NewStore(&store.Config{
-		ServerURL: "http://localhost:8080",
+		ServerURL: "http://localhost:3000",
 	})
 	if err != nil {
 		log.Fatal(err)

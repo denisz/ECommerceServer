@@ -4,14 +4,16 @@ import (
 	"testing"
 	"github.com/asdine/storm"
 	"fmt"
-	"math/rand"
 	"store/controllers/catalog"
 	"gopkg.in/gomail.v2"
 	"github.com/matcornic/hermes"
+	"github.com/asdine/storm/q"
 )
 
 func TestMock(t *testing.T) {
 	db, err := storm.Open("store.db")
+	defer db.Close()
+
 	if err != nil {
 		t.Error(err)
 		return
@@ -46,9 +48,9 @@ func TestMock(t *testing.T) {
 				Desc: fmt.Sprintf("Description %d", i),
 			}
 
-			if rand.Float64() > 0.5 {
+			if i == 1 {
 				product.Discount = &catalog.Discount{
-					Type: catalog.DiscountTypeFixedAmount,
+					Type: catalog.DiscountTypePercentage,
 					Amount: 10,
 				}
 			}
@@ -72,6 +74,26 @@ func TestMock(t *testing.T) {
 	}
 
 	fmt.Printf(" %v", products)
+}
+
+func TestFindSales(t *testing.T) {
+	db, err := storm.Open("store.db")
+	defer db.Close()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	c := db.From("store")
+	query := c.Select(q.Not(q.Eq("Discount", nil)))
+
+	var products []catalog.Product
+	err = query.Find(&products)
+	if err != nil {
+		t.Error(err)
+	}
+
+	fmt.Printf("%d ; %v",len(products), products)
 }
 
 func _TestSendHermes(t *testing.T) {

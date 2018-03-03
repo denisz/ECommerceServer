@@ -14,7 +14,7 @@ type Controller struct {
 }
 
 
-func (p *Controller) CollectionGET(c *gin.Context) {
+func (p *Controller) CollectionPOST(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -38,7 +38,7 @@ func (p *Controller) CollectionGET(c *gin.Context) {
 }
 
 // Список коллекции
-func (p *Controller) CollectionsGET(c *gin.Context) {
+func (p *Controller) CollectionsPOST(c *gin.Context) {
 	var collections []Collection
 	err := p.GetStoreNode().All(&collections)
 	if err != nil {
@@ -56,7 +56,7 @@ func (p *Controller) CollectionsGET(c *gin.Context) {
 	})
 }
 
-func (p *Controller) ProductsGET(c *gin.Context) {
+func (p *Controller) ProductsPOST(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -99,7 +99,45 @@ func (p *Controller) ProductsGET(c *gin.Context) {
 	})
 }
 
-func (p *Controller) ProductGET(c *gin.Context) {
+func (p *Controller) ProductsSalesPOST(c *gin.Context) {
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if err != nil  {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var products []Product
+
+	err = p.GetStoreNode().Select(q.Not(q.Eq("Discount", nil))).Limit(limit).Skip(offset).Find(&products)
+
+	if err != nil && err != storm.ErrNotFound {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	total, err := p.GetStoreNode().Select(q.Not(q.Eq("Discount", nil))).Count(new(Product))
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, PageProducts{
+		Content: products,
+		Cursor: common.Cursor{
+			Total: total,
+			Limit: limit,
+			Offset: offset,
+		},
+	})
+}
+
+func (p *Controller) ProductPOST(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -121,3 +159,4 @@ func (p *Controller) ProductGET(c *gin.Context) {
 
 	c.JSON(http.StatusOK, product)
 }
+
