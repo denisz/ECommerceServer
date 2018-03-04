@@ -18,7 +18,7 @@ func main() {
 
 	err = db.Drop("store")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	c := db.From("store")
