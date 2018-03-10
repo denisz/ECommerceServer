@@ -34,13 +34,15 @@ func task() {
 }
 
 func main() {
+	publicUrl := os.Getenv("PUBLIC_URL")
+
 	gocron.Every(1).Day().At("11:20").Do(task)
 	gocron.Start()
 
 	wait := time.Second * 1
 
 	s, shutdownStore, err := store.NewStore(&store.Config{
-		ServerURL: "http://95.213.236.60",
+		ServerURL: publicUrl,
 	})
 	if err != nil {
 		log.Fatal(err)

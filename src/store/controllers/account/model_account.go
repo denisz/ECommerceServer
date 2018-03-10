@@ -7,12 +7,13 @@ type User struct {
 	Email string `storm:"index" json:"-"`
 	Password string `storm:"index" json:"-"`
 	Group string `storm:"index" json:"-"`
-	AddressBook []Address `json:"addressBook"`
 	CreatedAt time.Time `json:"createdAt"`
+	AddressBook []Address `json:"addressBook"`
 }
 
 type Address struct {
 	Name string `json:"name"` //Имя получателя
+	Email string `json:"email"`//Электронная почта
 	Company string `json:"company"` //Название компании (если указывается рабочий адрес)
 	Address string `json:"address"` //Улица, номер дома, корпус или строение
 	Region string `json:"region"` //Район (редко, встречается в английских и ирландских адресах)

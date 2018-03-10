@@ -3,52 +3,26 @@ package cart
 import (
 	"net/http"
 	"store/controllers/common"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"store/controllers/catalog"
+	"github.com/cznic/mathutil"
 )
-
-var SecretKey = []byte("sfvDUPC0Cj")
-const CookieName = "CART_ID"
 
 type Controller struct {
 	common.Controller
 }
 
-func ReadFromRequest(c *gin.Context) *Session {
-	session := &Session{}
-	tokenString, err := c.Cookie(CookieName)
-	if err != nil {
-		return session
-	}
-
-	jwt.ParseWithClaims(tokenString, session, func(token *jwt.Token) (interface{}, error) {
-		return SecretKey, nil
-	})
-
-	return session
-}
-
-func WriteToResponse(c *gin.Context, session *Session) {
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), session)
-	tokenString, err := token.SignedString(SecretKey)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	c.SetCookie(CookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
-}
 
 func (p *Controller) IndexPOST(c *gin.Context) {
-	session := ReadFromRequest(c)
+	session := readFromRequest(c)
 	c.JSON(http.StatusOK, &Cart{
 		Positions: session.Positions,
 	})
 }
 
+// Детальная информация корзины
 func (p *Controller) DetailPOST(c *gin.Context) {
-	session := ReadFromRequest(c)
+	session := readFromRequest(c)
 	cart := &Cart{}
 
 	for _, v := range session.Positions {
@@ -64,24 +38,36 @@ func (p *Controller) DetailPOST(c *gin.Context) {
 
 /// Обновить позицию
 func (p *Controller) UpdatePOST(c *gin.Context) {
-	var json ItemDTO
+	var json UpdateDTO
 
 	if err := c.ShouldBindJSON(&json); err == nil {
-		session := ReadFromRequest(c)
 		var positions []Position
+		session := readFromRequest(c)
+		origPositions := appendIfNeeded(session.Positions, json.ProductID)
 
-		for _, v := range session.Positions {
+		for _, v := range origPositions {
 			if v.ProductID == json.ProductID {
-				v.Amount = json.Amount
+				switch json.Operation {
+				case OperationInsert:
+					v.Amount = v.Amount + json.Amount
+				case OperationUpdate:
+					v.Amount = json.Amount
+				case OperationDelete:
+					v.Amount = 0
+				}
 			}
 
 			if v.Amount > 0 {
+				var product catalog.Product
+				err := p.GetStoreNode().One("ID", v.ProductID, &product)
+				if err != nil { continue }
+				v.Amount = mathutil.Clamp(v.Amount, 0, product.Quantity)
 				positions = append(positions, v)
 			}
 		}
 
 		session.Positions = positions
-		WriteToResponse(c, session)
+		writeToResponse(c, session)
 		c.JSON(http.StatusOK, &Cart{
 			Positions: positions,
 		})
@@ -89,40 +75,3 @@ func (p *Controller) UpdatePOST(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
 }
-
-//Добавить позицию
-func (p *Controller) InsertPOST(c *gin.Context) {
-	var json ItemDTO
-
-	if err := c.ShouldBindJSON(&json); err == nil {
-		exists := false
-
-		session := ReadFromRequest(c)
-		var positions []Position
-
-		for _, v := range session.Positions {
-			if v.ProductID == json.ProductID {
-				v.Amount = v.Amount + json.Amount
-				exists = true
-			}
-			positions = append(positions, v)
-		}
-
-		if !exists {
-			positions = append(positions, Position{
-				ProductID: json.ProductID,
-				Amount: json.Amount,
-			})
-		}
-
-		session.Positions = positions
-		WriteToResponse(c, session)
-		c.JSON(http.StatusOK, &Cart{
-			Positions: positions,
-		})
-	} else {
-		c.AbortWithError(http.StatusBadRequest, err)
-	}
-}
-
-

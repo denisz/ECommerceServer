@@ -6,8 +6,8 @@ import (
 )
 
 type Position struct {
-	ProductID int `json:"productID"`
 	Amount int `json:"amount"`
+	ProductID int `json:"productID"`
 }
 
 type Session struct {
@@ -16,11 +16,21 @@ type Session struct {
 }
 
 type Cart struct {
-	Products []catalog.Product `json:"products"`
+	TotalPrice int `json:"totalPrice"`
 	Positions []Position `json:"positions"`
+	Products []catalog.Product `json:"products"`
 }
 
-type ItemDTO struct {
-	ProductID int `json:"productID"`
+type Operation string
+
+const (
+	OperationInsert Operation = "insert" //Добавить товар
+	OperationUpdate Operation = "update" //Обновить товар
+	OperationDelete Operation = "delete" //Удалить товар
+)
+
+type UpdateDTO struct {
 	Amount int `json:"amount"`
+	ProductID int `json:"productID"`
+	Operation Operation `json:"operation"`
 }

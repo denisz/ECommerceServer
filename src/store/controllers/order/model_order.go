@@ -23,7 +23,7 @@ type Receipt struct {
 	Provider string
 }
 
-type Shipping struct {
+type Shipment struct {
 	Code string `json:"code"`
 	Provider string `json:"provider"`
 }
@@ -38,7 +38,7 @@ type Order struct {
 	Items         []Item           `json:"items"`
 	Address       account.Address  `json:"address"`
 	Receipt       Receipt          `json:"-"`
-	Shipping      Shipping         `json:"shipping"`
+	Shipment      Shipment         `json:"shipment"`
 	Discount      catalog.Discount `json:"discount"`
 	Status        Status           `json:"status"`
 	UserID        int              `json:"userID"`
@@ -47,7 +47,7 @@ type Order struct {
 	TotalPrice    int              `json:"totalPrice"`
 	ShippingPrice int              `json:"shippingPrice"`
 	Comment       string           `json:"comment"`
-	CreatedAt     time.Time        `json:"-"`
+	CreatedAt     time.Time        `json:"createdAt"`
 }
 
 type History struct {

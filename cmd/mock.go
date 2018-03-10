@@ -45,16 +45,25 @@ func main() {
 				Desc: fmt.Sprintf("Description %d", i),
 			}
 
-			if i == 1 {
-				product.Discount = &catalog.Discount{
-					Type: catalog.DiscountTypePercentage,
-					Amount: 10,
-				}
-			}
-
 			c.Save(product)
 		}
 	}
+
+	for i := 1; i <= 3; i++ {
+		var product catalog.Product
+		if err = c.One("ID", i, &product); err == nil {
+			product.Discount = &catalog.Discount{
+				Type: catalog.DiscountTypePercentage,
+				Amount: int32(i * 5),
+			}
+			fmt.Printf("%v", product)
+			err = c.Save(&product)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+
 
 	var collections []catalog.Collection
 	err = c.All(&collections)
@@ -62,7 +71,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf(" %v", collections)
+	//fmt.Printf(" %v", collections)
 
 	var products []catalog.Product
 	err = c.All(&products)
@@ -70,5 +79,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf(" %v", products)
+	//fmt.Printf(" %v", products)
 }
