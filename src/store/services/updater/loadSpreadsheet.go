@@ -31,8 +31,8 @@ var (
 func getClient(ctx context.Context, config *oauth2.Config) (*http.Client, error) {
 	cacheFile, err := tokenCacheFile()
 	if err != nil {
+		fmt.Printf("Unable to get path to cached credential file. %v", err)
 		return nil, ErrUnableGetPathCredentialFile
-		//log.Fatalf("Unable to get path to cached credential file. %v", err)
 	}
 	tok, err := tokenFromFile(cacheFile)
 	if err != nil {
@@ -64,8 +64,8 @@ func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
 
 	tok, err := config.Exchange(oauth2.NoContext, code)
 	if err != nil {
+		fmt.Printf("Unable to retrieve token from web %v", err)
 		return nil, ErrUnableRetrieveToken
-		//log.Fatalf("Unable to retrieve token from web %v", err)
 	}
 	return tok, nil
 }
@@ -101,8 +101,8 @@ func saveToken(file string, token *oauth2.Token) error {
 	fmt.Printf("Saving credential file to: %s\n", file)
 	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
+		fmt.Printf("Unable to cache oauth token: %v", err)
 		return ErrUnableCacheOaAuthToken
-		//log.Fatalf("Unable to cache oauth token: %v", err)
 	}
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
@@ -114,16 +114,16 @@ func ReadSpreadsheet(spreadsheetId string, readRange string) ([][]interface{}, e
 
 	b, err := ioutil.ReadFile("client_secret.json")
 	if err != nil {
+		fmt.Printf("Unable to read client secret file: %v", err)
 		return nil, ErrParseClientSecretFile
-		//log.Fatalf("Unable to read client secret file: %v", err)
 	}
 
 	// If modifying these scopes, delete your previously saved credentials
 	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
 	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets.readonly")
 	if err != nil {
+		fmt.Printf("Unable to parse client secret file to config: %v", err)
 		return nil, ErrParseClientSecretFile
-		//log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 
 	client, err := getClient(ctx, config)
@@ -133,8 +133,8 @@ func ReadSpreadsheet(spreadsheetId string, readRange string) ([][]interface{}, e
 
 	srv, err := sheets.New(client)
 	if err != nil {
+		fmt.Printf("Unable to retrieve Sheets Client %v", err)
 		return nil, ErrUnableRetrieveSheetsClient
-		//log.Fatalf("Unable to retrieve Sheets Client %v", err)
 	}
 
 	// Prints the names and majors of students in a sample spreadsheet:
@@ -144,8 +144,8 @@ func ReadSpreadsheet(spreadsheetId string, readRange string) ([][]interface{}, e
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 
 	if err != nil {
+		fmt.Printf("Unable to retrieve data from sheet. %v", err)
 		return nil, ErrUnableRetrieveDataFromSheet
-		//log.Fatalf("Unable to retrieve data from sheet. %v", err)
 	}
 
 	return resp.Values, nil
