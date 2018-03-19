@@ -1,7 +1,5 @@
-package store
+package updater
 
 type Config struct {
-	ServerURL string
-	BotID string
 	SpreadSheetID string
 }

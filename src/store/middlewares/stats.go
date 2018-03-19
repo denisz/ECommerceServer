@@ -20,7 +20,7 @@ const (
 	./healthtop jobs
  */
 
-func StatsMiddleware() gin.HandlerFunc {
+func Stats() gin.HandlerFunc {
 	var stream = health.NewStream()
 	stream.EventKv("starting_app", health.Kvs{"app": "store"})
 	//stream.AddSink(&health.WriterSink{os.Stdout})

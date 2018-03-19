@@ -13,7 +13,6 @@ type Controller struct {
 	common.Controller
 }
 
-
 func (p *Controller) CollectionPOST(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -146,6 +145,29 @@ func (p *Controller) ProductPOST(c *gin.Context) {
 
 	var product Product
 	err = p.GetStoreNode().One("ID", id, &product)
+
+	if err == storm.ErrNotFound {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, product)
+}
+
+func (p *Controller) ProductBySKUPOST(c *gin.Context) {
+	SKU, err := strconv.Atoi(c.Param("SKU"))
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var product Product
+	err = p.GetStoreNode().One("SKU", SKU, &product)
 
 	if err == storm.ErrNotFound {
 		c.AbortWithStatus(http.StatusNotFound)

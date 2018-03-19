@@ -11,7 +11,7 @@ var SecretKey = []byte("sfvDUPC0Cj")
 const CookieName = "CART_ID"
 
 
-func readFromRequest(c *gin.Context) *Session {
+func readCartFromRequest(c *gin.Context) *Session {
 	session := &Session{}
 	tokenString, err := c.Cookie(CookieName)
 	if err != nil {
@@ -25,7 +25,7 @@ func readFromRequest(c *gin.Context) *Session {
 	return session
 }
 
-func writeToResponse(c *gin.Context, session *Session) {
+func writeCartToResponse(c *gin.Context, session *Session) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), session)
 	tokenString, err := token.SignedString(SecretKey)
 	if err != nil {
@@ -36,15 +36,15 @@ func writeToResponse(c *gin.Context, session *Session) {
 	c.SetCookie(CookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
 }
 
-func appendIfNeeded(positions []Position, productID int) []Position {
+func appendIfNeeded(positions []Position, productSKU string) []Position {
 	var exists bool
 	for _, v := range positions {
-		exists = !exists && v.ProductID == productID
+		exists = !exists && v.ProductSKU == productSKU
 	}
 
 	if exists == false {
 		positions = append(positions, Position{
-			ProductID: productID,
+			ProductSKU: productSKU,
 			Amount: 0,
 		})
 	}

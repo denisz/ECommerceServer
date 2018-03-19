@@ -5,32 +5,58 @@ import (
 	"store/controllers/catalog"
 )
 
-type Position struct {
-	Amount int `json:"amount"`
-	ProductID int `json:"productID"`
-}
-
-type Session struct {
-	jwt.StandardClaims
-	Positions []Position
-}
-
-type Cart struct {
-	TotalPrice int `json:"totalPrice"`
-	Positions []Position `json:"positions"`
-	Products []catalog.Product `json:"products"`
-}
-
 type Operation string
 
 const (
-	OperationInsert Operation = "insert" //Добавить товар
-	OperationUpdate Operation = "update" //Обновить товар
-	OperationDelete Operation = "delete" //Удалить товар
+	// Добавить товар
+	OperationInsert Operation = "insert"
+
+	// Обновить товар
+	OperationUpdate Operation = "update"
+
+	// Удалить товар
+	OperationDelete Operation = "delete"
 )
 
-type UpdateDTO struct {
-	Amount int `json:"amount"`
-	ProductID int `json:"productID"`
-	Operation Operation `json:"operation"`
-}
+type (
+	// Позиция
+	Position struct {
+		// Количество
+		Amount int `json:"amount"`
+
+		// Индентификатор
+		ProductSKU string `json:"productSKU"`
+	}
+
+	// Модель хранения корзины
+	Session struct {
+		// Позиции
+		Positions []Position
+
+		jwt.StandardClaims
+	}
+
+	// Корзина
+	Cart struct {
+		// Общая цена
+		TotalPrice int `json:"totalPrice"`
+
+		// Позиции
+		Positions []Position `json:"positions"`
+
+		// Описание продуктов
+		Products []catalog.Product `json:"products"`
+	}
+
+	// Модель обмена данными
+	UpdateDTO struct {
+		// Количество
+		Amount int `json:"amount"`
+
+		// Продукт
+		ProductSKU string `json:"productSKU"`
+
+		// Операци
+		Operation Operation `json:"operation"`
+	}
+)

@@ -5,44 +5,99 @@ import "store/controllers/common"
 type DiscountType int32
 
 const (
-	DiscountTypePercentage DiscountType  = 0
-	DiscountTypeFixedAmount DiscountType = 1
+	// Процентная скидка
+	DiscountTypePercentage   DiscountType = 0
+	
+	// Фиксированная скидка
+	DiscountTypeFixedAmount  DiscountType = 1
+
+	// Бесплатная доставка
 	DiscountTypeFreeShipping DiscountType = 2
 )
 
-type Discount struct {
-	Type DiscountType `json:"type"`
-	Amount int32 `json:"amount"`
-}
+type (
+	// Скидка
+	Discount struct {
+		// Тип скидки
+		Type DiscountType `json:"type"`
 
-type Collection struct {
-	ID int `storm:"id,increment" json:"id"`
-	Name string `storm:"index" json:"name"`
-	Picture string `json:"picture"`
-}
+		// Количество
+		Amount int `json:"amount"`
+	}
 
-type Product struct {
-	ID int `storm:"id,increment" json:"id"`
-	Name string `storm:"index" json:"name"`
-	Slug string `storm:"index" json:"slug"`
-	Desc string `json:"desc"`
-	Spec string `json:"spec"`
-	Producer string `json:"producer"`
-	Quantity int `json:"quantity"`
-	Price int `json:"price"`
-	CurrencyID int `json:"currencyID"`
-	CollectionID int `json:"collectionID"`
-	Pictures []string `json:"pictures"`
-	Discount *Discount `json:"discount"`
-}
+	// Категория
+	Collection struct {
+		// Индентификатор
+		ID int `storm:"id,increment" json:"id"`
 
-type PageCollections struct {
-	Content []Collection `json:"content"`
-	common.Cursor
-}
+		// Имя категории
+		Name string `storm:"index" json:"name"`
 
-type PageProducts struct {
-	Content []Product `json:"content"`
-	common.Cursor
-}
+		// Изображение
+		Picture string `json:"picture"`
+	}
 
+	// Продукт
+	Product struct {
+		// Индентификатор
+		ID int `storm:"id,increment" json:"id"`
+
+		// Имя
+		Name string `storm:"index" json:"name"`
+
+		// Производитель
+		Producer string `storm:"index" json:"producer"`
+
+		// Лекарственная форма (т.е. таблетки, порошок, капли) и тип упаковки
+		Factor string `json:"factor"`
+
+		// Форма (20шт по 10мг)
+		Form string `json:"form"`
+
+		// Вес
+		Weight int `json:"weight"`
+
+		// Артикул
+		SKU string `storm:"index" json:"SKU"`
+
+		// Количество
+		Quantity int `json:"quantity"`
+
+		// Цена
+		Price int `json:"price"`
+
+		// Категория
+		CollectionID int `storm:"index" json:"collectionID"`
+
+		// Список изображений
+		Pictures []string `json:"pictures"`
+
+		// Скидка
+		Discount *Discount `json:"discount"`
+	}
+
+	// Описание
+	Notation struct {
+		// Основное описание
+		Description string `json:"description"`
+
+		// Побочные эффекты
+		BadEffect string `json:"badEffect"`
+	}
+
+	// Страницы категорий
+	PageCollections struct {
+		Content []Collection `json:"content"`
+
+		// Курсор
+		common.Cursor
+	}
+
+	// Страницы продуктов
+	PageProducts struct {
+		Content []Product `json:"content"`
+
+		// Курсор
+		common.Cursor
+	}
+)

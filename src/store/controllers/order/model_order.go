@@ -9,52 +9,92 @@ import (
 type Status int32
 
 const (
-	OrderStatusDraft 	  Status = 0 // новый заказ
-	OrderStatusPending    Status = 1 // формированный заказ
-	OrderStatusProcessing Status = 2 // в обработке
-	OrderStatusClosed     Status = 3 // закрыт
-	OrderStatusCanceled   Status = 4 // отменен
+	// Новый заказ
+	OrderStatusDraft      Status = 0
+	// Формированный заказ
+	OrderStatusPending    Status = 1
+	// В обработке
+	OrderStatusProcessing Status = 2
+	// Закрыт
+	OrderStatusClosed     Status = 3
+	// Отменен
+	OrderStatusCanceled   Status = 4
 )
 
-type Receipt struct {
-	ID int `storm:"id,increment"`
-	OrderID int
-	Response string
-	Provider string
-}
+type (
+	// Квитанция
+	Receipt struct {
+		// Индентификатор
+		ID int `storm:"id,increment"`
+		// Номер заказа
+		OrderID int
+		// Ответ
+		Response string
+		// Поставщик услуг
+		Provider string
+		// Пользовательская информация
+		Payload string
+	}
 
-type Shipment struct {
-	Code string `json:"code"`
-	Provider string `json:"provider"`
-}
+	// Доставка
+	Shipment struct {
+		// Номер для отслеживания
+		Tracking string `json:"tracking"`
+		// Поставщик услуг
+		Provider string `json:"provider"`
+	}
 
-type Item struct {
-	Product catalog.Product `json:"productID"`
-	Amount int `json:"amount"`
-}
+	// Позиция в заказе
+	Item struct {
+		// Товар
+		Product catalog.Product `json:"productID"`
+		// количество
+		Amount int `json:"amount"`
+	}
 
-type Order struct {
-	ID            int              `storm:"id,increment" json:"id"`
-	Items         []Item           `json:"items"`
-	Address       account.Address  `json:"address"`
-	Receipt       Receipt          `json:"-"`
-	Shipment      Shipment         `json:"shipment"`
-	Discount      catalog.Discount `json:"discount"`
-	Status        Status           `json:"status"`
-	UserID        int              `json:"userID"`
-	Invoice       int              `json:"invoice"`
-	TaxPrice      int              `json:"taxPrice"`
-	TotalPrice    int              `json:"totalPrice"`
-	ShippingPrice int              `json:"shippingPrice"`
-	Comment       string           `json:"comment"`
-	CreatedAt     time.Time        `json:"createdAt"`
-}
+	// Заказ
+	Order struct {
+		// Индентификатор
+		ID int `storm:"id,increment" json:"id"`
+		// Позиции в заказе
+		Items []Item `json:"items"`
+		// Адрес доставки
+		Address account.Address `json:"address"`
+		// Квитанция об оплате
+		Receipt Receipt `json:"-"`
+		// Информация о доставка
+		Shipment Shipment `json:"shipment"`
+		// Скидка
+		Discount catalog.Discount `json:"discount"`
+		// Статус заказа
+		Status Status `json:"status"`
+		// Владелец заказа
+		UserID int `json:"userID"`
+		// Счёт на оплату
+		Invoice int `json:"invoice"`
+		// Налога
+		TaxPrice int `json:"taxPrice"`
+		// Цена на товары с налога
+		TotalPrice int `json:"totalPrice"`
+		// Цена доставки
+		ShippingPrice int `json:"shippingPrice"`
+		// Комментарий клиента заказа
+		Comment string `json:"comment"`
+		// Время создания
+		CreatedAt time.Time `json:"createdAt"`
+	}
 
-type History struct {
-	ID int `storm:"id,increment"`
-	OrderID int
-	OperatorID int
-	Comment string
-	Status string
-}
-
+	// История измения статуса заказа
+	History struct {
+		// Инфентификатор
+		ID         int `storm:"id,increment"`
+		// Номер заказа
+		OrderID    int
+		// Индентифкатор оператора
+		OperatorID int
+		// Комментарий оператора
+		Comment    string
+		// Статус
+		Status     string
+	}
+)

@@ -1,4 +1,4 @@
-package sheet
+package spreadsheet
 
 
 import (
@@ -102,7 +102,13 @@ func Unmarshal(in [][]string, out interface{}) (err error) {
 								f.SetBool(b)
 							}
 						case reflect.Slice:
-							f.Set(reflect.ValueOf(strings.Split(cell.Token, ",")))
+							var slice []string
+							candidates := strings.Split(cell.Token, ",")
+							for _, s := range candidates {
+								slice = append(slice, strings.Trim(s, " "))
+							}
+
+							f.Set(reflect.ValueOf(slice))
 						}
 					}
 				}

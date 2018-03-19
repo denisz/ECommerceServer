@@ -7,9 +7,9 @@ import (
 // Controller handle all base methods
 type Controller struct {
 	DB *storm.DB
-	StoreNode storm.Node
+	Node storm.Node
 }
 
 func (p *Controller) GetStoreNode() storm.Node {
-	return p.DB.From("store")
+	return p.Node
 }
