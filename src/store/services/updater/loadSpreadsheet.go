@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/user"
 	"path/filepath"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -73,13 +72,23 @@ func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
 // tokenCacheFile generates credential file path/filename.
 // It returns the generated credential path/filename.
 func tokenCacheFile() (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
+
+	workingDir := "."
+	for _, name := range []string{"HOME", "USERPROFILE"} { // *nix, windows
+		if dir := os.Getenv(name); dir != "" {
+			workingDir = dir
+		}
 	}
-	tokenCacheDir := filepath.Join(usr.HomeDir, ".credentials")
+	tokenCacheDir := filepath.Join(workingDir, ".credentials")
 	os.MkdirAll(tokenCacheDir, 0700)
-	return filepath.Join(tokenCacheDir,  url.QueryEscape("sheets.googleapis.com-go-quickstart.json")), err
+	return filepath.Join(tokenCacheDir,  url.QueryEscape("sheets.googleapis.com-go-quickstart.json")), nil
+	//usr, err := user.Current()
+	//if err != nil {
+	//	return "", err
+	//}
+	//tokenCacheDir := filepath.Join(usr.HomeDir, ".credentials")
+	//os.MkdirAll(tokenCacheDir, 0700)
+	//return filepath.Join(tokenCacheDir,  url.QueryEscape("sheets.googleapis.com-go-quickstart.json")), err
 }
 
 // tokenFromFile retrieves a Token from a given file path.
