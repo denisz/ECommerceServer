@@ -26,6 +26,10 @@ func (p *Controller) DetailPOST(c *gin.Context) {
 
 	for _, v := range session.Positions {
 		var product catalog.Product
+		if len(v.ProductSKU) == 0 {
+			continue
+		}
+
 		err := p.GetStoreNode().One("SKU", v.ProductSKU, &product)
 		if err != nil {
 			continue
@@ -60,6 +64,9 @@ func (p *Controller) UpdatePOST(c *gin.Context) {
 
 			if v.Amount > 0 {
 				var product catalog.Product
+				if len(v.ProductSKU) == 0 {
+					continue
+				}
 				err := p.GetStoreNode().One("SKU", v.ProductSKU, &product)
 				if err != nil {
 					continue
