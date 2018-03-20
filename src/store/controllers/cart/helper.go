@@ -39,7 +39,9 @@ func writeCartToResponse(c *gin.Context, session *Session) {
 func appendIfNeeded(positions []Position, productSKU string) []Position {
 	var exists bool
 	for _, v := range positions {
-		exists = !exists && v.ProductSKU == productSKU
+		if exists == false {
+			exists = v.ProductSKU == productSKU
+		}
 	}
 
 	if exists == false {
