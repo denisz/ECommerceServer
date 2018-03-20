@@ -61,7 +61,7 @@ func percent(token string) (int, bool, bool) {
 func underscoreString(str string) string {
 
 	// convert every letter to lower case
-	newStr := strings.ToLower(str)
+	newStr := str //strings.ToLower(str)
 
 	// convert all spaces/tab to underscore
 	regExp := regexp.MustCompile("[[:space:][:blank:]]")
