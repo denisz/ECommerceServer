@@ -44,6 +44,7 @@ func main() {
 	s, shutdownStore, err := store.NewStore(&store.Config{
 		ServerURL: publicUrl,
 	})
+
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,8 +7,8 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"fmt"
 )
-
 
 var (
 	ErrOutIsNotSlice = errors.New("out kind is not Slice")
@@ -25,7 +25,16 @@ func Marshal(in interface{}) (out interface{}, err error) {
 	return nil, ErrNotImpl
 }
 
-func Unmarshal(in [][]string, out interface{}) (err error) {
+func Unmarshal(data [][]interface{}, out interface{}) (err error) {
+
+	in := make([][]string, len(data))
+	for i, row := range data {
+		in[i] = make([]string, len(row))
+		for j, cell := range row {
+			in[i][j] = fmt.Sprint(cell)
+		}
+	}
+
 	ptyp := reflect.TypeOf(out)
 	pval := reflect.ValueOf(out)
 

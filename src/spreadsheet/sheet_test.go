@@ -28,11 +28,28 @@ func TestMarshal(t *testing.T) {
 }
 
 func TestUnmarshal(t *testing.T) {
-	data := [][]string {
-		{"номер", "опции", "имя", "картинка"},
-		{"-1", "1,2,3,4", "v1", "v2"},
-		{"2", "23,34,45", "v1", "v2"},
-	}
+	var data [][]interface{}
+
+	s := make([]interface{}, 4)
+	s[0] = "номер"
+	s[1] = "опции"
+	s[2] = "имя"
+	s[3] = "картинка"
+	data = append(data, s)
+
+	s = make([]interface{}, 4)
+	s[0] = "-1"
+	s[1] = "1,2,3,4"
+	s[2] = "v1"
+	s[3] = "v2"
+	data = append(data, s)
+
+	s = make([]interface{}, 4)
+	s[0] = "2"
+	s[1] = "23,34,45"
+	s[2] = "v1"
+	s[3] = "v2"
+	data = append(data, s)
 
 	var sheet []MockSheet
 	err := Unmarshal(data, &sheet)

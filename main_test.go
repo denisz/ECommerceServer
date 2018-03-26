@@ -4,7 +4,7 @@ import (
 	"testing"
 	"github.com/asdine/storm"
 	"fmt"
-	"store/controllers/catalog"
+	"store/services/api/catalog"
 	"gopkg.in/gomail.v2"
 	"github.com/matcornic/hermes"
 	"github.com/asdine/storm/q"

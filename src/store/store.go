@@ -5,29 +5,27 @@ import (
 	"context"
 	"net/http"
 	"github.com/asdine/storm"
-	"store/controllers/cart"
-	"store/controllers/account"
-	"store/controllers/info"
-	"store/controllers/admin"
-	"store/controllers/session"
-	"store/controllers/common"
-	"store/controllers/shipment"
-	"store/controllers/order"
-	"store/controllers/catalog"
-	"store/services/updater"
-	"fmt"
+	"store/services/api"
+	"store/services/loader"
+	. "store/models"
 )
 
 type Store struct {
-	Config   *Config
-	Admin    admin.Controller
-	Cart     cart.Controller
-	Info     info.Controller
-	Order    order.Controller
-	Account  account.Controller
-	Session  session.Controller
-	Catalog  catalog.Controller
-	Shipment shipment.Controller
+	Config *Config
+
+	// API
+	Admin    api.ControllerAdmin
+	Cart     api.ControllerCart
+	Settings api.ControllerSettings
+	Order    api.ControllerOrder
+	Account  api.ControllerAccount
+	Session  api.ControllerSession
+	Catalog  api.ControllerCatalog
+	Delivery api.ControllerDelivery
+	Sales    api.ControllerSales
+
+	//Loader
+	Loader loader.ControllerLoader
 }
 
 func createShutdown(db *storm.DB) func(ctx context.Context) {
@@ -48,45 +46,43 @@ func NewStore(config *Config) (http.Handler, func(ctx context.Context), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	node := db.From("store")
 
 	s := &Store{
 		Config: config,
-		Admin: admin.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Admin: api.ControllerAdmin{
+			Controller: Controller{DB: db},
 		},
-		Cart: cart.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Cart: api.ControllerCart{
+			Controller: Controller{DB: db},
 		},
-		Account: account.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Account: api.ControllerAccount{
+			Controller: Controller{DB: db},
 		},
-		Info: info.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Settings: api.ControllerSettings{
+			Controller: Controller{DB: db},
 		},
-		Session: session.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Session: api.ControllerSession{
+			Controller: Controller{DB: db},
 		},
-		Shipment: shipment.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Delivery: api.ControllerDelivery{
+			Controller: Controller{DB: db},
 		},
-		Order: order.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Order: api.ControllerOrder{
+			Controller: Controller{DB: db},
 		},
-		Catalog: catalog.Controller{
-			Controller: common.Controller{DB: db, Node: node},
+		Catalog: api.ControllerCatalog{
+			Controller: Controller{DB: db},
 		},
-	}
-
-	err = updater.Updater(node, &updater.Config {
-		SpreadSheetID: "13Mr_bOjtMmJ8TivMz3Z5nniT0r92ujlk48m4tXFqSJE",
-	})
-
-	if err != nil {
-		fmt.Print(err)
+		Sales: api.ControllerSales{
+			Controller: Controller{DB: db},
+		},
+		Loader: loader.ControllerLoader{
+			Controller: Controller{DB: db},
+			Config: &loader.Config{
+				SpreadSheetID: "13Mr_bOjtMmJ8TivMz3Z5nniT0r92ujlk48m4tXFqSJE",
+			},
+		},
 	}
 
 	return createRouter(s), createShutdown(db), nil
 }
-
-

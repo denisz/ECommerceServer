@@ -9,7 +9,7 @@ import (
 	Middleware "store/middlewares"
 )
 
-var Instrument = Middleware.Instrument
+var I = Middleware.Instrument
 
 func createRouter(store *Store) http.Handler {
 	//gin.SetMode(gin.ReleaseMode)
@@ -43,7 +43,7 @@ func createRouter(store *Store) http.Handler {
 		Timeout:    time.Hour,
 		MaxRefresh: time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
-			if (userId == "admin" && password == "admin") || (userId == "test" && password == "test") {
+			if userId == "admin" && password == "admin" {
 				return userId, true
 			}
 
@@ -61,26 +61,28 @@ func createRouter(store *Store) http.Handler {
 		TokenLookup: "header:Authorization",
 		// TokenHeadName is a string in the header. Default value is "Bearer"
 		TokenHeadName: "Bearer",
-		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
+		// TimeFunc provides the current time. You can override it to use another time value.
+		// This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
 	}
 
 	v1 := r.Group("/api/v1/")
 	{
-		v1.POST("/info", Instrument("/info"), store.Info.Index)
-		v1.POST("/catalog/collections", Instrument("/catalog/collection"), store.Catalog.CollectionsPOST)
-		v1.POST("/catalog/collection/:id", Instrument("/catalog/collection/:id"), store.Catalog.CollectionPOST)
-		v1.POST("/catalog/products/:id", Instrument("/catalog/products/:id"), store.Catalog.ProductsPOST)
-		v1.POST("/catalog/product/:id", Instrument("/catalog/product/:id"), store.Catalog.ProductPOST)
-		v1.POST("/catalog/sales", Instrument("/catalog/sales"), store.Catalog.ProductsSalesPOST)
-		v1.POST("/cart", Instrument("/cart"), store.Cart.IndexPOST)
-		v1.POST("/cart/detail", Instrument("/cart"), store.Cart.DetailPOST)
-		v1.POST("/cart/update", Instrument("/cart/update"), store.Cart.UpdatePOST)
-		v1.POST("/order/checkout", Instrument("/order/checkout"), store.Order.CheckoutPOST)
-		v1.POST("/shipment", Instrument("/shipment"), store.Shipment.Index)
+		v1.POST("/settings", I("/settings"), store.Settings.Index)
+		v1.POST("/catalog/collections", I("/catalog/collection"), store.Catalog.CollectionsPOST)
+		v1.POST("/catalog/collection/:sku", I("/catalog/collection/:sku"), store.Catalog.CollectionPOST)
+		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), store.Catalog.ProductsPOST)
+		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), store.Catalog.ProductPOST)
+		v1.POST("/sales", I("/sales"), store.Sales.IndexPOST)
+		v1.POST("/cart", I("/cart"), store.Cart.IndexPOST)
+		v1.POST("/cart/detail", I("/cart"), store.Cart.DetailPOST)
+		v1.POST("/cart/update", I("/cart/update"), store.Cart.UpdatePOST)
+		v1.POST("/order/checkout", I("/order/checkout"), store.Order.CheckoutPOST)
+		v1.POST("/shipment", I("/delivery"), store.Delivery.Index)
+
 		v1.POST("/account/login", authMiddleware.LoginHandler)
-		v1.POST("/account/register", store.Account.RegisterPOST)
-		v1.POST("/account/resetPwd", store.Account.ResetPasswordPOST)
+		v1.GET("/load/catalog", I("/load/catalog"), store.Loader.CatalogFromGoogle)
+		v1.GET("/load/ads", I("/load/ads"), store.Loader.AdsFromGoogle)
 	}
 
 	v1.Use(authMiddleware.MiddlewareFunc())
