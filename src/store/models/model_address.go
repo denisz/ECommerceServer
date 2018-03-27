@@ -3,29 +3,35 @@ package models
 // Адрес
 type Address struct {
 	//Имя получателя
-	Name string `json:"name"`
+	FirstName string `json:"firstName"`
+
+	//Фамилия получателя
+	LastName string `json:"lastName"`
+
+	//Отчество получателя
+	MiddleName string `json:"middleName"`
 
 	//Электронная почта
 	Email string `json:"email"`
 
-	//Название компании (если указывается рабочий адрес)
-	Company string `json:"company"`
+	//Телефон
+	Phone string `json:"phone"`
 
 	//Улица, номер дома, корпус или строение
 	Address string `json:"address"`
 
-	//Район (редко, встречается в английских и ирландских адресах)
-	Region string `json:"region"`
-
-	//Город
-	City string `json:"city"`
-
-	//Телефон
-	Phone string `json:"phone"`
-
 	//Страна
 	Country string `json:"country"`
 
+	//Район
+	District string `json:"district"`
+
+	//Город/Деревня
+	City string `json:"city"`
+
 	//Почтовый индекс
 	PostalCode string `json:"postalCode"`
+
+	//Координаты
+	LatLon []float64 `json:"$latlon"`
 }
