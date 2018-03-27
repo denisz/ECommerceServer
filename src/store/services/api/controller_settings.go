@@ -14,10 +14,7 @@ func (p *ControllerSettings) Index(c *gin.Context) {
 	db := p.GetSettings()
 	var settings Settings
 
-	err := db.Get("settings", "754-3010", &settings)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-	}
+	db.Get("settings", "754-3010", &settings)
 	c.JSON(http.StatusOK, &settings)
 }
 

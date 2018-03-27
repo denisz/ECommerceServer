@@ -21,16 +21,19 @@ type ControllerLoader struct {
 //Загрузка каталога продуктов
 func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 	var err error
+
 	var collections []SheetCollection
 	err = UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCollectionsName)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	var products []SheetProduct
 	err = UnmarshalSpreadsheet(&products, p.Config.SpreadSheetID, RangeProductsName)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	var catalog = p.GetCatalog()
@@ -38,6 +41,7 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 	tx, err := catalog.Begin(true)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 	defer tx.Rollback()
 
@@ -57,6 +61,7 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		err = tx.Save(&collection)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
+			return
 		}
 	}
 
@@ -65,6 +70,7 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		err = tx.Save(&product)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
+			return
 		}
 	}
 
