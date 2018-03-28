@@ -58,6 +58,9 @@ type (
 		// Общая цена
 		TotalPrice int `json:"totalPrice"`
 
+		//Скидка
+		Discount *Discount `json:"discount"`
+
 		// Позиции
 		Positions []Position `json:"positions"`
 	}

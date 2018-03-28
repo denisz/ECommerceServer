@@ -18,6 +18,12 @@ func (p *ControllerCart) IndexPOST(c *gin.Context) {
 	})
 }
 
+/**
+	Скидки на корзину:
+	С 6 до 10 тыс 2.5%
+	С 10 до 20 тыс 5%
+	Свыше 20 тыс. 7.5%
+ */
 func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 	cart := Cart{}
 	for _, v := range session.Positions {
@@ -42,6 +48,7 @@ func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 		price := GetPriceWithDiscount(product.Price, product.Discount, v.Amount)
 		cart.Positions = append(cart.Positions, position)
 		cart.TotalPrice = cart.TotalPrice + price
+
 	}
 
 	return &cart

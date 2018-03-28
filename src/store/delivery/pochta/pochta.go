@@ -21,18 +21,16 @@ type Pochta struct {
 	Login string
 	Password string
 	AccessToken string
+	Debug bool
 }
 
-func NewPochta(Login string, Password string, AccessToken string) *Pochta {
+func NewPochta(Login string, Password string, AccessToken string, Debug bool) *Pochta {
 	return &Pochta{
 		Login,
 		Password,
 		AccessToken,
+		Debug,
 	}
-}
-
-func(p *Pochta) RemoveOrder() {
-
 }
 
 func(p *Pochta) Backlog(request *OrderRequest) (*OrderResponse, error) {
@@ -114,7 +112,6 @@ func(p *Pochta) Tariff(request *DestinationRequest) (*DestinationResponse, error
 	if resp.StatusCode != http.StatusOK {
 		responseData, _ := ioutil.ReadAll(resp.Body)
 		fmt.Printf("response: %v %v \n", string(responseData), resp.StatusCode)
-
 		return nil, errors.New("Ответ 404")
 	}
 

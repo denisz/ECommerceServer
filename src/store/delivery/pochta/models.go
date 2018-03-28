@@ -247,19 +247,19 @@ type (
 
 	DestinationResponse struct {
 		//Плата за Авиа-пересылку (коп)
-		AviaRate DestinationRate `json:"avia-rate"`
+		AviaRate *DestinationRate `json:"avia-rate"`
 		//Надбавка за отметку 'Осторожно/Хрупкое'
-		FragileRate DestinationRate `json:"fragile-rate"`
+		FragileRate *DestinationRate `json:"fragile-rate"`
 		//Плата за пересылку (коп)
-		GroundRate DestinationRate `json:"ground-rate"`
+		GroundRate *DestinationRate `json:"ground-rate"`
 		//Плата за объявленную ценность (коп)
-		InsuranceRate DestinationRate `json:"insurance-rate"`
+		InsuranceRate *DestinationRate `json:"insurance-rate"`
 		//Надбавка за уведомление о вручении
-		NoticeRate DestinationRate `json:"notice-rate"`
+		NoticeRate *DestinationRate `json:"notice-rate"`
 		//Надбавка за негабарит при весе более 10кг
-		OversizeRate DestinationRate `json:"oversize-rate"`
+		OversizeRate *DestinationRate `json:"oversize-rate"`
 		//Время доставки
-		DeliveryTime DeliveryTime `json:"delivery-time"`
+		DeliveryTime *DeliveryTime `json:"delivery-time"`
 		//Плата всего (коп)
 		TotalRate int `json:"total-rate"`
 		//Всего НДС (коп)

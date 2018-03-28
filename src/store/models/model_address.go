@@ -23,11 +23,20 @@ type Address struct {
 	//Страна
 	Country string `json:"country"`
 
-	//Район
+	//Область, регион
 	District string `json:"district"`
 
 	//Город/Деревня
 	City string `json:"city"`
+
+	//Улица
+	Street string `json:"street"`
+
+	//Дом
+	House string `json:"house"`
+
+	//Квартира
+	Room string `json:"room"`
 
 	//Почтовый индекс
 	PostalCode string `json:"postalCode"`

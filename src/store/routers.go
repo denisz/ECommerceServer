@@ -78,7 +78,8 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/cart/detail", I("/cart"), store.Cart.DetailPOST)
 		v1.POST("/cart/update", I("/cart/update"), store.Cart.UpdatePOST)
 		v1.POST("/order/checkout", I("/order/checkout"), store.Order.CheckoutPOST)
-		v1.POST("/shipment", I("/delivery"), store.Delivery.Index)
+		v1.POST("/delivery/calc/pochta", I("/delivery/calc/pochta"), store.Delivery.CalcPochtaPOST)
+		v1.POST("/delivery/calc/boxberry", I("/delivery/calc/boxberry"), store.Delivery.CalcPochtaPOST)
 
 		v1.POST("/account/login", authMiddleware.LoginHandler)
 		v1.GET("/load/catalog", I("/load/catalog"), store.Loader.CatalogFromGoogle)

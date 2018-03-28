@@ -28,23 +28,24 @@ func TestTariff(t *testing.T) {
 	token := "9a9mk3FmmR1E84cn7FHMlz9Kjm5NHAC6"
 	login := "viktor@otdeldostavok.ru"
 	password := "123456qQ"
-	pochta := NewPochta(login, password, token)
+	pochta := NewPochta(login, password, token, true)
 
 	r := &DestinationRequest{
-		IndexFrom: "430030",
-		IndexTo: "141895",
-		MailCategory: MailCategorySIMPLE,
+		Mass: 2000,
+		IndexFrom: "200961",
+		IndexTo: "430030",
 		MailType: MailTypeONLINE_PARCEL,
+		MailCategory: MailCategoryORDINARY,
+		PaymentMethod: PaymentMethodCASHLESS,
 		Dimension: Dimension{
 			Width: 10,
 			Height: 10,
 			Length: 10,
 		},
-		PaymentMethod:PaymentMethodCASHLESS,
-		Mass: 1000,
-		Fragile: true,
-		WithOrderOfNotice: false,
+		Fragile: false,
+		DeclareValue: 3000,
 		WithSimpleNotice: false,
+		WithOrderOfNotice: false,
 	}
 
 	res, err := pochta.Tariff(r)

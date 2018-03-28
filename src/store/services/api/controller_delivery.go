@@ -12,3 +12,11 @@ type ControllerDelivery struct {
 func (p *ControllerDelivery) Index(c *gin.Context) {
 
 }
+
+func (p *ControllerDelivery) CalcPochtaPOST(c *gin.Context) {
+
+}
+
+func (p *ControllerDelivery) CalcBoxberryPOST(c *gin.Context) {
+
+}
