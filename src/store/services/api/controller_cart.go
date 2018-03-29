@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/cznic/mathutil"
 	. "store/models"
+	"math"
 )
 
 type ControllerCart struct {
@@ -12,7 +13,7 @@ type ControllerCart struct {
 }
 
 func (p *ControllerCart) IndexPOST(c *gin.Context) {
-	session := readCartFromRequest(c)
+	session := ReadCartFromRequest(c)
 	c.JSON(http.StatusOK, gin.H{
 		"Positions": session.Positions,
 	})
@@ -20,9 +21,9 @@ func (p *ControllerCart) IndexPOST(c *gin.Context) {
 
 /**
 	Скидки на корзину:
-	С 6 до 10 тыс 2.5%
+	С 6 до 10 тыс 2%
 	С 10 до 20 тыс 5%
-	Свыше 20 тыс. 7.5%
+	Свыше 20 тыс. 7%
  */
 func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 	cart := Cart{}
@@ -37,18 +38,40 @@ func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 			continue
 		}
 
-		position := Position{
+		position := Position {
 			Product: product,
 			Amount: v.Amount,
-			Price: product.Price,
 			ProductSKU: v.ProductSKU,
 			Discount: product.Discount,
 		}
 
-		price := GetPriceWithDiscount(product.Price, product.Discount, v.Amount)
 		cart.Positions = append(cart.Positions, position)
-		cart.TotalPrice = cart.TotalPrice + price
+	}
 
+	cart.PriceCalculate()
+
+	if InBetween(cart.Price, 6000, 10000)  {
+		cart.Discount = &Discount {
+			Type: DiscountTypePercentage,
+			Amount: 2,
+		}
+		cart.PriceCalculate()
+	}
+
+	if InBetween(cart.Price, 10000, 20000)  {
+		cart.Discount = &Discount {
+			Type: DiscountTypePercentage,
+			Amount: 5,
+		}
+		cart.PriceCalculate()
+	}
+
+	if InBetween(cart.Price, 20000, math.MaxInt32)  {
+		cart.Discount = &Discount {
+			Type: DiscountTypePercentage,
+			Amount: 7,
+		}
+		cart.PriceCalculate()
 	}
 
 	return &cart
@@ -56,7 +79,7 @@ func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 
 // Детальная информация корзины
 func (p *ControllerCart) DetailPOST(c *gin.Context) {
-	session := readCartFromRequest(c)
+	session := ReadCartFromRequest(c)
 	c.JSON(http.StatusOK, p.GetDetailCart(session))
 }
 
@@ -66,8 +89,8 @@ func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err == nil {
 		var positions []SessionPosition
-		session := readCartFromRequest(c)
-		origPositions := appendIfNeeded(session.Positions, json.ProductSKU)
+		session := ReadCartFromRequest(c)
+		origPositions := AppendIfNeeded(session.Positions, json.ProductSKU)
 
 		for _, v := range origPositions {
 			if v.ProductSKU == json.ProductSKU {
@@ -97,7 +120,7 @@ func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 		}
 
 		session.Positions = positions
-		writeCartToResponse(c, session)
+		WriteCartToResponse(c, session)
 		c.JSON(http.StatusOK, p.GetDetailCart(session))
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)

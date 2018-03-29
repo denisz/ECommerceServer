@@ -21,6 +21,9 @@ type (
 
 		// Количество
 		Amount int `json:"amount"`
+
+		// Цена со скидкой
+		Price int `json:"price"`
 	}
 
 	// Категория
@@ -29,7 +32,7 @@ type (
 		ID int `storm:"id,increment" json:"id"`
 
 		// Имя категории
-		Name string `storm:"index" json:"name"`
+		Name string `json:"name"`
 
 		// Изображение
 		Picture string `json:"picture"`
@@ -44,10 +47,10 @@ type (
 		ID int `storm:"id,increment" json:"id"`
 
 		// Имя
-		Name string `storm:"index" json:"name"`
+		Name string `json:"name"`
 
 		// Производитель
-		Producer string `storm:"index" json:"producer"`
+		Producer string `json:"producer"`
 
 		// Лекарственная форма (т.е. таблетки, порошок, капли) и тип упаковки
 		Factor string `json:"factor"`
@@ -67,14 +70,14 @@ type (
 		// Цена
 		Price int `json:"price"`
 
+		// Скидка
+		Discount *Discount `json:"discount"`
+
 		// Категория
 		CollectionSKU string `storm:"index" json:"collectionSKU"`
 
 		// Список изображений
 		Pictures []string `json:"pictures"`
-
-		// Скидка
-		Discount *Discount `json:"discount"`
 	}
 
 	// Описание

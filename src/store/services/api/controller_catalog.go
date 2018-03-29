@@ -90,6 +90,11 @@ func (p *ControllerCatalog) ProductsPOST(c *gin.Context) {
 		return
 	}
 
+	for _, product := range products {
+		product.PriceCalculate()
+	}
+
+	//update prices
 	c.JSON(http.StatusOK, PageProducts{
 		Content: products,
 		Cursor: Cursor{
@@ -121,6 +126,7 @@ func (p *ControllerCatalog) ProductPOST(c *gin.Context) {
 		return
 	}
 
+	product.PriceCalculate()
 	c.JSON(http.StatusOK, product)
 }
 

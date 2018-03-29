@@ -2,15 +2,12 @@ package api
 
 import (
 	"testing"
-	"fmt"
-	. "store/models"
+	"github.com/stretchr/testify/assert"
+	"math"
 )
 
-func TestHelper(t *testing.T) {
-	price := GetPriceWithDiscount(2500, &Discount {
-			Type: DiscountTypePercentage,
-			Amount: 15,
-	}, 1)
 
-	fmt.Printf("%v", price)
+func TestInBetween(t *testing.T) {
+	assert.True(t, InBetween(2, 1, 3))
+	assert.True(t, InBetween(2, 1, math.MaxInt32))
 }

@@ -5,15 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/dgrijalva/jwt-go"
 	. "store/models"
-	"math"
 )
-
 
 var CartSecretKey = []byte("sfvDUPC0Cj")
 const CartCookieName = "CART_ID"
 
 
-func readCartFromRequest(c *gin.Context) *Session {
+func ReadCartFromRequest(c *gin.Context) *Session {
 	session := &Session{}
 	tokenString, err := c.Cookie(CartCookieName)
 	if err != nil {
@@ -27,7 +25,7 @@ func readCartFromRequest(c *gin.Context) *Session {
 	return session
 }
 
-func writeCartToResponse(c *gin.Context, session *Session) {
+func WriteCartToResponse(c *gin.Context, session *Session) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), session)
 	tokenString, err := token.SignedString(CartSecretKey)
 	if err != nil {
@@ -38,7 +36,7 @@ func writeCartToResponse(c *gin.Context, session *Session) {
 	c.SetCookie(CartCookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
 }
 
-func appendIfNeeded(positions []SessionPosition, productSKU string) []SessionPosition {
+func AppendIfNeeded(positions []SessionPosition, productSKU string) []SessionPosition {
 	var exists bool
 	for _, v := range positions {
 		if exists == false {
@@ -56,18 +54,10 @@ func appendIfNeeded(positions []SessionPosition, productSKU string) []SessionPos
 	return positions
 }
 
-
-func GetPriceWithDiscount(price int, discount *Discount, amount int) int {
-	if discount != nil {
-		switch discount.Type {
-		case DiscountTypePercentage:
-			sale := float64(price * discount.Amount / 100)
-			return (price -  int(math.Floor(sale))) * amount
-		case DiscountTypeFixedAmount:
-			return (price - discount.Amount) * amount
-		}
+func InBetween(i, min, max int) bool {
+	if (i >= min) && (i <= max) {
+		return true
+	} else {
+		return false
 	}
-
-	return price * amount
 }
-

@@ -56,6 +56,18 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		fmt.Printf("Drop error: %v", err)
 	}
 
+	err = tx.Init(&Collection{})
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	err = tx.Init(&Product{})
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	for _, sheetData := range collections {
 		collection := CreateCollection(sheetData)
 		err = tx.Save(&collection)

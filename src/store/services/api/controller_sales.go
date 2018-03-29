@@ -42,6 +42,10 @@ func(p *ControllerSales) IndexPOST(c *gin.Context) {
 		return
 	}
 
+	for _, product := range products {
+		product.PriceCalculate()
+	}
+
 	c.JSON(http.StatusOK, PageProducts{
 		Content: products,
 		Cursor: Cursor{

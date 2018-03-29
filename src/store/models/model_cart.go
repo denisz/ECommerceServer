@@ -37,7 +37,7 @@ type (
 
 	// Позиция
 	Position struct {
-		// Цена
+		// Цена позиции без скидки
 		Price int `json:"price"`
 
 		// Скидка
@@ -55,8 +55,8 @@ type (
 
 	// Корзина
 	Cart struct {
-		// Общая цена
-		TotalPrice int `json:"totalPrice"`
+		// Цена корзины без скидок
+		Price int `json:"price"`
 
 		//Скидка
 		Discount *Discount `json:"discount"`

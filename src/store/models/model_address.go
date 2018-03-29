@@ -42,5 +42,5 @@ type Address struct {
 	PostalCode string `json:"postalCode"`
 
 	//Координаты
-	LatLon []float64 `json:"$latlon"`
+	GeoPoint []float64 `json:"geopoint"`
 }
