@@ -26,7 +26,9 @@ func (p *ControllerCart) IndexPOST(c *gin.Context) {
 	Свыше 20 тыс. 7%
  */
 func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
-	cart := Cart{}
+	cart := Cart{
+		Address: session.Address,
+	}
 	for _, v := range session.Positions {
 		if len(v.ProductSKU) == 0 || v.Amount <= 0 {
 			continue
@@ -120,6 +122,20 @@ func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 		}
 
 		session.Positions = positions
+		WriteCartToResponse(c, session)
+		c.JSON(http.StatusOK, p.GetDetailCart(session))
+	} else {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+}
+
+//Сохраняем адрес в сессии для будующих покупок
+func (p *ControllerCart) UpdateAddressPOST(c *gin.Context) {
+	var json Address
+
+	if err := c.ShouldBindJSON(&json); err == nil {
+		session := ReadCartFromRequest(c)
+		session.Address = &json
 		WriteCartToResponse(c, session)
 		c.JSON(http.StatusOK, p.GetDetailCart(session))
 	} else {

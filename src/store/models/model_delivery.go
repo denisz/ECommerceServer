@@ -5,7 +5,7 @@ type DeliveryProvider string
 
 const (
 	// Почта России
-	DeliveryProviderRussiaPost DeliveryProvider = "russiaPostal"
+	DeliveryProviderRussiaPost DeliveryProvider = "russiapost"
 
 	// Boxberry
 	DeliveryProviderBoxberry DeliveryProvider = "boxberry"
@@ -17,7 +17,7 @@ const (
 	DeliveryMethodRapid DeliveryMethod = "rapid"
 
 	// Обычный способ доставки
-	DeliveryMethodStandart DeliveryMethod = "standart"
+	DeliveryMethodStandard DeliveryMethod = "standard"
 )
 
 type (
@@ -25,5 +25,4 @@ type (
 		Provider DeliveryProvider `json:"provider"`
 		Method DeliveryMethod `json:"method"`
 	}
-
 )

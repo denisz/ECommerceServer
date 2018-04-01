@@ -20,10 +20,16 @@ type Address struct {
 	//Улица, номер дома, корпус или строение
 	Address string `json:"address"`
 
+	//Ручной ввод
+	ManualInput bool `json:"manualInput"`
+
 	//Страна
 	Country string `json:"country"`
 
-	//Область, регион
+	//Регион
+	Region string `json:"region"`
+
+	//Область, район
 	District string `json:"district"`
 
 	//Город/Деревня

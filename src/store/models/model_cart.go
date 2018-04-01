@@ -32,6 +32,9 @@ type (
 		// Позиции
 		Positions []SessionPosition
 
+		// Адрес
+		Address *Address
+
 		jwt.StandardClaims
 	}
 
@@ -57,6 +60,9 @@ type (
 	Cart struct {
 		// Цена корзины без скидок
 		Price int `json:"price"`
+
+		//Адресс
+		Address *Address `json:"address"`
 
 		//Скидка
 		Discount *Discount `json:"discount"`
