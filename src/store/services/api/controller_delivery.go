@@ -13,7 +13,7 @@ func (p *ControllerDelivery) Index(c *gin.Context) {
 
 }
 
-func (p *ControllerDelivery) CalcPochtaPOST(c *gin.Context) {
+func (p *ControllerDelivery) CalcRussiaPostPOST(c *gin.Context) {
 
 }
 
