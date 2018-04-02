@@ -41,8 +41,14 @@ type Address struct {
 	//Дом
 	House string `json:"house"`
 
+	//Корпус
+	Building string `json:"building"`
+
 	//Квартира
 	Room string `json:"room"`
+
+	//Комментарий
+	Comment string `json:"comment"`
 
 	//Почтовый индекс
 	PostalCode string `json:"postalCode"`
