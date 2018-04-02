@@ -35,6 +35,12 @@ type (
 		// Адрес
 		Address *Address
 
+		//Доставка
+		Delivery *Delivery
+
+		//Цена доставки
+		DeliveryPrice int
+
 		jwt.StandardClaims
 	}
 
@@ -66,6 +72,12 @@ type (
 
 		//Адресс
 		Address *Address `json:"address"`
+
+		//Доставка
+		Delivery *Delivery `json:"delivery"`
+
+		//Цена доставки
+		DeliveryPrice int `json:"deliveryPrice"`
 
 		// Позиции
 		Positions []Position `json:"positions"`

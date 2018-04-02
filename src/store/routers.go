@@ -78,7 +78,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/cart/detail", I("/cart"), store.Cart.DetailPOST)
 		v1.POST("/cart/update", I("/cart/update"), store.Cart.UpdatePOST)
 		v1.POST("/cart/address", I("/cart/address"), store.Cart.UpdateAddressPOST)
-		v1.POST("/cart/calc", I("/cart/calc"), store.Cart.CalcPOST)
+		v1.POST("/cart/delivery", I("/cart/delivery"), store.Cart.UpdateDeliveryPOST)
 		v1.POST("/order/checkout", I("/order/checkout"), store.Order.CheckoutPOST)
 
 		v1.POST("/account/login", authMiddleware.LoginHandler)

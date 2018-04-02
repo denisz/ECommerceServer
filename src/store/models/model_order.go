@@ -42,7 +42,7 @@ type (
 		Payload string
 	}
 
-	// Доставка
+	// Отправка товара
 	Shipment struct {
 		// Номер для отслеживания
 		Tracking string `json:"tracking"`
@@ -73,7 +73,7 @@ type (
 		// Квитанция об оплате
 		Receipt Receipt `json:"-"`
 
-		// Информация о доставка
+		// Информация об отгрузке
 		Shipment Shipment `json:"shipment"`
 
 		// Скидка
@@ -95,7 +95,7 @@ type (
 		TotalPrice int `json:"totalPrice"`
 
 		// Цена доставки
-		ShippingPrice int `json:"shippingPrice"`
+		DeliveryPrice int `json:"deliveryPrice"`
 
 		// Комментарий клиента заказа
 		Comment string `json:"comment"`
