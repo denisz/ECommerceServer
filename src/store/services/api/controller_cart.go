@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/cznic/mathutil"
+	"store/delivery/russiaPost"
 	. "store/models"
 	"math"
 )
@@ -148,18 +149,49 @@ func (p *ControllerCart) CalcPOST(c *gin.Context) {
 	var json Delivery
 
 	if err := c.ShouldBindJSON(&json); err == nil {
-		//session := ReadCartFromRequest(c)
-		//cart := p.GetDetailCart(session)
-		//
-		//switch json.Provider {
-		//case DeliveryProviderRussiaPost:
-		//	c.JSON(http.StatusOK, )
-		//case DeliveryProviderBoxberry:
-		//	c.JSON(http.StatusOK, )
-		//default:
-		//	c.AbortWithError(http.StatusBadRequest, err)
-		//	return
-		//}
+		session := ReadCartFromRequest(c)
+		cart := p.GetDetailCart(session)
+
+		switch json.Provider {
+		case DeliveryProviderRussiaPost:
+			token := "9a9mk3FmmR1E84cn7FHMlz9Kjm5NHAC6"
+			login := "viktor@otdeldostavok.ru"
+			password := "123456qQ"
+			client := russiaPost.NewClient(login, password, token, true)
+
+			r := &russiaPost.DestinationRequest{
+				Mass: 2000,
+				IndexFrom: "200961",
+				IndexTo: cart.Address.PostalCode,
+				MailType: russiaPost.MailTypeONLINE_PARCEL,
+				MailCategory: russiaPost.MailCategoryORDINARY,
+				PaymentMethod: russiaPost.PaymentMethodCASHLESS,
+				Dimension: russiaPost.Dimension{
+					Width: 10,
+					Height: 10,
+					Length: 10,
+				},
+				Fragile: false,
+				DeclareValue: 3000,
+				WithSimpleNotice: false,
+				WithOrderOfNotice: false,
+			}
+
+			res, err := client.Tariff(r)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+
+			c.JSON(http.StatusOK, &DeliveryPayment{
+				Price: res.TotalRate + res.TotalVat,
+			})
+		case DeliveryProviderBoxberry:
+			c.JSON(http.StatusOK, "ok")
+		default:
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}

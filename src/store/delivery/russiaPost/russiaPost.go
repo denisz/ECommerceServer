@@ -24,7 +24,7 @@ type RussiaPost struct {
 	Debug bool
 }
 
-func NewRussiaPost(Login string, Password string, AccessToken string, Debug bool) *RussiaPost {
+func NewClient(Login string, Password string, AccessToken string, Debug bool) *RussiaPost {
 	return &RussiaPost{
 		Login,
 		Password,

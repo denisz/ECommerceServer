@@ -28,7 +28,7 @@ func TestTariff(t *testing.T) {
 	token := "9a9mk3FmmR1E84cn7FHMlz9Kjm5NHAC6"
 	login := "viktor@otdeldostavok.ru"
 	password := "123456qQ"
-	pochta := NewRussiaPost(login, password, token, true)
+	pochta := NewClient(login, password, token, true)
 
 	r := &DestinationRequest{
 		Mass: 2000,

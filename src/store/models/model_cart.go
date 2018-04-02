@@ -61,11 +61,11 @@ type (
 		// Цена корзины без скидок
 		Price int `json:"price"`
 
-		//Адресс
-		Address *Address `json:"address"`
-
 		//Скидка
 		Discount *Discount `json:"discount"`
+
+		//Адресс
+		Address *Address `json:"address"`
 
 		// Позиции
 		Positions []Position `json:"positions"`
