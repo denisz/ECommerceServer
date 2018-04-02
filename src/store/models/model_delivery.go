@@ -23,6 +23,6 @@ const (
 type (
 	Delivery struct {
 		Provider DeliveryProvider `json:"provider"`
-		Method DeliveryMethod `json:"method"`
+		Method   DeliveryMethod   `json:"method"`
 	}
 )

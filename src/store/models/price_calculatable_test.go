@@ -18,6 +18,20 @@ func TestProductPriceCalculate(t *testing.T) {
 	assert.Equal(t, 1000, product.Price)
 }
 
+func TestProductFloatPriceCalculate(t *testing.T) {
+	product := Product{
+		Discount: &Discount{
+			Type: DiscountTypePercentage,
+			Amount: 2.5,
+		},
+		Price: 1000,
+	}
+
+	product.PriceCalculate()
+	assert.Equal(t, 975, product.Discount.Price)
+	assert.Equal(t, 1000, product.Price)
+}
+
 func TestCartPriceCalculate(t *testing.T) {
 	product := Product{
 		Price: 1000,

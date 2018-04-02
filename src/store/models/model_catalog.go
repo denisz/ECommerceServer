@@ -20,7 +20,7 @@ type (
 		Type DiscountType `json:"type"`
 
 		// Количество
-		Amount int `json:"amount"`
+		Amount float64 `json:"amount"`
 
 		// Цена со скидкой
 		Price int `json:"price"`

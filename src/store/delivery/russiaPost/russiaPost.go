@@ -1,4 +1,4 @@
-package pochta
+package russiaPost
 
 import (
 	"net/http"
@@ -17,15 +17,15 @@ const (
 	Version = "1.0"
 )
 
-type Pochta struct {
+type RussiaPost struct {
 	Login string
 	Password string
 	AccessToken string
 	Debug bool
 }
 
-func NewPochta(Login string, Password string, AccessToken string, Debug bool) *Pochta {
-	return &Pochta{
+func NewRussiaPost(Login string, Password string, AccessToken string, Debug bool) *RussiaPost {
+	return &RussiaPost{
 		Login,
 		Password,
 		AccessToken,
@@ -33,7 +33,7 @@ func NewPochta(Login string, Password string, AccessToken string, Debug bool) *P
 	}
 }
 
-func(p *Pochta) Backlog(request *OrderRequest) (*OrderResponse, error) {
+func(p *RussiaPost) Backlog(request *OrderRequest) (*OrderResponse, error) {
 	jsonStr, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func(p *Pochta) Backlog(request *OrderRequest) (*OrderResponse, error) {
 	return &response, nil
 }
 
-func(p *Pochta) Tariff(request *DestinationRequest) (*DestinationResponse, error) {
+func(p *RussiaPost) Tariff(request *DestinationRequest) (*DestinationResponse, error) {
 	jsonStr, err := json.Marshal(request)
 	if err != nil {
 		return nil, err

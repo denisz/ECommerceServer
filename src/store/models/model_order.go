@@ -8,19 +8,19 @@ type Status int32
 
 const (
 	// Новый заказ
-	OrderStatusDraft      Status = 0
+	OrderStatusDraft Status = 0
 
 	// Формированный заказ
-	OrderStatusPending    Status = 1
+	OrderStatusPending Status = 1
 
 	// В обработке
 	OrderStatusProcessing Status = 2
 
 	// Закрыт
-	OrderStatusClosed     Status = 3
+	OrderStatusClosed Status = 3
 
 	// Отменен
-	OrderStatusCanceled   Status = 4
+	OrderStatusCanceled Status = 4
 )
 
 type (
@@ -107,18 +107,18 @@ type (
 	// История измения статуса заказа
 	History struct {
 		// Инфентификатор
-		ID         int `storm:"id,increment"`
+		ID int `storm:"id,increment"`
 
 		// Номер заказа
-		OrderID    int `json:"orderId"`
+		OrderID int `json:"orderId"`
 
 		// Индентифкатор оператора
 		OperatorID int `json:"operatorId"`
 
 		// Комментарий оператора
-		Comment    string `json:"comment"`
+		Comment string `json:"comment"`
 
 		// Статус
-		Status     string `json:"status"`
+		Status string `json:"status"`
 	}
 )

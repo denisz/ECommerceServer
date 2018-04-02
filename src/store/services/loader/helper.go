@@ -20,8 +20,8 @@ func UnmarshalSpreadsheet(out interface{}, spreadsheetId string, readRange strin
 	return
 }
 
-func percent(token string) (int, bool, bool) {
-	r, _ := regexp.Compile(`^([0-9]+)([%]?)$`)
+func percent(token string) (float64, bool, bool) {
+	r, _ := regexp.Compile(`^([0-9.]+)([%]?)$`)
 	t := r.FindStringSubmatch(token)
 
 	if len(t) == 3 {
@@ -31,14 +31,14 @@ func percent(token string) (int, bool, bool) {
 				return 0, false, false
 			}
 
-			return i, true, true
+			return float64(i), true, true
 		}
 
 		i, err := strconv.Atoi(t[1])
 		if err != nil {
 			return 0, false, false
 		}
-		return i, false, true
+		return float64(i), false, true
 	}
 
 	return 0, false, false

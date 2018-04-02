@@ -21,9 +21,9 @@ func (p *ControllerCart) IndexPOST(c *gin.Context) {
 
 /**
 	Скидки на корзину:
-	С 6 до 10 тыс 2%
+	С 6 до 10 тыс 2.5%
 	С 10 до 20 тыс 5%
-	Свыше 20 тыс. 7%
+	Свыше 20 тыс. 7.5%
  */
 func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 	cart := Cart{
@@ -142,3 +142,26 @@ func (p *ControllerCart) UpdateAddressPOST(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
 }
+
+//расчет стоимости доставки корзины
+func (p *ControllerCart) CalcPOST(c *gin.Context) {
+	var json Delivery
+
+	if err := c.ShouldBindJSON(&json); err == nil {
+		//session := ReadCartFromRequest(c)
+		//cart := p.GetDetailCart(session)
+		//
+		//switch json.Provider {
+		//case DeliveryProviderRussiaPost:
+		//	c.JSON(http.StatusOK, )
+		//case DeliveryProviderBoxberry:
+		//	c.JSON(http.StatusOK, )
+		//default:
+		//	c.AbortWithError(http.StatusBadRequest, err)
+		//	return
+		//}
+	} else {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+}
+

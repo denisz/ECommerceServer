@@ -13,10 +13,6 @@ func (p *ControllerDelivery) Index(c *gin.Context) {
 
 }
 
-func (p *ControllerDelivery) CalcRussiaPostPOST(c *gin.Context) {
-
-}
-
-func (p *ControllerDelivery) CalcBoxberryPOST(c *gin.Context) {
+func (p *ControllerDelivery) CalcRussiaPost(cart *Cart) {
 
 }

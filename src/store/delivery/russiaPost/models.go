@@ -1,4 +1,4 @@
-package pochta
+package russiaPost
 
 
 type AddressType string
