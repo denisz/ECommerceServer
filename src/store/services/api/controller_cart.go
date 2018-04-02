@@ -159,11 +159,22 @@ func (p *ControllerCart) CalcPOST(c *gin.Context) {
 			password := "123456qQ"
 			client := russiaPost.NewClient(login, password, token, true)
 
+			mailType := russiaPost.MailTypeONLINE_PARCEL
+
+			switch json.Method {
+			case DeliveryMethodEMC:
+				mailType = russiaPost.MailTypeEMS
+			case DeliveryMethodRapid:
+				mailType = russiaPost.MailTypeBUSINESS_COURIER
+			case DeliveryMethodStandard:
+				mailType = russiaPost.MailTypeONLINE_PARCEL
+			}
+
 			r := &russiaPost.DestinationRequest{
 				Mass: 2000,
 				IndexFrom: "200961",
 				IndexTo: cart.Address.PostalCode,
-				MailType: russiaPost.MailTypeONLINE_PARCEL,
+				MailType: mailType,
 				MailCategory: russiaPost.MailCategoryORDINARY,
 				PaymentMethod: russiaPost.PaymentMethodCASHLESS,
 				Dimension: russiaPost.Dimension{
