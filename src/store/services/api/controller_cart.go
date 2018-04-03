@@ -36,7 +36,7 @@ func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
 			continue
 		}
 
-		position := Position{
+		position := Position {
 			Product:    product,
 			Amount:     v.Amount,
 			ProductSKU: v.ProductSKU,
@@ -78,7 +78,7 @@ func (p *ControllerCart) GetDeliveryPrice(session *Session) int {
 
 		r := &russiaPost.DestinationRequest{
 			Mass:          2000,
-			IndexFrom:     "200961",
+			IndexFrom:     "430005",
 			IndexTo:       cart.Address.PostalCode,
 			MailType:      mailType,
 			MailCategory:  russiaPost.MailCategoryORDINARY,
@@ -164,6 +164,7 @@ func (p *ControllerCart) UpdateAddressPOST(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err == nil {
 		session := ReadCartFromRequest(c)
+		//Добавить валидацию
 		session.Address = &json
 		WriteCartToResponse(c, session)
 		c.JSON(http.StatusOK, p.GetDetailCart(session))
@@ -178,6 +179,7 @@ func (p *ControllerCart) UpdateDeliveryPOST(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&json); err == nil {
 		session := ReadCartFromRequest(c)
+		//Добавить валидацию
 		session.Delivery = &json
 		session.DeliveryPrice = p.GetDeliveryPrice(session)
 		WriteCartToResponse(c, session)
@@ -185,4 +187,14 @@ func (p *ControllerCart) UpdateDeliveryPOST(c *gin.Context) {
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
+}
+
+func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
+	//по session создаем заказ
+
+	//очищаем корзину
+
+	//бронируем количество товара
+
+	//возвращаем информацию о заказе
 }
