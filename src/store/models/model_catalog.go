@@ -94,6 +94,9 @@ type (
 		// Состав
 		Composition string `json:"composition"`
 
+		// Исследования
+		Research string `json:"research"`
+
 		// Рекомендации
 		Prescribing string `json:"prescribing"`
 	}
