@@ -26,6 +26,10 @@ type (
 	}
 
 	SheetNotation struct {
+		SKU  string `sheet:"Артикул"`
+		Composition string `sheet:"Состав"`
+		Description string `sheet:"Описание"`
+		Prescribing string `sheet:"Рекомендации"`
 	}
 
 	SheetBanner struct {
@@ -36,12 +40,19 @@ type (
 )
 
 func CreateBanner(sheetData SheetBanner) Banner {
-	banner := Banner{
+	return Banner{
 		Image: sheetData.Image,
 		Href:  sheetData.Href,
 	}
+}
 
-	return banner
+func CreateNotation(sheetData SheetNotation) Notation {
+	return Notation{
+		SKU: sheetData.SKU,
+		Description: sheetData.Description,
+		Prescribing: sheetData.Prescribing,
+		Composition: sheetData.Composition,
+	}
 }
 
 func CreateCollection(sheetData SheetCollection) Collection {

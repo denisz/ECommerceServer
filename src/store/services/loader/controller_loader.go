@@ -10,6 +10,7 @@ import (
 var (
 	RangeBannersName = "Banners"
 	RangeProductsName = "Products"
+	RangeNotationsName = "Notations"
 	RangeCollectionsName = "Collections"
 )
 
@@ -36,6 +37,13 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		return
 	}
 
+	var notations []SheetNotation
+	err = UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	var catalog = p.GetCatalog()
 
 	tx, err := catalog.Begin(true)
@@ -56,18 +64,13 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		fmt.Printf("Drop error: %v", err)
 	}
 
-	err = tx.Init(&Collection{})
+	//remove all notations
+	err = tx.Drop(&Notation{})
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		fmt.Printf("Drop error: %v", err)
 	}
 
-	err = tx.Init(&Product{})
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
+	// Категории
 	for _, sheetData := range collections {
 		collection := CreateCollection(sheetData)
 		err = tx.Save(&collection)
@@ -77,8 +80,19 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		}
 	}
 
+	// Продукты
 	for _, sheetData := range products {
 		product := CreateProduct(sheetData)
+		err = tx.Save(&product)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+	}
+
+	// Описания
+	for _, sheetData := range notations {
+		product := CreateNotation(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)

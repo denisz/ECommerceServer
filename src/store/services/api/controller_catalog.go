@@ -130,3 +130,28 @@ func (p *ControllerCatalog) ProductPOST(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
+
+func (p *ControllerCatalog) NotationPOST(c *gin.Context) {
+	sku := c.Param("sku")
+
+	if len(sku) == 0 {
+		c.AbortWithError(http.StatusBadRequest, nil)
+		return
+	}
+
+	var notation Notation
+	err := p.GetCatalog().One("SKU", sku, &notation)
+
+	if err == storm.ErrNotFound {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, notation)
+}
+

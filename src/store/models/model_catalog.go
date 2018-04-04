@@ -82,11 +82,20 @@ type (
 
 	// Описание
 	Notation struct {
+		// Индентификатор
+		ID int `storm:"id,increment" json:"id"`
+
+		// Артикул
+		SKU string `storm:"index" json:"SKU"`
+
 		// Основное описание
 		Description string `json:"description"`
 
-		// Побочные эффекты
-		BadEffect string `json:"badEffect"`
+		// Состав
+		Composition string `json:"composition"`
+
+		// Рекомендации
+		Prescribing string `json:"prescribing"`
 	}
 
 	// Страницы категорий

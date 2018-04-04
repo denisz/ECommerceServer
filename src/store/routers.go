@@ -73,6 +73,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/catalog/collection/:sku", I("/catalog/collection/:sku"), store.Catalog.CollectionPOST)
 		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), store.Catalog.ProductsPOST)
 		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), store.Catalog.ProductPOST)
+		v1.POST("/catalog/notation/:sku", I("/catalog/notation/:sku"), store.Catalog.NotationPOST)
 		v1.POST("/sales", I("/sales"), store.Sales.IndexPOST)
 		v1.POST("/cart", I("/cart"), store.Cart.IndexPOST)
 		v1.POST("/cart/detail", I("/cart"), store.Cart.DetailPOST)
