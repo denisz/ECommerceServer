@@ -78,7 +78,7 @@ func (p *ControllerCart) GetDeliveryPrice(session *Session) int {
 
 		r := &russiaPost.DestinationRequest{
 			Mass:          2000,
-			IndexFrom:     "430005",
+			IndexFrom:     "200961",
 			IndexTo:       cart.Address.PostalCode,
 			MailType:      mailType,
 			MailCategory:  russiaPost.MailCategoryORDINARY,
