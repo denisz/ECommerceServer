@@ -171,8 +171,6 @@ func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 		}
 		//цена за стандартную доставку
 		cart.DeliveryPrice = 0
-		//обновить цену
-		cart.PriceCalculate()
 		//фиксируем позиции
 		cart.Positions = readyPositions
 		//обновить цену

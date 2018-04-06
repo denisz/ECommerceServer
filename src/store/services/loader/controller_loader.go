@@ -56,18 +56,18 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 	//remove all products
 	err = tx.Drop(&Product{})
 	if err != nil {
-		fmt.Printf("Drop error: %v", err)
+		fmt.Printf("Drop error: %v \n", err)
 	}
 	//remove all collections
 	err = tx.Drop(&Collection{})
 	if err != nil {
-		fmt.Printf("Drop error: %v", err)
+		fmt.Printf("Drop error: %v \n", err)
 	}
 
 	//remove all notations
 	err = tx.Drop(&Notation{})
 	if err != nil {
-		fmt.Printf("Drop error: %v", err)
+		fmt.Printf("Drop error: %v \n", err)
 	}
 
 	tx.ReIndex(Product{})
