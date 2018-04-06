@@ -70,6 +70,10 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		fmt.Printf("Drop error: %v", err)
 	}
 
+	tx.ReIndex(Product{})
+	tx.ReIndex(Notation{})
+	tx.ReIndex(Collection{})
+
 	// Категории
 	for _, sheetData := range collections {
 		collection := CreateCollection(sheetData)

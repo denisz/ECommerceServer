@@ -38,7 +38,7 @@ type (
 		Picture string `json:"picture"`
 
 		// Артикул
-		SKU string `storm:"index" json:"SKU"`
+		SKU string `storm:"unique" json:"SKU"`
 	}
 
 	// Продукт
@@ -62,7 +62,7 @@ type (
 		Weight int `json:"weight"`
 
 		// Артикул
-		SKU string `storm:"index" json:"SKU"`
+		SKU string `storm:"unique" json:"SKU"`
 
 		// Количество
 		Quantity int `json:"quantity"`

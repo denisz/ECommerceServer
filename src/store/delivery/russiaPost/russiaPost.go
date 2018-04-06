@@ -48,8 +48,10 @@ func(p *RussiaPost) Backlog(request *OrderRequest) (*OrderResponse, error) {
 	req.Header.Set("Accept", "application/json;charset=UTF-8")
 	req.Header.Set("Content-Type", "application/json")
 
-	command, _ := http2curl.GetCurlCommand(req)
-	fmt.Println(command)
+	if p.Debug {
+		command, _ := http2curl.GetCurlCommand(req)
+		fmt.Println(command)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -78,7 +80,9 @@ func(p *RussiaPost) Backlog(request *OrderRequest) (*OrderResponse, error) {
 		}
 	}
 
-	fmt.Printf("Response: %v", response)
+	if p.Debug {
+		fmt.Printf("Response: %v", response)
+	}
 
 	return &response, nil
 }

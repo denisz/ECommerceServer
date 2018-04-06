@@ -10,8 +10,7 @@ import (
 var CartSecretKey = []byte("sfvDUPC0Cj")
 const CartCookieName = "CART_ID"
 
-
-func ReadCartFromRequest(c *gin.Context) *Session {
+func ReadSessionFromRequest(c *gin.Context) *Session {
 	session := &Session{}
 	tokenString, err := c.Cookie(CartCookieName)
 	if err != nil {
@@ -25,7 +24,7 @@ func ReadCartFromRequest(c *gin.Context) *Session {
 	return session
 }
 
-func WriteCartToResponse(c *gin.Context, session *Session) {
+func WriteSessionToResponse(c *gin.Context, session *Session) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), session)
 	tokenString, err := token.SignedString(CartSecretKey)
 	if err != nil {
@@ -36,7 +35,7 @@ func WriteCartToResponse(c *gin.Context, session *Session) {
 	c.SetCookie(CartCookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
 }
 
-func AppendIfNeeded(positions []SessionPosition, productSKU string) []SessionPosition {
+func appendIfNeeded(positions []Position, productSKU string) []Position {
 	var exists bool
 	for _, v := range positions {
 		if exists == false {
@@ -45,7 +44,7 @@ func AppendIfNeeded(positions []SessionPosition, productSKU string) []SessionPos
 	}
 
 	if exists == false {
-		positions = append(positions, SessionPosition{
+		positions = append(positions, Position{
 			ProductSKU: productSKU,
 			Amount: 0,
 		})

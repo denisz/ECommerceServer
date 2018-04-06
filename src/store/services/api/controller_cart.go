@@ -1,59 +1,35 @@
 package api
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
-	"github.com/cznic/mathutil"
-	"store/delivery/russiaPost"
 	. "store/models"
+	"github.com/cznic/mathutil"
+	"net/http"
+	"store/delivery/russiaPost"
 )
 
 type ControllerCart struct {
 	Controller
 }
 
-func (p *ControllerCart) IndexPOST(c *gin.Context) {
-	session := ReadCartFromRequest(c)
-	c.JSON(http.StatusOK, gin.H{
-		"Positions": session.Positions,
-	})
-}
-
-func (p *ControllerCart) GetDetailCart(session *Session) *Cart {
-	cart := Cart{
-		Address: session.Address,
-		Delivery: session.Delivery,
-		DeliveryPrice: session.DeliveryPrice,
-	}
-	for _, v := range session.Positions {
-		if len(v.ProductSKU) == 0 || v.Amount <= 0 {
-			continue
-		}
-
-		var product Product
-		err := p.GetCatalog().One("SKU", v.ProductSKU, &product)
-		if err != nil {
-			continue
-		}
-
-		position := Position {
-			Product:    product,
-			Amount:     v.Amount,
-			ProductSKU: v.ProductSKU,
-			Discount:   product.Discount,
-		}
-
-		cart.Positions = append(cart.Positions, position)
+func (p *ControllerCart) CreateCart(session *Session) *Cart {
+	cardID := session.CardID
+	// новая сессия
+	if cardID == 0 {
+		return &Cart{}
 	}
 
-	cart.PriceCalculate()
+	var cart Cart
+	err := p.GetStore().One("ID", cardID, &cart)
+	if err != nil {
+		return &Cart{}
+	}
 
 	return &cart
 }
 
 //расчет стоимости доставки корзины
-func (p *ControllerCart) GetDeliveryPrice(session *Session) int {
-	cart := p.GetDetailCart(session)
+func (p *ControllerCart) GetDeliveryPrice(cart *Cart) int {
 	if cart.Delivery == nil {
 		return -1
 	}
@@ -73,20 +49,22 @@ func (p *ControllerCart) GetDeliveryPrice(session *Session) int {
 		case DeliveryMethodRapid:
 			mailType = russiaPost.MailTypeBUSINESS_COURIER
 		case DeliveryMethodStandard:
-			mailType = russiaPost.MailTypeONLINE_PARCEL
+			return 0 //бесплатная доставка
 		}
 
+		dimension := cart.DimensionCalculate()
+
 		r := &russiaPost.DestinationRequest{
-			Mass:          2000,
+			Mass:          cart.WeightCalculate(),
 			IndexFrom:     "200961",
 			IndexTo:       cart.Address.PostalCode,
 			MailType:      mailType,
 			MailCategory:  russiaPost.MailCategoryORDINARY,
 			PaymentMethod: russiaPost.PaymentMethodCASHLESS,
 			Dimension: russiaPost.Dimension{
-				Width:  10,
-				Height: 10,
-				Length: 10,
+				Width:  dimension.Width,
+				Height: dimension.Height,
+				Length: dimension.Length,
 			},
 			Fragile:           false,
 			DeclareValue:      3000,
@@ -101,100 +79,220 @@ func (p *ControllerCart) GetDeliveryPrice(session *Session) int {
 
 		return PriceFloor(res.TotalRate + res.TotalVat)
 	case DeliveryProviderBoxberry:
-		return -1
+		return 0
+	case DeliveryProviderBaikal:
+		return 0
+	case DeliveryProviderPEC:
+		return 0
+	case DeliveryProviderNRG:
+		return 0
 	default:
 		return -1
 	}
 }
 
-
-// Детальная информация корзины
-func (p *ControllerCart) DetailPOST(c *gin.Context) {
-	session := ReadCartFromRequest(c)
-	c.JSON(http.StatusOK, p.GetDetailCart(session))
+func (p *ControllerCart) IndexPOST(c *gin.Context) {
+	//тек. сессия
+	session := ReadSessionFromRequest(c)
+	//корзина
+	cart := p.CreateCart(session)
+	//отправляем корзину
+	c.JSON(http.StatusOK, cart)
 }
 
-/// Обновить позицию
+func (p *ControllerCart) DetailPOST(c *gin.Context) {
+	//тек. сессия
+	session := ReadSessionFromRequest(c)
+	//корзина
+	cart := p.CreateCart(session)
+	//отправляем корзину
+	c.JSON(http.StatusOK, cart)
+}
+
 func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 	var json UpdateDTO
 
 	if err := c.ShouldBindJSON(&json); err == nil {
-		var positions []SessionPosition
-		session := ReadCartFromRequest(c)
-		origPositions := AppendIfNeeded(session.Positions, json.ProductSKU)
+		var readyPositions []Position
+		//тек. сессия
+		session := ReadSessionFromRequest(c)
+		//корзина
+		cart := p.CreateCart(session)
+		//позиции
+		cart.Positions = appendIfNeeded(cart.Positions, json.ProductSKU)
 
-		for _, v := range origPositions {
+		for _, v := range cart.Positions {
+			//пустые SKU
+			if len(v.ProductSKU) == 0 {
+				continue
+			}
 			if v.ProductSKU == json.ProductSKU {
 				switch json.Operation {
+				//добавление
 				case OperationInsert:
 					v.Amount = v.Amount + json.Amount
+					//обновление
 				case OperationUpdate:
 					v.Amount = json.Amount
+					//удаление
 				case OperationDelete:
 					v.Amount = 0
 				}
 			}
+			//пропускаем позиции с 0 количеством
+			if v.Amount <= 0 {
+				continue
+			}
+			//загружаем продукт
+			var product Product
+			err := p.GetCatalog().One("SKU", v.ProductSKU, &product)
+			//продукт недоступен
+			if err != nil {
+				continue
+			}
+			//количество не должно превышать допустимое значение
+			v.Amount = mathutil.Clamp(v.Amount, 0, product.Quantity)
+			//сохраняем продукт
+			v.Product = &product
+			//скидка на позицию
+			v.Discount = product.Discount
+			//добавляем позицию
+			readyPositions = append(readyPositions, v)
+		}
+		//указываем возможные способы доставки
+		cart.DeliveryProviders = []DeliveryProvider{
+			DeliveryProviderRussiaPost,
+			DeliveryProviderBoxberry,
+		}
+		//устанавливаем стандартный способ доставки
+		cart.Delivery = &Delivery{
+			Provider: DeliveryProviderRussiaPost,
+			Method:   DeliveryMethodStandard,
+		}
+		//цена за стандартную доставку
+		cart.DeliveryPrice = 0
+		//обновить цену
+		cart.PriceCalculate()
+		//фиксируем позиции
+		cart.Positions = readyPositions
+		//обновить цену
+		cart.PriceCalculate()
+		//получаем магазин
+		db := p.GetStore()
+		//сохранить корзину
+		err := db.Save(cart)
+		//невозможно сохранить
+		if err != nil {
+			//отрпавляем ошибку
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		//Сохраняем корзину в сессии
+		session.CardID = cart.ID
+		//отправляем сессию
+		WriteSessionToResponse(c, session)
+		//отправляем корзину
+		c.JSON(http.StatusOK, cart)
+	} else {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+}
 
-			if v.Amount > 0 {
-				if len(v.ProductSKU) == 0 {
-					continue
-				}
+func (p *ControllerCart) UpdateAddressPOST(c *gin.Context) {
+	var address Address
+	//адрес из запроса
+	if err := c.ShouldBindJSON(&address); err == nil {
+		//тек. сессия
+		session := ReadSessionFromRequest(c)
+		//корзина
+		cart := p.CreateCart(session)
+		//устанавливаем адрес
+		cart.Address = &address
+		//указываем возможные способы доставки
+		cart.DeliveryProviders = []DeliveryProvider{
+			DeliveryProviderRussiaPost,
+			DeliveryProviderBoxberry,
+		}
+		//устанавливаем стандартный способ доставки
+		cart.Delivery = &Delivery{
+			Provider: DeliveryProviderRussiaPost,
+			Method:   DeliveryMethodStandard,
+		}
+		//цена за стандартную доставку
+		cart.DeliveryPrice = 0
+		//обновить цену
+		cart.PriceCalculate()
+		//получаем магазин
+		db := p.GetStore()
+		//сохранить корзину
+		err := db.Save(cart)
+		//невозможно сохранить
+		if err != nil {
+			//отрпавляем ошибку
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		//сохраняем корзину в сессии
+		session.CardID = cart.ID
+		//отправляем сессию
+		WriteSessionToResponse(c, session)
+		//отправляем корзину
+		c.JSON(http.StatusOK, cart)
+	} else {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+}
 
-				var product Product
-				err := p.GetCatalog().One("SKU", v.ProductSKU, &product)
-				if err != nil {
-					continue
+func (p *ControllerCart) UpdateDeliveryPOST(c *gin.Context) {
+	var delivery Delivery
+	//доставка из запроса
+	if err := c.ShouldBindJSON(&delivery); err == nil {
+		//тек. сессия
+		session := ReadSessionFromRequest(c)
+		//корзина
+		cart := p.CreateCart(session)
+		//сброс доставки
+		cart.Delivery = nil
+		//поиск в доступных провайдерах
+		for _, provider := range cart.DeliveryProviders {
+			if provider == delivery.Provider {
+				//установить доставку
+				cart.Delivery = &delivery
+				if cart.Delivery.Provider == DeliveryProviderRussiaPost && cart.Delivery.Method == "" {
+					cart.Delivery.Method = DeliveryMethodStandard
 				}
-				v.Amount = mathutil.Clamp(v.Amount, 0, product.Quantity)
-				positions = append(positions, v)
 			}
 		}
-
-		session.Positions = positions
-		WriteCartToResponse(c, session)
-		c.JSON(http.StatusOK, p.GetDetailCart(session))
-	} else {
-		c.AbortWithError(http.StatusBadRequest, err)
-	}
-}
-
-//Сохраняем адрес в сессии для будующих покупок
-func (p *ControllerCart) UpdateAddressPOST(c *gin.Context) {
-	var json Address
-
-	if err := c.ShouldBindJSON(&json); err == nil {
-		session := ReadCartFromRequest(c)
-		//Добавить валидацию
-		session.Address = &json
-		WriteCartToResponse(c, session)
-		c.JSON(http.StatusOK, p.GetDetailCart(session))
-	} else {
-		c.AbortWithError(http.StatusBadRequest, err)
-	}
-}
-
-//Сохраняем выбор доставки
-func (p *ControllerCart) UpdateDeliveryPOST(c *gin.Context) {
-	var json Delivery
-
-	if err := c.ShouldBindJSON(&json); err == nil {
-		session := ReadCartFromRequest(c)
-		//Добавить валидацию
-		session.Delivery = &json
-		session.DeliveryPrice = p.GetDeliveryPrice(session)
-		WriteCartToResponse(c, session)
-		c.JSON(http.StatusOK, p.GetDetailCart(session))
+		//если нету доставки
+		if cart.Delivery == nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		//цена за доставку
+		cart.DeliveryPrice = p.GetDeliveryPrice(cart)
+		//обновить цену
+		cart.PriceCalculate()
+		//получаем магазин
+		db := p.GetStore()
+		//сохранить корзину
+		err := db.Save(cart)
+		//невозможно сохранить
+		if err != nil {
+			//отрпавляем ошибку
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		//сохраняем корзину в сессии
+		session.CardID = cart.ID
+		//отправляем сессию
+		WriteSessionToResponse(c, session)
+		//отправляем корзину
+		c.JSON(http.StatusOK, cart)
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
 }
 
 func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
-	//по session создаем заказ
 
-	//очищаем корзину
-
-	//бронируем количество товара
-
-	//возвращаем информацию о заказе
 }

@@ -10,6 +10,15 @@ const (
 	// Boxberry
 	DeliveryProviderBoxberry DeliveryProvider = "boxberry"
 
+	// Байкал
+	DeliveryProviderBaikal DeliveryProvider = "baikal"
+
+	// ПЭК
+	DeliveryProviderPEC DeliveryProvider = "pec"
+
+	// Энергия
+	DeliveryProviderNRG DeliveryProvider = "nrg"
+
 	// Курьерский способ доставки
 	DeliveryMethodEMC DeliveryMethod = "emc"
 

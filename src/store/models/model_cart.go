@@ -18,28 +18,10 @@ const (
 )
 
 type (
-	// Позиция
-	SessionPosition struct {
-		// Количество
-		Amount int `json:"amount"`
-
-		// Индентификатор
-		ProductSKU string `json:"productSKU"`
-	}
-
 	// Модель хранения корзины
 	Session struct {
-		// Позиции
-		Positions []SessionPosition
-
-		// Адрес
-		Address *Address
-
-		//Доставка
-		Delivery *Delivery
-
-		//Цена доставки
-		DeliveryPrice int
+		// Корзина
+		CardID int
 
 		jwt.StandardClaims
 	}
@@ -49,7 +31,7 @@ type (
 		// Цена позиции без скидки
 		Price int `json:"price"`
 
-		// Скидка
+		//скидка
 		Discount *Discount `json:"discount"`
 
 		// Количество
@@ -59,16 +41,25 @@ type (
 		ProductSKU string `json:"productSKU"`
 
 		// Описание продукта
-		Product Product `json:"product"`
+		Product *Product `json:"product"`
 	}
 
 	// Корзина
 	Cart struct {
+		// Индентификатор
+		ID int `storm:"id,increment" json:"id"`
+
 		// Цена корзины без скидок
 		Price int `json:"price"`
 
-		//Скидка
+		// Скидка
 		Discount *Discount `json:"discount"`
+
+		// Цена доставки
+		DeliveryPrice int `json:"deliveryPrice"`
+
+		// Конечная цена
+		TotalPrice int `json:"totalPrice"`
 
 		//Адресс
 		Address *Address `json:"address"`
@@ -76,8 +67,8 @@ type (
 		//Доставка
 		Delivery *Delivery `json:"delivery"`
 
-		//Цена доставки
-		DeliveryPrice int `json:"deliveryPrice"`
+		// Доступные способы доставки
+		DeliveryProviders []DeliveryProvider `json:"deliveryProviders"`
 
 		// Позиции
 		Positions []Position `json:"positions"`
