@@ -81,6 +81,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/cart/address", I("/cart/address"), store.Cart.UpdateAddressPOST)
 		v1.POST("/cart/delivery", I("/cart/delivery"), store.Cart.UpdateDeliveryPOST)
 		v1.POST("/cart/checkout", I("/order/checkout"), store.Cart.CheckoutPOST)
+		v1.POST("/order/:invoice", I("/order"), store.Order.OrderPOST)
 
 		v1.POST("/account/login", authMiddleware.LoginHandler)
 		v1.GET("/load/catalog", I("/load/catalog"), store.Loader.CatalogFromGoogle)
@@ -90,6 +91,8 @@ func createRouter(store *Store) http.Handler {
 	v1.Use(authMiddleware.MiddlewareFunc())
 	{
 		//v1.GET("/admin", )
+		//v1.POST("/order/cancel/:invoice", I("/order/cancel/:invoice"))
+		//v1.POST("/order/")
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

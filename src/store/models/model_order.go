@@ -49,14 +49,9 @@ type (
 
 		// Поставщик услуг
 		Provider string `json:"provider"`
-	}
 
-	// Позиция в заказе
-	Item struct {
-		// Товар
-		Product Product `json:"productID"`
-		// количество
-		Amount int `json:"amount"`
+		// Meta данные
+		Meta string `json:"meta"`
 	}
 
 	// Заказ
@@ -65,19 +60,22 @@ type (
 		ID int `storm:"id,increment" json:"id"`
 
 		// Позиции в заказе
-		Items []Item `json:"items"`
+		Positions []Position `json:"positions"`
 
 		// Адрес доставки
-		Address Address `json:"address"`
+		Address *Address `json:"address"`
+
+		// Доставка
+		Delivery *Delivery `json:"delivery"`
 
 		// Квитанция об оплате
 		Receipt Receipt `json:"-"`
 
-		// Информация об отгрузке
-		Shipment Shipment `json:"shipment"`
+		// Информация о доставке
+		Shipping Shipment `json:"shipping"`
 
 		// Скидка
-		Discount Discount `json:"discount"`
+		Discount *Discount `json:"discount"`
 
 		// Статус заказа
 		Status Status `json:"status"`
@@ -85,19 +83,22 @@ type (
 		// Владелец заказа
 		UserID int `json:"userID"`
 
+		// Корзина
+		CartID int `json:"cartID"`
+
 		// Счёт на оплату
-		Invoice int `json:"invoice"`
+		Invoice string `storm:"unique" json:"invoice"`
 
-		// Налога
-		TaxPrice int `json:"taxPrice"`
+		// Цена на товары
+		Subtotal int `json:"subtotal"`
 
-		// Цена на товары с налога
-		TotalPrice int `json:"totalPrice"`
+		// Общая цена
+		Total int `json:"total"`
 
 		// Цена доставки
 		DeliveryPrice int `json:"deliveryPrice"`
 
-		// Комментарий клиента заказа
+		// Комментарий заказа
 		Comment string `json:"comment"`
 
 		// Время создания

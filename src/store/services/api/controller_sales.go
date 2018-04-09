@@ -29,14 +29,14 @@ func(p *ControllerSales) IndexPOST(c *gin.Context) {
 
 	var products []Product
 
-	err = p.GetCatalog().Select(q.Not(q.Eq("Discount", nil))).Limit(limit).Skip(offset).Find(&products)
+	err = p.GetStore().From(NodeNamedCatalog).Select(q.Not(q.Eq("Discount", nil))).Limit(limit).Skip(offset).Find(&products)
 
 	if err != nil && err != storm.ErrNotFound {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	total, err := p.GetCatalog().Select(q.Not(q.Eq("Discount", nil))).Count(new(Product))
+	total, err := p.GetStore().From(NodeNamedCatalog).Select(q.Not(q.Eq("Discount", nil))).Count(new(Product))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

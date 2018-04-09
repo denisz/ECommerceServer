@@ -22,7 +22,7 @@ func (p *ControllerCatalog) CollectionPOST(c *gin.Context) {
 	}
 
 	var collection Collection
-	err := p.GetCatalog().One("SKU", sku, &collection)
+	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &collection)
 
 	if err == storm.ErrNotFound {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -40,7 +40,7 @@ func (p *ControllerCatalog) CollectionPOST(c *gin.Context) {
 // Список коллекции
 func (p *ControllerCatalog) CollectionsPOST(c *gin.Context) {
 	var collections []Collection
-	err := p.GetCatalog().All(&collections)
+	err := p.GetStore().From(NodeNamedCatalog).All(&collections)
 	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return
@@ -77,14 +77,14 @@ func (p *ControllerCatalog) ProductsPOST(c *gin.Context) {
 	}
 
 	var products []Product
-	err = p.GetCatalog().Find("CollectionSKU", sku, &products, storm.Limit(limit), storm.Skip(offset))
+	err = p.GetStore().From(NodeNamedCatalog).Find("CollectionSKU", sku, &products, storm.Limit(limit), storm.Skip(offset))
 
 	if err != nil && err != storm.ErrNotFound {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	total, err := p.GetCatalog().Select(q.Eq("CollectionSKU", sku)).Count(new(Product))
+	total, err := p.GetStore().From(NodeNamedCatalog).Select(q.Eq("CollectionSKU", sku)).Count(new(Product))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -114,7 +114,7 @@ func (p *ControllerCatalog) ProductPOST(c *gin.Context) {
 	}
 
 	var product Product
-	err := p.GetCatalog().One("SKU", sku, &product)
+	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &product)
 
 	if err == storm.ErrNotFound {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -140,7 +140,7 @@ func (p *ControllerCatalog) NotationPOST(c *gin.Context) {
 	}
 
 	var notation Notation
-	err := p.GetCatalog().One("SKU", sku, &notation)
+	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &notation)
 
 	if err == storm.ErrNotFound {
 		c.AbortWithStatus(http.StatusNotFound)

@@ -99,6 +99,9 @@ type (
 
 		// Рекомендации
 		Prescribing string `json:"prescribing"`
+
+		// Эффекты
+		Effects string `json:"effects"`
 	}
 
 	// Страницы категорий

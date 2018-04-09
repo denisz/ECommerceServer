@@ -44,7 +44,7 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 		return
 	}
 
-	var catalog = p.GetCatalog()
+	var catalog = p.GetStore().From(NodeNamedCatalog)
 
 	tx, err := catalog.Begin(true)
 	if err != nil {
@@ -123,7 +123,7 @@ func (p *ControllerLoader) AdsFromGoogle(c *gin.Context) {
 			settings.Banners = append(settings.Banners, CreateBanner(sheetData))
 		}
 	}
-	db := p.GetSettings()
+	db := p.GetStore().From(NodeNamedSettings)
 
 	tx, err := db.Begin(true)
 	if err != nil {

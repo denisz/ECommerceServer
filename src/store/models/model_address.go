@@ -3,13 +3,7 @@ package models
 // Адрес
 type Address struct {
 	//Имя получателя
-	FirstName string `json:"firstName"`
-
-	//Фамилия получателя
-	LastName string `json:"lastName"`
-
-	//Отчество получателя
-	MiddleName string `json:"middleName"`
+	Name string `json:"name"`
 
 	//Электронная почта
 	Email string `json:"email"`

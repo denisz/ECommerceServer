@@ -4,20 +4,19 @@ import (
 	"github.com/asdine/storm"
 )
 
+const (
+	NodeNamedStore = "Store"
+	NodeNamedCarts = "Cart"
+	NodeNamedOrders = "Order"
+	NodeNamedCatalog = "Catalog"
+	NodeNamedSettings = "Settings"
+)
+
 // Controller handle all base methods
 type Controller struct {
-	DB   *storm.DB
+	DB *storm.DB
 }
 
 func (p *Controller) GetStore() storm.Node {
-	return p.DB.From("Store")
+	return p.DB.From(NodeNamedStore)
 }
-
-func (p *Controller) GetCatalog() storm.Node {
-	return p.GetStore().From("Catalog")
-}
-
-func (p *Controller) GetSettings() storm.Node {
-	return p.GetStore().From("Settings")
-}
-

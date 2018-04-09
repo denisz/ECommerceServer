@@ -59,7 +59,7 @@ type (
 		DeliveryPrice int `json:"deliveryPrice"`
 
 		// Конечная цена
-		TotalPrice int `json:"totalPrice"`
+		Total int `json:"total"`
 
 		//Адресс
 		Address *Address `json:"address"`

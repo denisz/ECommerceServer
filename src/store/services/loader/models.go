@@ -27,9 +27,10 @@ type (
 
 	SheetNotation struct {
 		SKU  string `sheet:"Артикул"`
-		Research string `sheet:"Исследования"`
+		Effects string `sheet:"Эффекты"`
 		Composition string `sheet:"Состав"`
 		Description string `sheet:"Описание"`
+		Research string `sheet:"Исследования"`
 		Prescribing string `sheet:"Рекомендации"`
 	}
 
@@ -50,6 +51,7 @@ func CreateBanner(sheetData SheetBanner) Banner {
 func CreateNotation(sheetData SheetNotation) Notation {
 	return Notation{
 		SKU: sheetData.SKU,
+		Effects: sheetData.Effects,
 		Research: sheetData.Research,
 		Description: sheetData.Description,
 		Prescribing: sheetData.Prescribing,

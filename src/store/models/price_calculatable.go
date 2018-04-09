@@ -3,7 +3,7 @@ package models
 import "math"
 
 // обновление цены у продукта
-func(p Product) PriceCalculate() {
+func (p Product) PriceCalculate() {
 	if p.Discount != nil {
 		p.Discount.Price = PriceComputer(p.Price, p.Discount, 1)
 	}
@@ -18,7 +18,7 @@ func(p Product) PriceCalculate() {
 	Свыше 20 тыс. 7.5%
 	(продукты со скидкой) + (продукты без скидки) * (динамическую кидку)
 */
-func(p *Cart) PriceCalculate() {
+func (p *Cart) PriceCalculate() {
 	priceSale := 0
 	priceWithoutSale := 0
 	positions := p.Positions
@@ -43,44 +43,44 @@ func(p *Cart) PriceCalculate() {
 		}
 	}
 
-
-	if InBetween(priceWithoutSale, 6000 * 100, 10000 * 100)  {
-		p.Discount = &Discount {
-			Type: DiscountTypePercentage,
+	if InBetween(priceWithoutSale, 6000*100, 10000*100) {
+		p.Discount = &Discount{
+			Type:   DiscountTypePercentage,
 			Amount: 2.5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
 	}
 
-	if InBetween(priceWithoutSale, 10000 * 100, 20000 * 100)  {
-		p.Discount = &Discount {
-			Type: DiscountTypePercentage,
+	if InBetween(priceWithoutSale, 10000*100, 20000*100) {
+		p.Discount = &Discount{
+			Type:   DiscountTypePercentage,
 			Amount: 5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
 	}
 
-	if InBetween(priceWithoutSale, 20000 * 100, math.MaxInt32)  {
-		p.Discount = &Discount {
-			Type: DiscountTypePercentage,
+	if InBetween(priceWithoutSale, 20000*100, math.MaxInt32) {
+		p.Discount = &Discount{
+			Type:   DiscountTypePercentage,
 			Amount: 7.5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
 	}
 
-
 	p.Price = priceWithoutSale + priceSale
-
-	if p.Discount != nil {
-		p.TotalPrice = p.DeliveryPrice + p.Discount.Price
-	} else {
-		p.TotalPrice = p.DeliveryPrice + p.Price
-	}
+	p.Total = p.DeliveryPrice + p.Subtotal()
 }
 
+//промежуточный итог
+func (p *Cart) Subtotal() int {
+	if p.Discount != nil {
+		return p.Discount.Price
+	}
+	return p.Price
+}
 
 // обновление цены у позиции корзины
-func(p *Position) PriceCalculate() {
+func (p *Position) PriceCalculate() {
 	// продукт
 	product := p.Product
 	// цена позиции (цена продукта * общее количество)

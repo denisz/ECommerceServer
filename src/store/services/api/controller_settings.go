@@ -11,7 +11,7 @@ type ControllerSettings struct {
 }
 
 func (p *ControllerSettings) Index(c *gin.Context) {
-	db := p.GetSettings()
+	db := p.GetStore().From(NodeNamedSettings)
 	var settings Settings
 
 	db.Get("settings", "754-3010", &settings)
