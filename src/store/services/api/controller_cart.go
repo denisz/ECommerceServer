@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"github.com/oklog/ulid"
 	"store/delivery/russiaPost"
+	"crypto/rand"
 	"time"
-	"math/rand"
 )
 
 type ControllerCart struct {
@@ -16,9 +16,7 @@ type ControllerCart struct {
 }
 
 func CreateInvoice() string {
-	t := time.Unix(1000000, 0)
-	entropy := rand.New(rand.NewSource(t.UnixNano()))
-	return ulid.MustNew(ulid.Timestamp(t), entropy).String()
+	return ulid.MustNew(ulid.Timestamp(time.Now()), rand.Reader).String()
 }
 
 func (p *ControllerCart) CreateCart(session *Session) *Cart {
@@ -161,6 +159,10 @@ func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 			}
 			//количество не должно превышать допустимое значение
 			v.Amount = mathutil.Clamp(v.Amount, 0, product.Quantity)
+			//пропускаем позиции с 0 количеством
+			if v.Amount <= 0 {
+				continue
+			}
 			//сохраняем продукт
 			v.Product = &product
 			//скидка на позицию
@@ -364,7 +366,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 			return
 		}
 		//сохраняем продукт
-		err = tx.Save(&product)
+		err = catalog.Save(&product)
 		if err != nil {
 			//Todo: log
 			c.AbortWithError(http.StatusBadRequest, nil)
