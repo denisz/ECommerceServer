@@ -1,7 +1,7 @@
 package loader
 
 import (
-	"spreadsheet"
+	"store/spreadsheet"
 	"regexp"
 	"strconv"
 )
