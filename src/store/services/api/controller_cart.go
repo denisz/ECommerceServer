@@ -9,6 +9,8 @@ import (
 	"store/delivery/russiaPost"
 	"crypto/rand"
 	"time"
+	"store/utils"
+	"store/services/emails"
 )
 
 type ControllerCart struct {
@@ -287,7 +289,7 @@ func (p *ControllerCart) UpdateDeliveryPOST(c *gin.Context) {
 		err := db.Save(cart)
 		//невозможно сохранить
 		if err != nil {
-			//отрпавляем ошибку
+			//ошибка
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
@@ -383,14 +385,14 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	cart.PriceCalculate()
 	//создаем заказ
 	order := Order {
-		Status:        OrderStatusDraft,
+		Status:        OrderStatusAwaitingPayment,
 		CreatedAt:     time.Now(),
 		Positions:     positions,
-		Subtotal:      cart.Subtotal(),
+		Subtotal:      cart.Subtotal,
+		Discount:      cart.Discount,
 		Total:         cart.Total,
 		Delivery:      cart.Delivery,
 		DeliveryPrice: cart.DeliveryPrice,
-		Discount:      cart.Discount,
 		Address:       cart.Address,
 		Invoice:       CreateInvoice(),
 	}
@@ -401,9 +403,13 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	//номер заказа
+	cart.Invoice = order.Invoice
 	//сброс корзины
 	cart.Positions = []Position{}
+	//сбрасываем доставку
 	cart.Delivery = nil
+	//сбрасываем цена
 	cart.DeliveryPrice = 0
 	//сохранить корзину
 	err = carts.Save(cart)
@@ -415,6 +421,10 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	}
 	//завершаем транзакцию
 	tx.Commit()
+	//отправить письмо на почту если указана
+	//p.Emails <- emails.Receipt{ Order: order }
+	//p.Notify <- notify.Notify{ Order: order }
+	go utils.SendEmail(utils.CreateBrand(), emails.Receipt{ Order: order })
 	//сохраняем корзину в сессии
 	session.CardID = cart.ID
 	//отправляем сессию

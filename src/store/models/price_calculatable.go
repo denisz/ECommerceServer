@@ -24,7 +24,7 @@ func (p *Cart) PriceCalculate() {
 	positions := p.Positions
 
 	//сброс цены
-	p.Price = 0
+	p.Subtotal = 0
 	//сброс позиции
 	p.Positions = []Position{}
 	//сброс скидки
@@ -37,11 +37,14 @@ func (p *Cart) PriceCalculate() {
 		p.Positions = append(p.Positions, position)
 
 		if position.Discount != nil {
-			priceSale = priceSale + position.Discount.Price
+			priceSale = priceSale + position.Total
 		} else {
-			priceWithoutSale = priceWithoutSale + position.Price
+			priceWithoutSale = priceWithoutSale + position.Total
 		}
 	}
+
+	p.Subtotal = priceWithoutSale + priceSale
+	p.Total = p.DeliveryPrice + p.Subtotal
 
 	if InBetween(priceWithoutSale, 6000*100, 10000*100) {
 		p.Discount = &Discount{
@@ -49,6 +52,7 @@ func (p *Cart) PriceCalculate() {
 			Amount: 2.5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
+		p.Total = p.DeliveryPrice + p.Discount.Price
 	}
 
 	if InBetween(priceWithoutSale, 10000*100, 20000*100) {
@@ -57,6 +61,7 @@ func (p *Cart) PriceCalculate() {
 			Amount: 5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
+		p.Total = p.DeliveryPrice + p.Discount.Price
 	}
 
 	if InBetween(priceWithoutSale, 20000*100, math.MaxInt32) {
@@ -65,18 +70,8 @@ func (p *Cart) PriceCalculate() {
 			Amount: 7.5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
+		p.Total = p.DeliveryPrice + p.Discount.Price
 	}
-
-	p.Price = priceWithoutSale + priceSale
-	p.Total = p.DeliveryPrice + p.Subtotal()
-}
-
-//промежуточный итог
-func (p *Cart) Subtotal() int {
-	if p.Discount != nil {
-		return p.Discount.Price
-	}
-	return p.Price
 }
 
 // обновление цены у позиции корзины
@@ -84,10 +79,12 @@ func (p *Position) PriceCalculate() {
 	// продукт
 	product := p.Product
 	// цена позиции (цена продукта * общее количество)
-	p.Price = PriceComputer(product.Price, nil, p.Amount)
+	p.Subtotal = PriceComputer(product.Price, nil, p.Amount)
+	p.Total = p.Subtotal
 
 	if p.Discount != nil {
 		// если существует скидка у позиции, расчитываем цену со скидкой
-		p.Discount.Price = PriceComputer(p.Price, p.Discount, 1)
+		p.Discount.Price = PriceComputer(p.Subtotal, p.Discount, 1)
+		p.Total = p.Discount.Price
 	}
 }

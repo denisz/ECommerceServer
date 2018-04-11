@@ -1,26 +1,48 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
-type Status int32
+type OrderStatus int32
 
+/**
+	Awaiting Payment — customer has completed the checkout process, but payment has yet to be confirmed. Authorize only transactions that are not yet captured have this status.
+	Awaiting Fulfillment — customer has completed the checkout process and payment has been confirmed
+	Awaiting Shipment — order has been pulled and packaged and is awaiting collection from a shipping provider
+	Awaiting Pickup — order has been packaged and is awaiting customer pickup from a seller-specified location
+	Partially Shipped — only some items in the order have been shipped, due to some products being pre-order only or other reasons
+	Completed — order has been shipped/picked up, and receipt is confirmed; an Authorize only transaction has been captured; client has paid for their digital product, and their file(s) are available for download
+	Shipped — order has been shipped, but receipt has not been confirmed; seller has used the Ship Items action. A listing of all orders with a "Shipped" status can be found under the More tab of the View Orders screen.
+	Cancelled — seller has canceled an order, due to a stock inconsistency or other reasons. Stock levels will automatically update depending on your Inventory Settings. Cancelling an order will not refund the order.
+	Declined — seller has marked the order as declined for lack of manual payment, or other reasons
+	Refunded — seller has used the Refund action. A listing of all orders with a "Refunded" status can be found under the More tab of the View Orders screen.
+	Disputed — customer has initiated a dispute resolution process for the PayPal transaction that paid for the order
+	Verification Required — order on hold while some aspect (e.g. tax-exempt documentation) needs to be manually confirmed. Orders with this status must be updated manually. Capturing funds or other order actions will not automatically update the status of an order marked Verification Required.
+	Partially Refunded — seller has partially refunded the order.
+ */
 const (
-	// Новый заказ
-	OrderStatusDraft Status = 0
+	// Ожидании оплаты
+	OrderStatusAwaitingPayment OrderStatus = 0
 
-	// Формированный заказ
-	OrderStatusPending Status = 1
+	// Оплаченный заказ ждем результатов
+	OrderStatusAwaitingFulfillment OrderStatus = 1
 
-	// В обработке
-	OrderStatusProcessing Status = 2
+	// Отклонен
+	OrderStatusDeclined OrderStatus = 2
+
+	// Отправлен
+	OrderStatusAwaitingShipment OrderStatus = 3
+
+	// Доставлен
+	OrderStatusShipped OrderStatus = 4
 
 	// Закрыт
-	OrderStatusClosed Status = 3
+	OrderStatusClosed OrderStatus = 5
 
-	// Отменен
-	OrderStatusCanceled Status = 4
+	// Возврат
+	OrderStatusRefunded OrderStatus = 6
+
+	// Выполнен
+	OrderStatusCompleted OrderStatus = 7
 )
 
 type (
@@ -78,7 +100,7 @@ type (
 		Discount *Discount `json:"discount"`
 
 		// Статус заказа
-		Status Status `json:"status"`
+		Status OrderStatus `json:"status"`
 
 		// Владелец заказа
 		UserID int `json:"userID"`

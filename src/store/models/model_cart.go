@@ -29,7 +29,10 @@ type (
 	// Позиция
 	Position struct {
 		// Цена позиции без скидки
-		Price int `json:"price"`
+		Subtotal int `json:"subtotal"`
+
+		// Окончательная цена
+		Total int `json:"total"`
 
 		//скидка
 		Discount *Discount `json:"discount"`
@@ -50,7 +53,7 @@ type (
 		ID int `storm:"id,increment" json:"id"`
 
 		// Цена корзины без скидок
-		Price int `json:"price"`
+		Subtotal int `json:"subtotal"`
 
 		// Скидка
 		Discount *Discount `json:"discount"`
@@ -58,7 +61,7 @@ type (
 		// Цена доставки
 		DeliveryPrice int `json:"deliveryPrice"`
 
-		// Конечная цена
+		// Окончательная цена
 		Total int `json:"total"`
 
 		//Адресс
@@ -72,6 +75,9 @@ type (
 
 		// Позиции
 		Positions []Position `json:"positions"`
+
+		//Последний заказ
+		Invoice string `json:"invoice"`
 	}
 
 	// Модель обмена данными

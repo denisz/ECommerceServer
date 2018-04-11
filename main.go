@@ -16,7 +16,6 @@ import (
 	//https://ru.wikipedia.org/wiki/Почтовый_адрес
 
 	//"github.com/gorilla/mux"
-	//github.com/ernado-legacy/gorobokassa
 	//https://github.com/Shopify/themekit/blob/9b04cd2c921985db4cc34ab33805c9aa21cc0b50/docs/_sass/marketing_assets/modules/_forms.scss
 
 	"log"

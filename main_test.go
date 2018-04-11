@@ -2,74 +2,73 @@ package main
 
 import (
 	"testing"
-	"github.com/asdine/storm"
-	"fmt"
-	"store/services/api/catalog"
-	"gopkg.in/gomail.v2"
 	"github.com/matcornic/hermes"
-	"github.com/asdine/storm/q"
+	"io/ioutil"
+	"store/services/emails/themes"
 )
 
-func TestFindSales(t *testing.T) {
-	db, err := storm.Open("store.db")
-	defer db.Close()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	c := db.From("store")
-	query := c.Select(q.Not(q.Eq("Discount", nil)))
-
-	var products []catalog.Product
-	err = query.Find(&products)
-	if err != nil {
-		t.Error(err)
-	}
-
-	fmt.Printf("%d ; %v",len(products), products)
-}
-
-func _TestSendHermes(t *testing.T) {
+func TestSendHermes(t *testing.T) {
+	// Configure hermes by setting a theme and your product info
 	// Configure hermes by setting a theme and your product info
 	h := hermes.Hermes{
 		// Optional Theme
-		Theme: new(hermes.Flat),
+		Theme: new(themes.Default),
 		Product: hermes.Product{
 			// Appears in header & footer of e-mails
-			Name: "Hermes",
-			Link: "https://example-hermes.com/",
+			Name: "Dark Waters",
+			Link: "http://95.213.236.60",
 			// Optional product logo
-			Logo: "http://www.duchess-france.org/wp-content/uploads/2016/01/gopher.png",
+			Logo: "http://95.213.236.60/img/ic_brand.png",
+			Copyright: "Copyright",
 		},
 	}
 
 	email := hermes.Email{
 		Body: hermes.Body{
-			Name: "Jon Snow",
+			Greeting: "Здравствуйте",
+			Name: "Игорь",
+			Signature: "С уважением",
 			Intros: []string{
-				"Welcome to Hermes! We're very excited to have you on board.",
+				"Благодарим Вас за заказ в интернет-магазине Dark Waters",
+			},
+			Dictionary: []hermes.Entry{
+				{Key: "Номер вашего заказа", Value: "1000"},
+				{Key: "Статус заказа", Value: "В обработке" },
+				{Key: "Способ доставки", Value: "Почта России - Стандарт"},
+				{Key: "Адрес доставки", Value: "430030, Россия, Республика Мордовия, Саранск, улица Полежаева, 120 "},
 			},
 			Table: hermes.Table{
 				Data: [][]hermes.Entry{
 					{
-						{Key: "Item", Value: "Golang"},
-						{Key: "Description", Value: "Open source programming language that makes it easy to build simple, reliable, and efficient software"},
-						{Key: "Price", Value: "$10.99"},
+						{Key: "Позиция", Value: "Epistane"},
+						{Key: "Количество", Value: "3"},
+						{Key: "Артикул", Value: "PG_AB_EPI_90"},
+						{Key: "Цена", Value: "10.99 руб."},
 					},
 					{
-						{Key: "Item", Value: "Hermes"},
-						{Key: "Description", Value: "Programmatically create beautiful e-mails using Golang."},
-						{Key: "Price", Value: "$1.99"},
+						{Key: "Позиция", Value: "Hermes"},
+						{Key: "Количество", Value: "3"},
+						{Key: "Артикул", Value: "PG_AB_EPI_90"},
+						{Key: "Цена", Value: "1.99 руб."},
+					},
+					{
+						{Key: "Позиция", Value: ""},
+						{Key: "Количество", Value: ""},
+						{Key: "Итого", Value: "Сумма к оплате:"},
+						{Key: "Цена", Value: "100 руб."},
 					},
 				},
 				Columns: hermes.Columns{
 					CustomWidth: map[string]string{
-						"Item":  "20%",
-						"Price": "15%",
+						"Позиция":  "20%",
+						"Цена": "15%",
+						"Артикул": "15%",
+						"Количество": "15%",
+						"Итого": "85%",
 					},
 					CustomAlignment: map[string]string{
-						"Price": "right",
+						"Цена": "right",
+						"Итого": "right",
 					},
 				},
 			},
@@ -78,8 +77,8 @@ func _TestSendHermes(t *testing.T) {
 					Instructions: "To get started with Hermes, please click here:",
 					Button: hermes.Button{
 						Color: "#22BC66", // Optional action button color
-						Text:  "Confirm your account",
-						Link:  "https://hermes-example.com/confirm?token=d9729feb74992cc3482b350163a1a010",
+						Text:  "Продолжить покупки",
+						Link:  "http://95.213.236.60",
 					},
 				},
 			},
@@ -95,21 +94,25 @@ func _TestSendHermes(t *testing.T) {
 		panic(err) // Tip: Handle error with something else than a panic ;)
 	}
 
-	m := gomail.NewMessage()
-	m.SetHeader("From", "d.zaycev@bytexgames.ru")
-	m.SetHeader("To", "denisxy12@gmail.com")
-	//Cc: (копия, carbon copy) — вторичные получатели письма, которым направляется копия. Они видят и знают о наличии друг друга.
-	//m.SetAddressHeader("Cc", "d.zaycev@bytexgames.ru", "Denis")
-	//Bcc: (скрытая копия, blind carbon copy) — скрытые получатели письма, чьи адреса не показываются другим получателям.
-	//m.SetAddressHeader("Bcc", "d.zaycev@bytexgames.ru", "Denis")
-	m.SetHeader("Subject", "Hello!")
-	m.SetBody("text/html", emailBody)
-	//m.Attach("/home/Alex/lolcat.jpg")
-
-	d := gomail.NewDialer("smtp.yandex.ru", 465, "d.zaycev@bytexgames.ru", "2Q2sminvc")
-
-	if err := d.DialAndSend(m); err != nil {
-		t.Error(err)
+	err = ioutil.WriteFile("/tmp/dat1", []byte(emailBody), 0644)
+	if err != nil {
+		panic(err) // Tip: Handle error with something else than a panic ;)
 	}
 
+	//m := gomail.NewMessage()
+	//m.SetHeader("From", "d.zaycev@bytexgames.ru")
+	//m.SetHeader("To", "denisxy12@gmail.com")
+	////Cc: (копия, carbon copy) — вторичные получатели письма, которым направляется копия. Они видят и знают о наличии друг друга.
+	////m.SetAddressHeader("Cc", "d.zaycev@bytexgames.ru", "Denis")
+	////Bcc: (скрытая копия, blind carbon copy) — скрытые получатели письма, чьи адреса не показываются другим получателям.
+	////m.SetAddressHeader("Bcc", "d.zaycev@bytexgames.ru", "Denis")
+	//m.SetHeader("Subject", "Hello!")
+	//m.SetBody("text/html", emailBody)
+	////m.Attach("/home/Alex/lolcat.jpg")
+	//
+	//d := gomail.NewDialer("smtp.yandex.ru", 465, "d.zaycev@bytexgames.ru", "2Q2sminvc")
+	//
+	//if err := d.DialAndSend(m); err != nil {
+	//	t.Error(err)
+	//}
 }
