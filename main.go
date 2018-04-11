@@ -9,7 +9,7 @@ import (
 	//"github.com/gorilla/csrf"
 	//import "gopkg.in/hlandau/passlib.v1"
 	//go get -u github.com/matcornic/hermes
-	"github.com/jasonlvhit/gocron"
+	//"github.com/jasonlvhit/gocron"
 
 	// "github.com/dimiro1/health"
 	//https://medium.com/southbridge/nginx-as-reverse-proxy-a62815edd8c1
@@ -25,18 +25,11 @@ import (
 	"time"
 	"net/http"
 	"store"
-	"fmt"
 )
-
-func task() {
-	fmt.Println("hello")
-}
 
 func main() {
 	publicUrl := os.Getenv("PUBLIC_URL")
 
-	gocron.Every(1).Day().At("11:20").Do(task)
-	gocron.Start()
 
 	wait := time.Second * 1
 

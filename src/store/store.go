@@ -5,9 +5,11 @@ import (
 	"context"
 	"net/http"
 	"github.com/asdine/storm"
+	"github.com/jasonlvhit/gocron"
 	"store/services/api"
 	"store/services/loader"
 	. "store/models"
+	"fmt"
 )
 
 type Store struct {
@@ -41,11 +43,18 @@ func createShutdown(db *storm.DB) func(ctx context.Context) {
 	}
 }
 
+func task() {
+	fmt.Println("hello")
+}
+
 func NewStore(config *Config) (http.Handler, func(ctx context.Context), error) {
 	db, err := storm.Open("store.db")
 	if err != nil {
 		return nil, nil, err
 	}
+
+	gocron.Every(1).Day().At("11:20").Do(task)
+	gocron.Start()
 
 	s := &Store{
 		Config: config,

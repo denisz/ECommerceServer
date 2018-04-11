@@ -63,6 +63,10 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/jasonlvhit/gocron"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/kirillDanshin/dlog"
 
 [[constraint]]

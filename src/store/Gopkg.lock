@@ -138,6 +138,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/jasonlvhit/gocron"
+  packages = ["."]
+  revision = "54194c9749d48b073c9aeb2c787b6882e95dd0cd"
+
+[[projects]]
+  branch = "master"
   name = "github.com/jaytaylor/html2text"
   packages = ["."]
   revision = "64a82a6d140778896f13303121a49d8cb8007034"
@@ -419,6 +425,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "55c624a4e03d4c6ef1261f1de5473169415dd143412b53b87c399e404707a662"
+  inputs-digest = "01375d71017e66267c197de110c0552869bec0bedcbbe0926b0d0f6e477a755f"
   solver-name = "gps-cdcl"
   solver-version = 1
