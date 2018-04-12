@@ -114,11 +114,14 @@ type (
 		// Цена на товары
 		Subtotal int `json:"subtotal"`
 
-		// Общая цена
-		Total int `json:"total"`
+		//Цена товаров
+		ProductPrice int `json:"productPrice"`
 
 		// Цена доставки
 		DeliveryPrice int `json:"deliveryPrice"`
+
+		// Общая цена
+		Total int `json:"total"`
 
 		// Комментарий заказа
 		Comment string `json:"comment"`

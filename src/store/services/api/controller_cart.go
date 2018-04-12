@@ -140,10 +140,10 @@ func (p *ControllerCart) UpdatePOST(c *gin.Context) {
 				//добавление
 				case OperationInsert:
 					v.Amount = v.Amount + json.Amount
-				//обновление
+					//обновление
 				case OperationUpdate:
 					v.Amount = json.Amount
-				//удаление
+					//удаление
 				case OperationDelete:
 					v.Amount = 0
 				}
@@ -384,12 +384,13 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	//обновить цену
 	cart.PriceCalculate()
 	//создаем заказ
-	order := Order {
+	order := Order{
 		Status:        OrderStatusAwaitingPayment,
 		CreatedAt:     time.Now(),
 		Positions:     positions,
 		Subtotal:      cart.Subtotal,
 		Discount:      cart.Discount,
+		ProductPrice:  cart.ProductPrice,
 		Total:         cart.Total,
 		Delivery:      cart.Delivery,
 		DeliveryPrice: cart.DeliveryPrice,
@@ -424,7 +425,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	//отправить письмо на почту если указана
 	//p.Emails <- emails.Receipt{ Order: order }
 	//p.Notify <- notify.Notify{ Order: order }
-	go utils.SendEmail(utils.CreateBrand(), emails.Receipt{ Order: order })
+	go utils.SendEmail(utils.CreateBrand(), emails.Receipt{Order: order})
 	//сохраняем корзину в сессии
 	session.CardID = cart.ID
 	//отправляем сессию
