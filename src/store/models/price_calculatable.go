@@ -44,7 +44,6 @@ func (p *Cart) PriceCalculate() {
 	}
 
 	p.Subtotal = priceWithoutSale + priceSale
-	p.Total = p.DeliveryPrice + p.Subtotal
 
 	if InBetween(priceWithoutSale, 6000*100, 10000*100) {
 		p.Discount = &Discount{
@@ -52,7 +51,7 @@ func (p *Cart) PriceCalculate() {
 			Amount: 2.5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
-		p.Total = p.DeliveryPrice + p.Discount.Price
+		p.Subtotal = p.Discount.Price
 	}
 
 	if InBetween(priceWithoutSale, 10000*100, 20000*100) {
@@ -61,7 +60,7 @@ func (p *Cart) PriceCalculate() {
 			Amount: 5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
-		p.Total = p.DeliveryPrice + p.Discount.Price
+		p.Subtotal = p.Discount.Price
 	}
 
 	if InBetween(priceWithoutSale, 20000*100, math.MaxInt32) {
@@ -70,8 +69,10 @@ func (p *Cart) PriceCalculate() {
 			Amount: 7.5,
 		}
 		p.Discount.Price = priceSale + PriceComputer(priceWithoutSale, p.Discount, 1)
-		p.Total = p.DeliveryPrice + p.Discount.Price
+		p.Subtotal = p.Discount.Price
 	}
+
+	p.Total = p.DeliveryPrice + p.Subtotal
 }
 
 // обновление цены у позиции корзины
@@ -80,11 +81,12 @@ func (p *Position) PriceCalculate() {
 	product := p.Product
 	// цена позиции (цена продукта * общее количество)
 	p.Subtotal = PriceComputer(product.Price, nil, p.Amount)
-	p.Total = p.Subtotal
 
 	if p.Discount != nil {
 		// если существует скидка у позиции, расчитываем цену со скидкой
 		p.Discount.Price = PriceComputer(p.Subtotal, p.Discount, 1)
-		p.Total = p.Discount.Price
+		p.Subtotal = p.Discount.Price
 	}
+
+	p.Total = p.Subtotal
 }

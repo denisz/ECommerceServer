@@ -34,6 +34,13 @@ func (p Receipt) Email() hermes.Email {
 	table = append(table, []hermes.Entry{
 		{Key: "Позиция", Value: ""},
 		{Key: "Количество", Value: ""},
+		{Key: "Итого", Value: "Цена товара:"},
+		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.Subtotal / 100)},
+	})
+
+	table = append(table, []hermes.Entry{
+		{Key: "Позиция", Value: ""},
+		{Key: "Количество", Value: ""},
 		{Key: "Итого", Value: "Цена доставки:"},
 		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.DeliveryPrice / 100)},
 	})
