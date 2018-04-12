@@ -144,4 +144,22 @@ type (
 		// Статус
 		Status string `json:"status"`
 	}
+
+	// Страницы заказов
+	PageOrders struct {
+		Content []Order `json:"content"`
+
+		// Курсор
+		Cursor
+	}
+
+	// Страницы заказов
+	PageHistory struct {
+		Content []History `json:"content"`
+
+		// Курсор
+		Cursor
+	}
+
+
 )

@@ -31,7 +31,7 @@ func createRouter(store *Store) http.Handler {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{store.Config.ServerURL},
 		AllowMethods:     []string{"GET", "POST", "PUT", "HEAD", "PATCH", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
@@ -43,7 +43,8 @@ func createRouter(store *Store) http.Handler {
 		Timeout:    time.Hour,
 		MaxRefresh: time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
-			if userId == "admin" && password == "admin" {
+			//TODO:Добавить нормальную проверку пользователя
+			if userId == "test" && password == "test" {
 				return userId, true
 			}
 
@@ -81,7 +82,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/cart/address", I("/cart/address"), store.Cart.UpdateAddressPOST)
 		v1.POST("/cart/delivery", I("/cart/delivery"), store.Cart.UpdateDeliveryPOST)
 		v1.POST("/cart/checkout", I("/order/checkout"), store.Cart.CheckoutPOST)
-		v1.POST("/order/:invoice", I("/order"), store.Order.OrderPOST)
+		v1.POST("/order/check/:invoice", I("/order"), store.Order.OrderDetailPOST)
 
 		v1.POST("/account/login", authMiddleware.LoginHandler)
 		v1.GET("/load/catalog", I("/load/catalog"), store.Loader.CatalogFromGoogle)
@@ -93,6 +94,8 @@ func createRouter(store *Store) http.Handler {
 		//v1.GET("/admin", )
 		//v1.POST("/order/cancel/:invoice", I("/order/cancel/:invoice"))
 		//v1.POST("/order/")
+		v1.POST("/account/me", I("/account/me"), store.Account.MePOST)
+		v1.POST("/order/list", I("/order/list"), store.Order.OrderListPOST)
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

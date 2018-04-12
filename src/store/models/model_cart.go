@@ -58,6 +58,9 @@ type (
 		// Скидка
 		Discount *Discount `json:"discount"`
 
+		//Цена товаров
+		ProductPrice int `json:"productPrice"`
+
 		// Цена доставки
 		DeliveryPrice int `json:"deliveryPrice"`
 

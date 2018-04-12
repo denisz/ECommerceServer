@@ -7,18 +7,18 @@ import (
 	. "store/models"
 )
 
-var CartSecretKey = []byte("sfvDUPC0Cj")
-const CartCookieName = "CART_ID"
+var SessionSecretKey = []byte("sfvDUPC0Cj") //TODO: REMOVE
+const SessionCookieName = "SESSION_ID"
 
 func ReadSessionFromRequest(c *gin.Context) *Session {
 	session := &Session{}
-	tokenString, err := c.Cookie(CartCookieName)
+	tokenString, err := c.Cookie(SessionCookieName)
 	if err != nil {
 		return session
 	}
 
 	jwt.ParseWithClaims(tokenString, session, func(token *jwt.Token) (interface{}, error) {
-		return CartSecretKey, nil
+		return SessionSecretKey, nil
 	})
 
 	return session
@@ -26,13 +26,13 @@ func ReadSessionFromRequest(c *gin.Context) *Session {
 
 func WriteSessionToResponse(c *gin.Context, session *Session) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), session)
-	tokenString, err := token.SignedString(CartSecretKey)
+	tokenString, err := token.SignedString(SessionSecretKey)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.SetCookie(CartCookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
+	c.SetCookie(SessionCookieName, tokenString, 7 * 24 * 3600, "/","",false, true)
 }
 
 func appendIfNeeded(positions []Position, productSKU string) []Position {

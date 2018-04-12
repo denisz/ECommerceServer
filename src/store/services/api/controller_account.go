@@ -12,7 +12,6 @@ type ControllerAccount struct {
 	Controller
 }
 
-
 func (p *ControllerAccount) Index(w http.ResponseWriter, r *http.Request) {
 
 }
@@ -46,6 +45,11 @@ func (p *ControllerAccount) RegisterPOST(c *gin.Context) {
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
+}
+
+// Тек. пользователь
+func (p *ControllerAccount) MePOST(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H {"user": "me"})
 }
 
 // Отправить пароль на почту пользователя

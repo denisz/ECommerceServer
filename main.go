@@ -35,6 +35,10 @@ func main() {
 
 	s, shutdownStore, err := store.NewStore(&store.Config{
 		ServerURL: publicUrl,
+		HR: []string {
+			"denisxy12@gmail.com",
+			"kosmo_polit@rambler.ru",
+		},
 	})
 
 	if err != nil {

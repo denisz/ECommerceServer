@@ -9,6 +9,8 @@ type (
 		Email       string    `storm:"index" json:"-"`
 		Password    string    `storm:"index" json:"-"`
 		Group       string    `storm:"index" json:"-"`
+		FirstName   string    `json:"firstName"`
+		LastName    string    `json:"lastName"`
 		CreatedAt   time.Time `json:"createdAt"`
 		AddressBook []Address `json:"addressBook"`
 	}
@@ -35,3 +37,5 @@ type (
 	4. Человек регистрируется
 	 */
 )
+
+//добавить админов

@@ -4,7 +4,7 @@ package models
 func (p OrderStatus) Format() string {
 	switch p {
 	case OrderStatusAwaitingPayment:
-		return "Создан. Ожидает оплаты"
+		return "Принят. Ожидает оплаты"
 	case OrderStatusClosed:
 		return "Закрыт"
 	case OrderStatusCompleted:

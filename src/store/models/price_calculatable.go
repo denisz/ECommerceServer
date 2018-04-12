@@ -43,6 +43,7 @@ func (p *Cart) PriceCalculate() {
 		}
 	}
 
+	p.ProductPrice = priceWithoutSale + priceSale
 	p.Subtotal = priceWithoutSale + priceSale
 
 	if InBetween(priceWithoutSale, 6000*100, 10000*100) {
