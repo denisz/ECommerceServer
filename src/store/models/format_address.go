@@ -14,8 +14,13 @@ func (p *Address) Format() string {
 			p.Street,
 			p.House,
 			p.Room,
+			p.Comment,
 		}, ", ")
 	}
 
-	return p.Address
+	return strings.Join([]string{
+		p.PostalCode,
+		p.Address,
+		p.Comment,
+	}, ", ")
 }

@@ -27,6 +27,7 @@ func CreateBrand() hermes.Hermes {
 		Product: hermes.Product{
 			// Appears in header & footer of e-mails
 			Name: "Dark Waters",
+			Copyright: "Copyright © 2018 Dark Waters. All rights reserved.",
 			Link: "http://95.213.236.60",
 			// Optional product logo
 			Logo: "http://95.213.236.60/img/ic_brand.png",
@@ -53,6 +54,10 @@ func SendEmails(h hermes.Hermes, email Email, recipients []string) error {
 	}
 
 	return nil
+}
+
+func DrawEmail(h hermes.Hermes, email Email) (string, error) {
+	return h.GenerateHTML(email.Email())
 }
 
 func SendEmail(h hermes.Hermes, email Email) error {

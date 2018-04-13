@@ -24,30 +24,22 @@ func (p Receipt) Email() hermes.Email {
 
 	for _, position := range p.Order.Positions {
 		table = append(table, []hermes.Entry{
-			{Key: "Позиция", Value: position.Product.Name},
-			{Key: "Количество", Value: fmt.Sprintf("%d", position.Amount)},
-			{Key: "Артикул", Value:  position.Product.SKU},
+			{Key: "Позиция", Value: fmt.Sprintf("%s x %d", position.Product.Name, position.Amount )},
 			{Key: "Цена", Value: fmt.Sprintf("%d руб.", position.Total / 100)},
 		})
 	}
 
 	table = append(table, []hermes.Entry{
-		{Key: "Позиция", Value: ""},
-		{Key: "Количество", Value: ""},
 		{Key: "Итого", Value: "Цена товара:"},
-		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.Subtotal / 100)},
+		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.ProductPrice / 100)},
 	})
 
 	table = append(table, []hermes.Entry{
-		{Key: "Позиция", Value: ""},
-		{Key: "Количество", Value: ""},
 		{Key: "Итого", Value: "Цена доставки:"},
 		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.DeliveryPrice / 100)},
 	})
 
 	table = append(table, []hermes.Entry{
-		{Key: "Позиция", Value: ""},
-		{Key: "Количество", Value: ""},
 		{Key: "Итого", Value: "Итого к оплате:"},
 		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.Total / 100)},
 	})
@@ -61,25 +53,20 @@ func (p Receipt) Email() hermes.Email {
 				"Благодарим Вас за заказ в интернет-магазине Dark Waters",
 			},
 			Dictionary: []hermes.Entry{
-				{Key: "Номер вашего заказа", Value: p.Order.Invoice},
+				{Key: "Номер заказа", Value: p.Order.Invoice},
 				{Key: "Статус заказа", Value: p.Order.Status.Format()},
-				{Key: "Способ доставки", Value: p.Order.Delivery.Format()},
-				{Key: "Адрес доставки", Value: p.Order.Address.Format()},
+				{Key: "Доставка", Value: p.Order.Delivery.Format()},
+				{Key: "Адрес", Value: p.Order.Address.Format()},
 			},
 			Table: hermes.Table{
 				Data: table,
 				Columns: hermes.Columns{
 					CustomWidth: map[string]string{
-						"Позиция":    "20%",
-						"Цена":       "15%",
-						"Артикул":    "15%",
-						"Количество": "15%",
-						"Итого":      "85%",
+						"Цена":  "100px",
 					},
 					CustomAlignment: map[string]string{
-						"Цена":  "right",
+						"Цена":  "left",
 						"Итого": "right",
-						"Количество": "center",
 					},
 				},
 			},
@@ -93,9 +80,31 @@ func (p Receipt) Email() hermes.Email {
 					},
 				},
 			},
-			Outros: []string{
-				"Тут будет текст с оплатой",
-			},
+			FreeMarkdown: `
+**Способы оплаты**
+
+-   кошелек Яндекс Денег № 410014272453392
+-   Qiwiкошелек  № 410014272453392
+-   Web.Money кошелек  № 410014272453392
+-   банковская карта № 4279-3100-1816-4136 (СберБанк)
+
+Если вы оплачиваете заказ через электронный кошелек - обязательно укажите номер вашего заказа в комментарии.  
+Если оплачиваете через терминал, кассу банка или банкомат - обязательно сделайте скан/фото чека.
+
+**Платежные реквизиты действительны в течении  суток с момента оформления заказа!**  
+При задержке оплаты уточняйте реквизиты на почте [admin@real-pump.com](https://mail.rambler.ru/#/compose/to=admin%2540real-pump.com)
+
+**Подтверждение оплаты**
+После совершения оплаты, ответьте на письмо или напишите нам письмо на почту [admin@real-pump.com](https://mail.rambler.ru/#/compose/to=admin%2540real-pump.com), в котором укажите:
+
+- способ оплаты
+- скан/фото чека об оплате.
+- Номер вашего заказа или фамилию
+
+После подтверждения оплаты в течение нескольких часов мы сформируем вашу посылку и отправим по указанному адресу.  
+
+После отправки заказа мы вышлем трек-код для слежения за посылкой на Ваш email.`,
+			Outros: []string{},
 		},
 	}
 }

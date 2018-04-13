@@ -23,13 +23,19 @@ func (dt *Default) HTMLTemplate() string {
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
     }
+	html {
+		background-color: #fff;
+	}
     body {
       width: 100% !important;
       height: 100%;
       margin: 0;
+      padding: 0;
+      border:0; 
+      outline:0;
       line-height: 1.4;
-      background-color: #0d253a;
-      color: #74787E;
+      background-color: #fff;
+      color: #000;
       -webkit-text-size-adjust: none;
     }
     a {
@@ -40,8 +46,7 @@ func (dt *Default) HTMLTemplate() string {
     .email-wrapper {
       width: 100%;
       margin: 0;
-      padding: 0;
-      background-color: #0d253a;
+      padding: 0; 
     }
     .email-content {
       width: 100%;
@@ -69,6 +74,10 @@ func (dt *Default) HTMLTemplate() string {
     .email-logo {
       max-height: 130px;
     }
+    /* Footer ------------------------------ */
+	.email-footer {
+		background-color: #0d253a;
+	}
     /* Body ------------------------------ */
     .email-body {
       width: 100%;
@@ -79,18 +88,18 @@ func (dt *Default) HTMLTemplate() string {
       background-color: #FFF;
     }
     .email-body_inner {
-      max-width: 640px;
+      //max-width: 640px;
       //margin: 0 auto;
       padding: 0;
     }
-    .email-footer {
+    .email-footer_inner {
       width: 570px;
       margin: 0 auto;
       padding: 0;
       background-color: rgb(13, 37, 58);
       text-align: center;
     }
-    .email-footer p {
+    .email-footer_inner p {
       color: #eaeaea;
     }
     .body-action {
@@ -132,7 +141,7 @@ func (dt *Default) HTMLTemplate() string {
       word-break: break-all;
     }
     .content-cell {
-      padding: 35px;
+      padding: 10px;
     }
     .align-right {
       text-align: right;
@@ -180,7 +189,7 @@ func (dt *Default) HTMLTemplate() string {
     }
     p {
       margin-top: 0;
-      color: #74787E;
+      color: #000;
       font-size: 16px;
       line-height: 1.5em;
     }
@@ -205,7 +214,7 @@ func (dt *Default) HTMLTemplate() string {
     }
     td {
       padding: 10px 5px;
-      color: #74787E;
+      color: #000;
       font-size: 15px;
       line-height: 18px;
     }
@@ -217,7 +226,7 @@ func (dt *Default) HTMLTemplate() string {
     .data-wrapper {
       width: 100%;
       margin: 0;
-      padding: 35px 0;
+      padding: 5px 0;
     }
     .data-table {
       width: 100%;
@@ -236,7 +245,7 @@ func (dt *Default) HTMLTemplate() string {
     }
     .data-table td {
       padding: 10px 5px;
-      color: #74787E;
+      color: #000;
       font-size: 15px;
       line-height: 18px;
     }
@@ -256,9 +265,9 @@ func (dt *Default) HTMLTemplate() string {
     /*Media Queries ------------------------------ */
     @media only screen and (max-width: 600px) {
       .email-body_inner,
-      .email-footer {
+      .email-footer_inner {
         width: 100% !important;
-      }
+      } 
     }
   </style>
 </head>
@@ -295,9 +304,10 @@ func (dt *Default) HTMLTemplate() string {
                           {{ end }}
                         {{ end }}
                     {{ end }}
+
                     {{ if (ne .Email.Body.FreeMarkdown "") }}
                       {{ .Email.Body.FreeMarkdown.ToHTML }}
-                    {{ else }}
+                    {{ end }}
 
                       {{ with .Email.Body.Dictionary }} 
                         {{ if gt (len .) 0 }}
@@ -380,8 +390,7 @@ func (dt *Default) HTMLTemplate() string {
                           {{ end }}
                         {{ end }}
                       {{ end }}
-
-                    {{ end }}
+ 
                     {{ with .Email.Body.Outros }} 
                         {{ if gt (len .) 0 }}
                           {{ range $line := . }}
@@ -418,12 +427,12 @@ func (dt *Default) HTMLTemplate() string {
             </td>
           </tr>
           <tr>
-            <td>
-              <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0">
+            <td class="email-footer">
+              <table class="email-footer_inner" align="center" width="570" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-cell">
                     <p class="sub center">
-                      {{.Hermes.Product.Copyright}}
+                      {{.Hermes.Product.Copyright}}	
                     </p>
                   </td>
                 </tr>

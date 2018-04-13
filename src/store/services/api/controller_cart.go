@@ -5,20 +5,19 @@ import (
 	. "store/models"
 	"github.com/cznic/mathutil"
 	"net/http"
-	"github.com/oklog/ulid"
 	"store/delivery/russiaPost"
-	"crypto/rand"
 	"time"
 	"store/utils"
 	"store/services/emails"
+	"github.com/teris-io/shortid"
 )
 
 type ControllerCart struct {
 	Controller
 }
 
-func CreateInvoice() string {
-	return ulid.MustNew(ulid.Timestamp(time.Now()), rand.Reader).String()
+func CreateInvoice() (string, error) {
+	return shortid.Generate()
 }
 
 func (p *ControllerCart) CreateCart(session *Session) *Cart {
@@ -336,6 +335,13 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
+	invoice, err := CreateInvoice()
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	defer tx.Rollback()
 
 	var positions []Position
@@ -395,7 +401,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		Delivery:      cart.Delivery,
 		DeliveryPrice: cart.DeliveryPrice,
 		Address:       cart.Address,
-		Invoice:       CreateInvoice(),
+		Invoice:       invoice,
 	}
 	//сохраняем заказ
 	err = orders.Save(&order)
