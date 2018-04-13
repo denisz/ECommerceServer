@@ -51,7 +51,7 @@ func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 	}
 
 	var orders []Order
-	err = p.GetStore().From(NodeNamedOrders).All(&orders, storm.Limit(limit), storm.Skip(offset))
+	err = p.GetStore().From(NodeNamedOrders).AllByIndex("ID", &orders, storm.Limit(limit), storm.Skip(offset), storm.Reverse())
 	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return
