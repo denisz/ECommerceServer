@@ -3,6 +3,7 @@ package emails
 import (
 	"github.com/matcornic/hermes"
 	"store/models"
+	"fmt"
 )
 
 // Заказ отправлен
@@ -11,7 +12,7 @@ type Shipping struct {
 }
 
 func (p Shipping) Subject() string {
-	return "Чек"
+	return "Информация о заказе"
 }
 
 func (p Shipping) Recipient() string {
@@ -19,67 +20,52 @@ func (p Shipping) Recipient() string {
 }
 
 func (p Shipping) Email() hermes.Email {
+	var table [][]hermes.Entry
+
+	for _, position := range p.Order.Positions {
+		table = append(table, []hermes.Entry{
+			{Key: "Позиция", Value: fmt.Sprintf("%s x %d", position.Product.Name, position.Amount )},
+		})
+	}
+
 	return hermes.Email{
 		Body: hermes.Body{
 			Greeting:  "Здравствуйте",
 			Name:      "Игорь",
 			Signature: "С уважением",
 			Intros: []string{
-				"Благодарим Вас за заказ в интернет-магазине Dark Waters",
+				"Информируем вас о том, что ваш заказ был отправлен.",
 			},
 			Dictionary: []hermes.Entry{
-				{Key: "Номер вашего заказа", Value: "1000"},
-				{Key: "Статус заказа", Value: "В обработке"},
-				{Key: "Способ доставки", Value: "Почта России - Стандарт"},
-				{Key: "Адрес доставки", Value: "430030, Россия, Республика Мордовия, Саранск, улица Полежаева, 120 "},
+				{Key: "Номер заказа", Value: p.Order.Invoice},
+				{Key: "Статус заказа", Value: p.Order.Status.Format()},
+				{Key: "Доставка", Value: p.Order.Delivery.Format()},
+				{Key: "Адрес", Value: p.Order.Address.Format()},
 			},
 			Table: hermes.Table{
-				Data: [][]hermes.Entry{
-					{
-						{Key: "Позиция", Value: "Epistane"},
-						{Key: "Количество", Value: "3"},
-						{Key: "Артикул", Value: "PG_AB_EPI_90"},
-						{Key: "Цена", Value: "10.99 руб."},
-					},
-					{
-						{Key: "Позиция", Value: "Hermes"},
-						{Key: "Количество", Value: "3"},
-						{Key: "Артикул", Value: "PG_AB_EPI_90"},
-						{Key: "Цена", Value: "1.99 руб."},
-					},
-					{
-						{Key: "Позиция", Value: ""},
-						{Key: "Количество", Value: ""},
-						{Key: "Итого", Value: "Сумма к оплате:"},
-						{Key: "Цена", Value: "100 руб."},
-					},
-				},
+				Data: table,
 				Columns: hermes.Columns{
 					CustomWidth: map[string]string{
-						"Позиция":    "20%",
-						"Цена":       "15%",
-						"Артикул":    "15%",
-						"Количество": "15%",
-						"Итого":      "85%",
+						"Цена":  "100px",
 					},
 					CustomAlignment: map[string]string{
-						"Цена":  "right",
+						"Цена":  "left",
 						"Итого": "right",
 					},
 				},
 			},
 			Actions: []hermes.Action{
 				{
-					Instructions: "To get started with Hermes, please click here:",
+					Instructions: "Отслеживать информацию о вашей посылке и получить трек-код вы можете на",
 					Button: hermes.Button{
 						Color: "#22BC66", // Optional action button color
-						Text:  "Продолжить покупки",
+						Text:  "Отследить посылку",
 						Link:  "http://95.213.236.60",
 					},
 				},
 			},
 			Outros: []string{
-				"Need help, or have questions? Just reply to this email, we'd love to help.",
+				"Будем рады видеть вас в числе постоянных клиентов нашего магазина.",
 			},
 		},
 	}

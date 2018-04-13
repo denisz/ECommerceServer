@@ -11,7 +11,7 @@ type Processing struct {
 }
 
 func (p Processing) Subject() string {
-	return "Спасибо за ваш заказ"
+	return "Подтверждение оплаты заказа"
 }
 
 func (p Processing) Recipient() string {
@@ -25,7 +25,6 @@ func (p Processing) Email() hermes.Email {
 	for _, position := range p.Order.Positions {
 		table = append(table, []hermes.Entry{
 			{Key: "Позиция", Value: fmt.Sprintf("%s x %d", position.Product.Name, position.Amount )},
-			{Key: "Цена", Value: fmt.Sprintf("%d руб.", position.Total / 100)},
 		})
 	}
 

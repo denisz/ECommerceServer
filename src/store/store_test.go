@@ -75,6 +75,7 @@ func CreateBrand() hermes.Hermes {
 		Product: hermes.Product{
 			// Appears in header & footer of e-mails
 			Name: "Dark Waters",
+			Copyright: "Copyright © 2018 Dark Waters. All rights reserved.",
 			Link: "http://95.213.236.60",
 			// Optional product logo
 			Logo: "http://95.213.236.60/img/ic_brand.png",
@@ -106,6 +107,26 @@ func TestEmailProcessing(t *testing.T) {
 	order := CreateMockOrder(t)
 	brand := CreateBrand()
 	email := emails.Processing{ Order: order }
+	err := utils.SendEmail(brand, email)
+	if err != nil {
+		t.Error(err)
+	}
+
+	emailBody, err := utils.DrawEmail(brand, email)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = ioutil.WriteFile("/tmp/dat1.html", []byte(emailBody), 0644)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestEmailShipping(t *testing.T) {
+	order := CreateMockOrder(t)
+	brand := CreateBrand()
+	email := emails.Shipping{ Order: order }
 	err := utils.SendEmail(brand, email)
 	if err != nil {
 		t.Error(err)

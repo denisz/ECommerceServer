@@ -12,7 +12,7 @@ type Receipt struct {
 }
 
 func (p Receipt) Subject() string {
-	return "Спасибо за ваш заказ"
+	return fmt.Sprintf("Новый заказ № %s", p.Order.Invoice)
 }
 
 func (p Receipt) Recipient() string {
