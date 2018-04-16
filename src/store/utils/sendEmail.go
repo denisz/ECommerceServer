@@ -18,7 +18,7 @@ type Email interface {
 	Email() hermes.Email
 }
 
-var EmailClient = gomail.NewPlainDialer("smtp.yandex.ru", 465, "d.zaycev@bytexgames.ru", "2Q2sminvc")
+var EmailClient = gomail.NewPlainDialer("smtp.yandex.ru", 465, "mail-noreply@darkwaters.store", "2Q2sminvcx")
 
 func CreateBrand() hermes.Hermes {
 	return hermes.Hermes{

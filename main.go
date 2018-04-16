@@ -36,7 +36,7 @@ func main() {
 		panic("No public urls")
 	}
 
-	fmt.Printf("URLs: %v", urls)
+	fmt.Printf("Public URLs: %v \n", urls)
 
 	wait := time.Second * 1
 
