@@ -25,16 +25,24 @@ import (
 	"time"
 	"net/http"
 	"store"
+	"strings"
+	"fmt"
 )
 
 func main() {
 	publicUrl := os.Getenv("PUBLIC_URL")
+	urls := strings.Split(publicUrl, ",")
+	if len(urls) == 0 {
+		panic("No public urls")
+	}
 
+	fmt.Printf("URLs: %v", urls)
 
 	wait := time.Second * 1
 
 	s, shutdownStore, err := store.NewStore(&store.Config{
-		ServerURL: publicUrl,
+		MainServerURL: urls[0],
+		ExtraURLs: urls[1:],
 		HR: []string {
 			"denisxy12@gmail.com",
 			"kosmo_polit@rambler.ru",

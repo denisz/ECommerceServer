@@ -37,6 +37,7 @@ func (p *ControllerOrder) OrderDetailPOST(c *gin.Context) {
 	c.JSON(http.StatusOK, order)
 }
 
+//список заказов
 func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	if err != nil  {
@@ -74,7 +75,7 @@ func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 	})
 }
 
-
+//обновить заказ
 func (p *ControllerOrder) UpdatePOST() {
 
 }

@@ -29,7 +29,7 @@ func createRouter(store *Store) http.Handler {
 
 	// CORS Request
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{store.Config.ServerURL},
+		AllowOrigins:     append([]string{store.Config.MainServerURL}, store.Config.ExtraURLs...),
 		AllowMethods:     []string{"GET", "POST", "PUT", "HEAD", "PATCH", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
