@@ -28,9 +28,9 @@ func CreateBrand() hermes.Hermes {
 			// Appears in header & footer of e-mails
 			Name: "Dark Waters",
 			Copyright: "Copyright © 2018 Dark Waters. All rights reserved.",
-			Link: "http://95.213.236.60",
+			Link: "http://darkwaters.store",
 			// Optional product logo
-			Logo: "http://95.213.236.60/img/ic_brand.png",
+			Logo: "http://darkwaters.store/img/ic_brand.png",
 		},
 	}
 }
@@ -43,7 +43,7 @@ func SendEmails(h hermes.Hermes, email Email, recipients []string) error {
 
 	for _, recipient := range recipients {
 		m := gomail.NewMessage()
-		m.SetHeader("From", "d.zaycev@bytexgames.ru")
+		m.SetHeader("From", "mail-noreply@darkwaters.store")
 		m.SetHeader("To", recipient)
 		m.SetHeader("Subject", email.Subject())
 		m.SetBody("text/html", emailBody)
@@ -67,7 +67,7 @@ func SendEmail(h hermes.Hermes, email Email) error {
 	}
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", "d.zaycev@bytexgames.ru")
+	m.SetHeader("From", "mail-noreply@darkwaters.store")
 	m.SetHeader("To", email.Recipient())
 	m.SetHeader("Subject", email.Subject())
 	m.SetBody("text/html", emailBody)
