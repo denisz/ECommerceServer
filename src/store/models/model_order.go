@@ -148,6 +148,11 @@ type (
 		Status string `json:"status"`
 	}
 
+	// Обновление заказов
+	OrderDTO struct {
+
+	}
+
 	// Страницы заказов
 	PageOrders struct {
 		Content []Order `json:"content"`

@@ -31,6 +31,7 @@ type (
 		Composition string `sheet:"Состав"`
 		Description string `sheet:"Описание"`
 		Research string `sheet:"Исследования"`
+		Matrix string `sheet:"Рабочая матрица"`
 		Prescribing string `sheet:"Рекомендации"`
 	}
 
@@ -51,6 +52,7 @@ func CreateBanner(sheetData SheetBanner) Banner {
 func CreateNotation(sheetData SheetNotation) Notation {
 	return Notation{
 		SKU: sheetData.SKU,
+		Matrix:sheetData.Matrix,
 		Effects: sheetData.Effects,
 		Research: sheetData.Research,
 		Description: sheetData.Description,

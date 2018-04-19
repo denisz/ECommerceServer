@@ -225,12 +225,6 @@
   revision = "9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d"
 
 [[projects]]
-  name = "github.com/oklog/ulid"
-  packages = ["."]
-  revision = "d311cb43c92434ec4072dfbbda3400741d0a6337"
-  version = "v0.3.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
@@ -257,6 +251,17 @@
     "fflib/v1/internal"
   ]
   revision = "d49c2bc1aa135aad0c6f4fc2056623ec78f5d5ac"
+
+[[projects]]
+  name = "github.com/rs/zerolog"
+  packages = [
+    ".",
+    "internal/cbor",
+    "internal/json",
+    "log"
+  ]
+  revision = "05eafee0eb17d0150591a8f30f0fa592cc9b7471"
+  version = "v1.6.0"
 
 [[projects]]
   branch = "master"
@@ -431,6 +436,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f2957e1a66388c4be3f023055ed7271a0a0b11190b2191ca6bd7311fa1d31782"
+  inputs-digest = "2141cfdf989e08d3f0d71831954262fb894e1a6d30994d9d1d066c5e128af946"
   solver-name = "gps-cdcl"
   solver-version = 1

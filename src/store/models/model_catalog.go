@@ -102,6 +102,9 @@ type (
 
 		// Эффекты
 		Effects string `json:"effects"`
+
+		// Матрица
+		Matrix string `json:"matrix"`
 	}
 
 	// Страницы категорий

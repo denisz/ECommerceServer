@@ -76,7 +76,7 @@ func (p Receipt) Email() hermes.Email {
 					Button: hermes.Button{
 						Color: "#22BC66",
 						Text:  "Заказ",
-						Link:  fmt.Sprintf("http://95.213.236.60/order/check/%s", p.Order.Invoice),
+						Link:  fmt.Sprintf("http://darkwaters.store/order/check/%s", p.Order.Invoice),
 					},
 				},
 			},
@@ -92,10 +92,10 @@ func (p Receipt) Email() hermes.Email {
 Если оплачиваете через терминал, кассу банка или банкомат - обязательно сделайте скан/фото чека.
 
 **Платежные реквизиты действительны в течении  суток с момента оформления заказа!**  
-При задержке оплаты уточняйте реквизиты на почте [admin@real-pump.com](https://mail.rambler.ru/#/compose/to=admin%2540real-pump.com)
+При задержке оплаты уточняйте реквизиты на почте [admin@darkwaters.store](https://mail.rambler.ru/#/compose/to=admin@darkwaters.store)
 
 **Подтверждение оплаты**
-После совершения оплаты, ответьте на письмо или напишите нам письмо на почту [admin@real-pump.com](https://mail.rambler.ru/#/compose/to=admin%2540real-pump.com), в котором укажите:
+После совершения оплаты, ответьте на письмо или напишите нам письмо на почту [admin@darkwaters.store](https://mail.rambler.ru/#/compose/to=admin@darkwaters.store), в котором укажите:
 
 - способ оплаты
 - скан/фото чека об оплате.
