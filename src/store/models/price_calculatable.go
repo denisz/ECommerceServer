@@ -73,7 +73,11 @@ func (p *Cart) PriceCalculate() {
 		p.Subtotal = p.Discount.Price
 	}
 
-	p.Total = p.DeliveryPrice + p.Subtotal
+	if p.Discount != nil && p.Discount.Type == DiscountTypeFreeShipping {
+		p.Total = p.Subtotal
+	} else {
+		p.Total = p.DeliveryPrice + p.Subtotal
+	}
 }
 
 // обновление цены у позиции корзины

@@ -10,6 +10,14 @@ import (
 	"store/utils"
 	"store/services/emails"
 	"github.com/teris-io/shortid"
+	"errors"
+	"github.com/rs/zerolog/log"
+)
+
+
+var (
+	ErrNotSupportedMethod = errors.New("not supported method of delivery")
+	ErrMethodIsEmpty = errors.New("method of delivery is empty")
 )
 
 type ControllerCart struct {
@@ -37,9 +45,9 @@ func (p *ControllerCart) CreateCart(session *Session) *Cart {
 }
 
 //расчет стоимости доставки корзины
-func (p *ControllerCart) GetDeliveryPrice(cart *Cart) int {
+func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (int, error) {
 	if cart.Delivery == nil {
-		return -1
+		return 0, ErrMethodIsEmpty
 	}
 
 	switch cart.Delivery.Provider {
@@ -57,7 +65,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) int {
 		case DeliveryMethodRapid:
 			mailType = russiaPost.MailTypeBUSINESS_COURIER
 		case DeliveryMethodStandard:
-			return 0 //бесплатная доставка
+			return 0, nil //бесплатная доставка
 		}
 
 		dimension := cart.DimensionCalculate()
@@ -82,20 +90,20 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) int {
 
 		res, err := client.Tariff(r)
 		if err != nil {
-			return -1
+			return 0, err
 		}
 
-		return PriceFloor(res.TotalRate + res.TotalVat)
+		return PriceFloor(res.TotalRate + res.TotalVat), nil
 	case DeliveryProviderBoxberry:
-		return 0
+		return 0, nil
 	case DeliveryProviderBaikal:
-		return 0
+		return 0, nil
 	case DeliveryProviderPEC:
-		return 0
+		return 0, nil
 	case DeliveryProviderNRG:
-		return 0
+		return 0, nil
 	default:
-		return -1
+		return 0, ErrNotSupportedMethod
 	}
 }
 
@@ -118,7 +126,7 @@ func (p *ControllerCart) DetailPOST(c *gin.Context) {
 }
 
 func (p *ControllerCart) UpdatePOST(c *gin.Context) {
-	var json UpdateDTO
+	var json CartUpdateRequest
 
 	if err := c.ShouldBindJSON(&json); err == nil {
 		var positions []Position
@@ -273,19 +281,21 @@ func (p *ControllerCart) UpdateDeliveryPOST(c *gin.Context) {
 				}
 			}
 		}
-		//если нету доставки
-		if cart.Delivery == nil {
-			c.AbortWithError(http.StatusBadRequest, nil)
+		//расчет доставки
+		deliveryPrice, err := p.GetDeliveryPrice(cart)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+			//c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 		//цена за доставку
-		cart.DeliveryPrice = p.GetDeliveryPrice(cart)
+		cart.DeliveryPrice = deliveryPrice
 		//обновить цену
 		cart.PriceCalculate()
 		//получаем магазин
 		db := p.GetStore().From(NodeNamedCarts)
 		//сохранить корзину
-		err := db.Save(cart)
+		err = db.Save(cart)
 		//невозможно сохранить
 		if err != nil {
 			//ошибка
@@ -327,14 +337,14 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	store := p.GetStore()
 	//открыть транзакцию
 	tx, err := store.Begin(true)
-	carts := tx.From(NodeNamedCarts)
-	orders := tx.From(NodeNamedOrders)
-	catalog := tx.From(NodeNamedCatalog)
-
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	//бакеты
+	carts := tx.From(NodeNamedCarts)
+	orders := tx.From(NodeNamedOrders)
+	catalog := tx.From(NodeNamedCatalog)
 
 	invoice, err := CreateInvoice()
 	if err != nil {
@@ -361,7 +371,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		err := catalog.One("SKU", v.ProductSKU, &product)
 		//продукт недоступен
 		if err != nil {
-			//Todo: log
+			log.Error().Err(err)
 			c.AbortWithError(http.StatusBadRequest, nil)
 			return
 		}
@@ -369,14 +379,14 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		product.Quantity = product.Quantity - v.Amount
 		//количество отрицательное будем отклонять заказ
 		if product.Quantity < 0 {
-			//Todo: log
+			log.Error().Err(err)
 			c.AbortWithError(http.StatusBadRequest, nil)
 			return
 		}
 		//сохраняем продукт
 		err = catalog.Save(&product)
 		if err != nil {
-			//Todo: log
+			log.Error().Err(err)
 			c.AbortWithError(http.StatusBadRequest, nil)
 			return
 		}
@@ -385,8 +395,15 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	}
 	//фиксируем позиции
 	cart.Positions = positions
+	//расчет доставки
+	deliveryPrice, err := p.GetDeliveryPrice(cart)
+	if err != nil {
+		log.Error().Err(err)
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
 	//цена за доставку
-	cart.DeliveryPrice = p.GetDeliveryPrice(cart)
+	cart.DeliveryPrice = deliveryPrice
 	//обновить цену
 	cart.PriceCalculate()
 	//создаем заказ

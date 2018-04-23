@@ -114,9 +114,20 @@ func(p *RussiaPost) Tariff(request *DestinationRequest) (*DestinationResponse, e
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		var respError DestinationError
+		dec := json.NewDecoder(resp.Body)
+
+		for {
+			if err := dec.Decode(&respError); err == io.EOF {
+				break
+			} else if err != nil {
+				return nil, err
+			}
+		}
+
 		responseData, _ := ioutil.ReadAll(resp.Body)
 		fmt.Printf("response: %v %v \n", string(responseData), resp.StatusCode)
-		return nil, errors.New("Ответ 404")
+		return nil, errors.New(respError.DescError)
 	}
 
 	defer resp.Body.Close()

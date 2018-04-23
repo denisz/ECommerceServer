@@ -54,7 +54,7 @@ func TestCartPriceCalculate(t *testing.T) {
 					Amount: 10,
 				},
 				ProductSKU: "test",
-				Product: product,
+				Product: &product,
 			},
 			{
 				Amount: 3,
@@ -63,17 +63,17 @@ func TestCartPriceCalculate(t *testing.T) {
 					Type: DiscountTypePercentage,
 					Amount: 10,
 				},
-				Product: product,
+				Product: &product,
 			},
 		},
 	}
 
 	cart.PriceCalculate()
-	assert.Equal(t, 2000, cart.Positions[0].Price)
+	assert.Equal(t, 2000, cart.Positions[0].Subtotal)
 	assert.Equal(t, 1800, cart.Positions[0].Discount.Price)
-	assert.Equal(t, 3000, cart.Positions[1].Price)
+	assert.Equal(t, 3000, cart.Positions[1].Subtotal)
 	assert.Equal(t, 2700, cart.Positions[1].Discount.Price)
-	assert.Equal(t, 5000, cart.Price)
+	assert.Equal(t, 5000, cart.Total)
 	assert.Equal(t, 4500, cart.Discount.Price)
 }
 
@@ -89,14 +89,14 @@ func TestPositionPriceCalculate(t *testing.T) {
 	position := Position{
 		Amount: 2,
 		ProductSKU: "test",
-		Product: product,
+		Product: &product,
 		Discount: &Discount {
 			Type: DiscountTypePercentage,
 			Amount: 10,
 		},
 	}
 	position.PriceCalculate()
-	assert.Equal(t, 1800, position.Price)
+	assert.Equal(t, 1800, position.Subtotal)
 	assert.Equal(t, 1620, position.Discount.Price)
 }
 
@@ -108,8 +108,8 @@ func TestPositionPriceCalculateWithoutDiscount(t *testing.T) {
 	position := Position{
 		Amount: 2,
 		ProductSKU: "test",
-		Product: product,
+		Product: &product,
 	}
 	position.PriceCalculate()
-	assert.Equal(t, 2000, position.Price)
+	assert.Equal(t, 2000, position.Subtotal)
 }

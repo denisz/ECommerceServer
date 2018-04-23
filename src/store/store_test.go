@@ -47,10 +47,14 @@ func CreateMockOrder(t *testing.T) Order {
 		},
 		ProductPrice: 6000 * 100,
 		DeliveryPrice: 300 * 100,
-		Total: 6300 * 100,
+		Total: 6200 * 100,
 		Delivery: &Delivery{
 			Provider: DeliveryProviderRussiaPost,
 			Method: DeliveryMethodRapid,
+		},
+		Discount: &Discount{
+			Type: DiscountTypePercentage,
+			Amount: 2.5,
 		},
 		Status: OrderStatusAwaitingPayment,
 		Address: &Address {

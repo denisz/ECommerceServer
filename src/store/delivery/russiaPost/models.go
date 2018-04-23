@@ -245,6 +245,15 @@ type (
 		MinDays int `json:"min-days"`
 	}
 
+	DestinationError struct {
+		//код ошибки
+		CodeError string `json:"code"`
+		//описание ошибки
+		DescError string `json:"desc"`
+		//под код
+		SubCode string `json:"sub-code"`
+	}
+
 	DestinationResponse struct {
 		//Плата за Авиа-пересылку (коп)
 		AviaRate *DestinationRate `json:"avia-rate"`

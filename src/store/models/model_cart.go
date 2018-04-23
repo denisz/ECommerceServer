@@ -84,7 +84,7 @@ type (
 	}
 
 	// Модель обмена данными
-	UpdateDTO struct {
+	CartUpdateRequest struct {
 		// Количество
 		Amount int `json:"amount"`
 

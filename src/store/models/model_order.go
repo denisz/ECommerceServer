@@ -51,8 +51,8 @@ type (
 		// Индентификатор
 		ID int `storm:"id,increment"`
 
-		// Номер заказа
-		OrderID int
+		// Номер счета
+		Invoice string
 
 		// Ответ
 		Response string
@@ -93,8 +93,14 @@ type (
 		// Квитанция об оплате
 		Receipt Receipt `json:"-"`
 
+		//Квитанция номер
+		ReceiptNumber string `json:"receiptNumber"`
+
 		// Информация о доставке
-		Shipping Shipment `json:"shipping"`
+		Shipment Shipment `json:"-"`
+
+		// Трек доставки
+		TrackingNumber string `json:"trackingNumber"`
 
 		// Скидка
 		Discount *Discount `json:"discount"`
@@ -145,12 +151,22 @@ type (
 		Comment string `json:"comment"`
 
 		// Статус
-		Status string `json:"status"`
+		Status OrderStatus `json:"status"`
 	}
 
 	// Обновление заказов
-	OrderDTO struct {
+	OrderUpdateRequest struct {
+		// Изменение статуса
+		Status OrderStatus `json:"status"`
 
+		// Трек
+		TrackingNumber string `json:"trackingNumber"`
+
+		// Квитанция об оплате
+		ReceiptNumber string `json:"receiptNumber"`
+
+		// Скидка
+		Discount Discount `json:"discount"`
 	}
 
 	// Страницы заказов

@@ -76,6 +76,12 @@ func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 }
 
 //обновить заказ
-func (p *ControllerOrder) UpdatePOST() {
+func (p *ControllerOrder) UpdatePOST(c *gin.Context) {
+	var json OrderUpdateRequest
 
+	if err := c.ShouldBindJSON(&json); err == nil {
+		//вернуть исправленый order
+	} else {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
 }

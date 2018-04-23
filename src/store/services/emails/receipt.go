@@ -34,6 +34,13 @@ func (p Receipt) Email() hermes.Email {
 		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.ProductPrice / 100)},
 	})
 
+	if p.Order.Discount != nil {
+		table = append(table, []hermes.Entry{
+			{Key: "Итого", Value: "Скидка:"},
+			{Key: "Цена", Value: p.Order.Discount.ToFormat()},
+		})
+	}
+
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Цена доставки:"},
 		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.DeliveryPrice / 100)},
