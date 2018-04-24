@@ -146,3 +146,23 @@ func TestEmailShipping(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestEmailBan(t *testing.T) {
+	order := CreateMockOrder(t)
+	brand := CreateBrand()
+	email := emails.Ban{ Order: order }
+	err := utils.SendEmail(brand, email)
+	if err != nil {
+		t.Error(err)
+	}
+
+	emailBody, err := utils.DrawEmail(brand, email)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = ioutil.WriteFile("/tmp/dat1.html", []byte(emailBody), 0644)
+	if err != nil {
+		t.Error(err)
+	}
+}

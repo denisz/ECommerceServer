@@ -31,7 +31,7 @@ func (p Shipping) Email() hermes.Email {
 	return hermes.Email{
 		Body: hermes.Body{
 			Greeting:  "Здравствуйте",
-			Name:      "Игорь",
+			Name:      p.Order.Address.Name,
 			Signature: "С уважением",
 			Intros: []string{
 				"Информируем вас о том, что ваш заказ был отправлен.",
