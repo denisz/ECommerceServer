@@ -104,7 +104,10 @@ func(p *RussiaPost) Tariff(request *DestinationRequest) (*DestinationResponse, e
 	req.Header.Set("Content-Type", "application/json")
 
 	command, _ := http2curl.GetCurlCommand(req)
-	fmt.Println(command)
+
+	if p.Debug {
+		fmt.Println(command)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -125,8 +128,9 @@ func(p *RussiaPost) Tariff(request *DestinationRequest) (*DestinationResponse, e
 			}
 		}
 
-		responseData, _ := ioutil.ReadAll(resp.Body)
-		fmt.Printf("response: %v %v \n", string(responseData), resp.StatusCode)
+		if p.Debug {
+			fmt.Printf("response: %v %v \n", respError, resp.StatusCode)
+		}
 		return nil, errors.New(respError.DescError)
 	}
 
@@ -141,6 +145,10 @@ func(p *RussiaPost) Tariff(request *DestinationRequest) (*DestinationResponse, e
 		} else if err != nil {
 			return nil, err
 		}
+	}
+
+	if p.Debug {
+		fmt.Printf("response: %v %v \n", response, resp.StatusCode)
 	}
 
 	return &response, nil

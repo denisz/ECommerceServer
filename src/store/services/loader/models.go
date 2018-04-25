@@ -26,12 +26,12 @@ type (
 	}
 
 	SheetNotation struct {
-		SKU  string `sheet:"Артикул"`
-		Effects string `sheet:"Эффекты"`
+		SKU         string `sheet:"Артикул"`
+		Effects     string `sheet:"Эффекты"`
 		Composition string `sheet:"Состав"`
 		Description string `sheet:"Описание"`
-		Research string `sheet:"Исследования"`
-		Matrix string `sheet:"Рабочая матрица"`
+		Research    string `sheet:"Исследования"`
+		Matrix      string `sheet:"Рабочая матрица"`
 		Prescribing string `sheet:"Рекомендации"`
 	}
 
@@ -39,22 +39,34 @@ type (
 		Image  string `sheet:"Изображение"`
 		Active int    `sheet:"Активен"`
 		Href   string `sheet:"Переход"`
+		Type   string `sheet:"Тип"`
 	}
 )
+
+func parseBannerType(label string) BannerType {
+	switch label {
+	case "main":
+		return BannerTypeMain
+	case "brand":
+		return BannerTypeBrand
+	}
+	return ""
+}
 
 func CreateBanner(sheetData SheetBanner) Banner {
 	return Banner{
 		Image: sheetData.Image,
 		Href:  sheetData.Href,
+		Type:  parseBannerType(sheetData.Type),
 	}
 }
 
 func CreateNotation(sheetData SheetNotation) Notation {
 	return Notation{
-		SKU: sheetData.SKU,
-		Matrix:sheetData.Matrix,
-		Effects: sheetData.Effects,
-		Research: sheetData.Research,
+		SKU:         sheetData.SKU,
+		Matrix:      sheetData.Matrix,
+		Effects:     sheetData.Effects,
+		Research:    sheetData.Research,
 		Description: sheetData.Description,
 		Prescribing: sheetData.Prescribing,
 		Composition: sheetData.Composition,

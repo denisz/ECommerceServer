@@ -12,12 +12,17 @@ import (
 	"github.com/teris-io/shortid"
 	"errors"
 	"github.com/rs/zerolog/log"
+	"github.com/asdine/storm/q"
 )
 
-
 var (
-	ErrNotSupportedMethod = errors.New("not supported method of delivery")
-	ErrMethodIsEmpty = errors.New("method of delivery is empty")
+	ErrNotSupportedMethod  = errors.New("не поддерживается метод доставки")
+	ErrEmptyDeliveryMethod = errors.New("пустой метод")
+	ErrCheckoutBan         = errors.New("превышен лимит создания заказа")
+	ErrEmptyCart           = errors.New("корзина не указана")
+	ErrEmptyDelivery       = errors.New("доставка не указана")
+	ErrEmptyAddress        = errors.New("адрес не указан")
+	ErrNotEnoughQuantity   = errors.New("недостаточно количество продукта")
 )
 
 type ControllerCart struct {
@@ -47,21 +52,21 @@ func (p *ControllerCart) CreateCart(session *Session) *Cart {
 //расчет стоимости доставки корзины
 func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (int, error) {
 	if cart.Delivery == nil {
-		return 0, ErrMethodIsEmpty
+		return 0, ErrEmptyDeliveryMethod
 	}
 
 	switch cart.Delivery.Provider {
 	case DeliveryProviderRussiaPost:
-		token := "9a9mk3FmmR1E84cn7FHMlz9Kjm5NHAC6"
-		login := "viktor@otdeldostavok.ru"
-		password := "123456qQ"
+		token := "MmmDeJqGxRlL2MXX4oZiknt25K5mUFEg"
+		login := "denisxy12@hotmail.com"
+		password := "2Q2sminvc"
 		client := russiaPost.NewClient(login, password, token, true)
 
 		mailType := russiaPost.MailTypeONLINE_PARCEL
 
 		switch cart.Delivery.Method {
 		case DeliveryMethodEMC:
-			mailType = russiaPost.MailTypeEMS_OPTIMAL
+			mailType = russiaPost.MailTypePARCEL_CLASS_1
 		case DeliveryMethodRapid:
 			mailType = russiaPost.MailTypeBUSINESS_COURIER
 		case DeliveryMethodStandard:
@@ -72,7 +77,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (int, error) {
 
 		r := &russiaPost.DestinationRequest{
 			Mass:          cart.WeightCalculate(),
-			IndexFrom:     "200961",
+			IndexFrom:     "430005",
 			IndexTo:       cart.Address.PostalCode,
 			MailType:      mailType,
 			MailCategory:  russiaPost.MailCategoryORDINARY,
@@ -104,6 +109,24 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (int, error) {
 		return 0, nil
 	default:
 		return 0, ErrNotSupportedMethod
+	}
+}
+
+func (p *ControllerCart) BlockCheckout(c *gin.Context) error {
+	clientIP := c.ClientIP()
+
+	//количество заказов которые ждут оплаты
+	totalAwaitPayment, err := p.DB.From(NodeNamedOrders).
+		Select(q.Eq("ClientIP", clientIP), q.Eq("Status", OrderStatusAwaitingPayment)).
+		Count(new(Product))
+	if err != nil {
+		return err
+	}
+
+	if totalAwaitPayment < 2 {
+		return nil
+	} else {
+		return ErrCheckoutBan
 	}
 }
 
@@ -320,19 +343,31 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	cart := p.CreateCart(session)
 	//нету корзины
 	if cart.ID == 0 {
-		c.AbortWithError(http.StatusNotFound, nil)
+		c.AbortWithError(http.StatusNotFound, ErrEmptyCart)
 		return
 	}
 	//нету адреса
 	if cart.Address == nil {
-		c.AbortWithError(http.StatusBadRequest, nil)
+		c.AbortWithError(http.StatusBadRequest, ErrEmptyAddress)
 		return
 	}
 	//нету доставки
 	if cart.Delivery == nil {
-		c.AbortWithError(http.StatusBadRequest, nil)
+		c.AbortWithError(http.StatusBadRequest, ErrEmptyDelivery)
 		return
 	}
+	err := p.BlockCheckout(c)
+
+	if err != nil {
+		//отправляем письмо с блокировкой
+		utils.SendEmail(utils.CreateBrand(), emails.Ban{
+			EmailRecipient: cart.Address.Email,
+			NameRecipient: cart.Address.Name,
+		})
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	//каталог
 	store := p.GetStore()
 	//открыть транзакцию
@@ -372,7 +407,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		//продукт недоступен
 		if err != nil {
 			log.Error().Err(err)
-			c.AbortWithError(http.StatusBadRequest, nil)
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 		//резервируем количество
@@ -380,14 +415,14 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		//количество отрицательное будем отклонять заказ
 		if product.Quantity < 0 {
 			log.Error().Err(err)
-			c.AbortWithError(http.StatusBadRequest, nil)
+			c.AbortWithError(http.StatusBadRequest, ErrNotEnoughQuantity)
 			return
 		}
 		//сохраняем продукт
 		err = catalog.Save(&product)
 		if err != nil {
 			log.Error().Err(err)
-			c.AbortWithError(http.StatusBadRequest, nil)
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
@@ -418,12 +453,13 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		Delivery:      cart.Delivery,
 		DeliveryPrice: cart.DeliveryPrice,
 		Address:       cart.Address,
+		ClientIP:       c.ClientIP(),
 		Invoice:       invoice,
 	}
 	//сохраняем заказ
 	err = orders.Save(&order)
 	if err != nil {
-		//Todo: log
+		log.Error().Err(err)
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -439,7 +475,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	err = carts.Save(cart)
 	//невозможно сохранить
 	if err != nil {
-		//Todo: log
+		log.Error().Err(err)
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}

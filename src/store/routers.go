@@ -75,6 +75,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), store.Catalog.ProductsPOST)
 		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), store.Catalog.ProductPOST)
 		v1.POST("/catalog/notation/:sku", I("/catalog/notation/:sku"), store.Catalog.NotationPOST)
+		v1.POST("/catalog/search", I("/catalog/search"), store.Catalog.SearchProductsPOST)
 		v1.POST("/sales", I("/sales"), store.Sales.IndexPOST)
 		v1.POST("/cart", I("/cart"), store.Cart.IndexPOST)
 		v1.POST("/cart/detail", I("/cart"), store.Cart.DetailPOST)
@@ -97,6 +98,7 @@ func createRouter(store *Store) http.Handler {
 		v1.POST("/account/me", I("/account/me"), store.Account.MePOST)
 		v1.POST("/order/:id", I("/order/:id"), store.Order.UpdatePOST)
 		v1.POST("/orders/list", I("/orders/list"), store.Order.OrderListPOST)
+		v1.POST("/orders/search", I("/orders/search"), store.Order.SearchOrderPOST)
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

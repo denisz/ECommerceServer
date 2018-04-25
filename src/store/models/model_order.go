@@ -26,23 +26,17 @@ const (
 	// Оплаченный заказ ждем результатов
 	OrderStatusAwaitingFulfillment OrderStatus = 1
 
-	// Отклонен
-	OrderStatusDeclined OrderStatus = 2
-
 	// Отправлен
-	OrderStatusAwaitingShipment OrderStatus = 3
+	OrderStatusAwaitingShipment OrderStatus = 2
 
 	// Доставлен
-	OrderStatusShipped OrderStatus = 4
+	OrderStatusShipped OrderStatus = 3
 
-	// Закрыт
-	OrderStatusClosed OrderStatus = 5
+	// Отклонен/Отменен
+	OrderStatusDeclined OrderStatus = 4
 
 	// Возврат
-	OrderStatusRefunded OrderStatus = 6
-
-	// Выполнен
-	OrderStatusCompleted OrderStatus = 7
+	OrderStatusRefunded OrderStatus = 5
 )
 
 type (
@@ -79,7 +73,7 @@ type (
 	// Заказ
 	Order struct {
 		// Индентификатор
-		ID int `storm:"id,increment" json:"id"`
+		ID int `storm:"id,increment=1000" json:"id"`
 
 		// Позиции в заказе
 		Positions []Position `json:"positions"`
@@ -109,7 +103,10 @@ type (
 		Status OrderStatus `json:"status"`
 
 		// Владелец заказа
-		UserID int `json:"userID"`
+		OwnerID int `json:"ownerID"`
+
+		// IP автора
+		ClientIP string `json:"-"`
 
 		// Корзина
 		CartID int `json:"cartID"`
@@ -167,6 +164,12 @@ type (
 
 		// Скидка
 		Discount Discount `json:"discount"`
+	}
+
+	// Фильтр поиска
+	FilterOrder struct {
+		Invoice string `json:"invoice"`
+		Status OrderStatus `json:"status"`
 	}
 
 	// Страницы заказов

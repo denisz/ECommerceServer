@@ -2,12 +2,12 @@ package emails
 
 import (
 "github.com/matcornic/hermes"
-"store/models"
 )
 
 // Заблоикрован заказ
 type Ban struct {
-	Order models.Order
+	EmailRecipient string
+	NameRecipient string
 }
 
 func (p Ban) Subject() string {
@@ -15,14 +15,14 @@ func (p Ban) Subject() string {
 }
 
 func (p Ban) Recipient() string {
-	return p.Order.Address.Email
+	return p.EmailRecipient
 }
 
 func (p Ban) Email() hermes.Email {
 	return hermes.Email{
 		Body: hermes.Body{
 			Greeting:  "Здравствуйте",
-			Name:      p.Order.Address.Name,
+			Name:      p.NameRecipient,
 			Signature: "С уважением",
 			FreeMarkdown: `
 # Услуга не доступна!

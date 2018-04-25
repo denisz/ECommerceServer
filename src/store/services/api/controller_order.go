@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"github.com/asdine/storm"
 	"strconv"
+	"github.com/asdine/storm/q"
 )
 
 type ControllerOrder struct {
@@ -40,7 +41,7 @@ func (p *ControllerOrder) OrderDetailPOST(c *gin.Context) {
 //список заказов
 func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if err != nil  {
+	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -58,7 +59,6 @@ func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 		return
 	}
 
-
 	total, err := p.GetStore().From(NodeNamedOrders).Count(new(Order))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -68,11 +68,65 @@ func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 	c.JSON(http.StatusOK, PageOrders{
 		Content: orders,
 		Cursor: Cursor{
-			Total: total,
-			Limit: limit,
+			Total:  total,
+			Limit:  limit,
 			Offset: offset,
 		},
 	})
+}
+
+//Поиск заказов
+func (p *ControllerOrder) SearchOrderPOST(c *gin.Context) {
+	var filter FilterOrder
+
+	if err := c.ShouldBindJSON(&filter); err == nil {
+		limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		matcher := q.Or(q.Eq("Status", filter.Status), q.Eq("Invoice", filter.Invoice))
+
+		var orders []Order
+		err = p.GetStore().From(NodeNamedOrders).
+			Select(matcher).
+			Limit(limit).
+			Skip(offset).
+			Find(&orders)
+
+		if err != nil && err != storm.ErrNotFound {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		total, err := p.GetStore().From(NodeNamedOrders).
+			Select(matcher).
+			Count(new(Order))
+
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, PageOrders{
+			Content: orders,
+			Cursor: Cursor{
+				Total:  total,
+				Limit:  limit,
+				Offset: offset,
+			},
+		})
+
+	} else {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
 }
 
 //обновить заказ
@@ -80,7 +134,25 @@ func (p *ControllerOrder) UpdatePOST(c *gin.Context) {
 	var json OrderUpdateRequest
 
 	if err := c.ShouldBindJSON(&json); err == nil {
+		orderID := c.Param("id")
+
+		if len(orderID) == 0 {
+			c.AbortWithError(http.StatusBadRequest, nil)
+			return
+		}
+
 		//вернуть исправленый order
+		var order Order
+		err := p.GetStore().From(NodeNamedOrders).One("ID", orderID, &order)
+
+		if err == storm.ErrNotFound {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		//fsm := CreateOrderFsm(order)
+		//fsm.FSM.Event(fsm)
+		//order.Status = fsm
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}

@@ -12,7 +12,7 @@ type Shipping struct {
 }
 
 func (p Shipping) Subject() string {
-	return "Информация о заказе"
+	return fmt.Sprintf("Заказ № %s", p.Order.Invoice)
 }
 
 func (p Shipping) Recipient() string {

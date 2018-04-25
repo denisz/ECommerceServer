@@ -50,7 +50,7 @@ type (
 		Name string `json:"name"`
 
 		// Производитель
-		Producer string `json:"producer"`
+		Producer string `storm:"index" json:"producer"`
 
 		// Лекарственная форма (т.е. таблетки, порошок, капли) и тип упаковки
 		Factor string `json:"factor"`
@@ -105,6 +105,13 @@ type (
 
 		// Матрица
 		Matrix string `json:"matrix"`
+	}
+
+	// Фильтр поиска
+	FilterCatalog struct {
+		Query string `json:"query"`
+		CollectionSKU string `json:"collectionSKU"`
+		Producer string `json:"producer"`
 	}
 
 	// Страницы категорий

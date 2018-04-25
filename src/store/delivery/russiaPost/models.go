@@ -65,7 +65,7 @@ const (
 	//Курьер "онлайн"
 	MailTypeONLINE_COURIER MailType = "ONLINE_COURIER"
 
-	//Отправление  EMS
+	//Отправление EMS
 	MailTypeEMS MailType = "EMS"
 
 	//EMS оптимальное

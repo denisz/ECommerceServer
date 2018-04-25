@@ -5,10 +5,6 @@ func (p OrderStatus) Format() string {
 	switch p {
 	case OrderStatusAwaitingPayment:
 		return "Принят. Ожидает оплаты"
-	case OrderStatusClosed:
-		return "Закрыт"
-	case OrderStatusCompleted:
-		return "Выполнен"
 	case OrderStatusShipped:
 		return "Готов к выдаче"
 	case OrderStatusAwaitingFulfillment:

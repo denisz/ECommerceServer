@@ -1,5 +1,12 @@
 package models
 
+type BannerType string
+
+const (
+	BannerTypeMain BannerType = "main"
+	BannerTypeBrand BannerType = "brand"
+)
+
 type (
 	//Настройки сайта
 	Settings struct {
@@ -10,5 +17,6 @@ type (
 	Banner struct {
 		Image string `json:"img"`
 		Href string `json:"href"`
+		Type BannerType `json:"type"`
 	}
 )

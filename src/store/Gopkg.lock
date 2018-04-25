@@ -189,6 +189,12 @@
   version = "v1.1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/looplab/fsm"
+  packages = ["."]
+  revision = "8def87414f14eaa69e4ee40abd20a7c195cea6f4"
+
+[[projects]]
   name = "github.com/matcornic/hermes"
   packages = ["."]
   revision = "23ab47deb5a321481be0c4936b810c1420da2262"
@@ -436,6 +442,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2141cfdf989e08d3f0d71831954262fb894e1a6d30994d9d1d066c5e128af946"
+  inputs-digest = "b1a7402dab7c74358183480db6ee5985abb7e67b33a8f207ab45eb12b4aba8b2"
   solver-name = "gps-cdcl"
   solver-version = 1
