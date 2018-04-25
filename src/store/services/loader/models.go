@@ -37,7 +37,7 @@ type (
 
 	SheetBanner struct {
 		Image  string `sheet:"Изображение"`
-		Active int    `sheet:"Активен"`
+		Active bool    `sheet:"Активен"`
 		Href   string `sheet:"Переход"`
 		Type   string `sheet:"Тип"`
 	}
@@ -57,6 +57,7 @@ func CreateBanner(sheetData SheetBanner) Banner {
 	return Banner{
 		Image: sheetData.Image,
 		Href:  sheetData.Href,
+		Active: sheetData.Active,
 		Type:  parseBannerType(sheetData.Type),
 	}
 }

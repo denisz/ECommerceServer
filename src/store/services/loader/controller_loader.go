@@ -119,7 +119,7 @@ func (p *ControllerLoader) AdsFromGoogle(c *gin.Context) {
 
 	settings := Settings {}
 	for _, sheetData := range banners {
-		if sheetData.Active == 1 {
+		if sheetData.Active {
 			settings.Banners = append(settings.Banners, CreateBanner(sheetData))
 		}
 	}

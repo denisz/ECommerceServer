@@ -17,6 +17,7 @@ type (
 	Banner struct {
 		Image string `json:"img"`
 		Href string `json:"href"`
+		Active bool `json:"active"`
 		Type BannerType `json:"type"`
 	}
 )
