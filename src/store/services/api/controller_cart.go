@@ -114,11 +114,13 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (int, error) {
 
 func (p *ControllerCart) BlockCheckout(c *gin.Context) error {
 	clientIP := c.ClientIP()
-
+	//поиск заказов от этого
+	matcher := q.And(q.Eq("ClientIP", clientIP), q.Eq("Status", OrderStatusAwaitingPayment))
 	//количество заказов которые ждут оплаты
-	totalAwaitPayment, err := p.DB.From(NodeNamedOrders).
-		Select(q.Eq("ClientIP", clientIP), q.Eq("Status", OrderStatusAwaitingPayment)).
-		Count(new(Product))
+	totalAwaitPayment, err := p.GetStore().From(NodeNamedOrders).
+		Select(matcher).
+		Count(new(Order))
+
 	if err != nil {
 		return err
 	}
@@ -362,7 +364,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		//отправляем письмо с блокировкой
 		utils.SendEmail(utils.CreateBrand(), emails.Ban{
 			EmailRecipient: cart.Address.Email,
-			NameRecipient: cart.Address.Name,
+			NameRecipient:  cart.Address.Name,
 		})
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -425,7 +427,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-
+		// фиксируем поизцию
 		positions = append(positions, v)
 	}
 	//фиксируем позиции
@@ -453,7 +455,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		Delivery:      cart.Delivery,
 		DeliveryPrice: cart.DeliveryPrice,
 		Address:       cart.Address,
-		ClientIP:       c.ClientIP(),
+		ClientIP:      c.ClientIP(),
 		Invoice:       invoice,
 	}
 	//сохраняем заказ

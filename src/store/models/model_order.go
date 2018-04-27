@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type OrderStatus int
+type OrderStatus string
 
 /**
 	Awaiting Payment — customer has completed the checkout process, but payment has yet to be confirmed. Authorize only transactions that are not yet captured have this status.
@@ -23,25 +23,25 @@ type OrderStatus int
  */
 const (
 	// Ожидании оплаты
-	OrderStatusAwaitingPayment OrderStatus = 0
+	OrderStatusAwaitingPayment OrderStatus = "awaitingPayment"
 
 	// Оплаченный заказ, ждем результатов
-	OrderStatusAwaitingFulfillment OrderStatus = 1
+	OrderStatusAwaitingFulfillment OrderStatus = "awaitingFulfillment"
 
 	//Заказ упакован, ждем отправки
-	OrderStatusAwaitingPickup OrderStatus = 2
+	OrderStatusAwaitingPickup OrderStatus = "awaitingPickup"
 
 	// Отправлен
-	OrderStatusAwaitingShipment OrderStatus = 3
+	OrderStatusAwaitingShipment OrderStatus = "awaitingShipment"
 
 	// Доставлен
-	OrderStatusShipped OrderStatus = 4
+	OrderStatusShipped OrderStatus = "shipped"
 
 	// Отклонен/Отменен
-	OrderStatusDeclined OrderStatus = 5
+	OrderStatusDeclined OrderStatus = "declined"
 
 	// Возврат
-	OrderStatusRefunded OrderStatus = 6
+	OrderStatusRefunded OrderStatus = "refunded"
 )
 
 func (p OrderStatus) String() string {
@@ -115,7 +115,7 @@ type (
 		OwnerID int `json:"ownerID"`
 
 		// IP автора
-		ClientIP string `json:"-"`
+		ClientIP string `storm:"index" json:"-"`
 
 		// Корзина
 		CartID int `json:"cartID"`
@@ -171,8 +171,8 @@ type (
 		// Квитанция об оплате
 		ReceiptNumber string `json:"receiptNumber"`
 
-		// Скидка
-		Discount Discount `json:"discount"`
+		//оповещение пользователя
+		NoticeRecipient bool `json:"noticeRecipient"`
 	}
 
 	// Фильтр поиска

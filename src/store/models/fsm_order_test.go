@@ -14,7 +14,7 @@ func TestFSMOrder(t *testing.T) {
 			{Name: "panic", Src: []string{"yellow"}, Dst: "red"},
 			{Name: "panic", Src: []string{"green"}, Dst: "red"},
 			{Name: "calm", Src: []string{"red"}, Dst: "yellow"},
-			{Name: "clear", Src: []string{"yellow"}, Dst: "green"},
+			{Name: "clear", Src: []string{""}, Dst: "green"},
 		},
 		fsm.Callbacks{
 			"before_warn": func(e *fsm.Event) {
@@ -53,4 +53,13 @@ func TestFSMOrder(t *testing.T) {
 	fmt.Println(f.Current())
 
 	fmt.Println(fsm.Visualize(f))
+}
+
+
+func TestTypeString(t *testing.T) {
+	a := OrderStatusRefunded
+	fmt.Printf("%s", a)
+
+	b := OrderStatus("refunded")
+	fmt.Printf("%s", b)
 }

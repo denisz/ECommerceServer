@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/http"
 	"github.com/asdine/storm"
+	"github.com/asdine/storm/codec/gob"
 	"github.com/jasonlvhit/gocron"
 	"store/services/api"
 	"store/services/loader"
@@ -48,7 +49,7 @@ func task() {
 }
 
 func NewStore(config *Config) (http.Handler, func(ctx context.Context), error) {
-	db, err := storm.Open("store.db")
+	db, err := storm.Open("store.db", storm.Codec(gob.Codec))
 	if err != nil {
 		return nil, nil, err
 	}

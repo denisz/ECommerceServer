@@ -6,7 +6,7 @@ func (p OrderStatus) Format() string {
 	case OrderStatusAwaitingPayment:
 		return "Принят. Ожидает оплаты"
 	case OrderStatusShipped:
-		return "Готов к выдаче"
+		return "Завершен"
 	case OrderStatusAwaitingFulfillment:
 		return "В обработке"
 	case OrderStatusAwaitingPickup:

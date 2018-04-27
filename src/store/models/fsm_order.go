@@ -2,64 +2,93 @@ package models
 
 import (
 	"github.com/looplab/fsm"
-	"strconv"
 	"fmt"
 )
 
 type OrderFsm struct {
-	FSM *fsm.FSM
+	FSM   *fsm.FSM
 	Order *Order
 }
 
-func(p *OrderFsm) Event(status OrderStatus, args ...interface{}) error {
+var (
+	AllOrderStatuses = []string {
+		OrderStatusAwaitingPayment.String(),
+		OrderStatusAwaitingFulfillment.String(),
+		OrderStatusAwaitingPickup.String(),
+		OrderStatusAwaitingShipment.String(),
+		OrderStatusShipped.String(),
+		OrderStatusDeclined.String(),
+		OrderStatusRefunded.String(),
+	}
+)
+
+func (p *OrderFsm) Event(status OrderStatus, args ...interface{}) error {
 	return p.FSM.Event(status.String(), args)
 }
 
 func (p *OrderFsm) Current() OrderStatus {
-	i, _ := strconv.Atoi(p.FSM.Current())
-	return OrderStatus(i)
+	return OrderStatus(p.FSM.Current())
 }
 
 func CreateOrderFsm(order *Order) *OrderFsm {
-	f := OrderFsm {
-		FSM : fsm.NewFSM(
+	f := OrderFsm{
+		FSM: fsm.NewFSM(
 			order.Status.String(),
 			fsm.Events{
-				{Name: OrderStatusAwaitingFulfillment.String(), Src: []string{"green", "red"}, Dst: "yellow"},
-				{Name: "panic", Src: []string{"yellow"}, Dst: "red"},
-				{Name: "panic", Src: []string{"green"}, Dst: "red"},
-				{Name: "calm", Src: []string{"red"}, Dst: "yellow"},
-				{Name: "clear", Src: []string{"yellow"}, Dst: "green"},
+				{
+					Name: OrderStatusAwaitingFulfillment.String(),
+					Src:  AllOrderStatuses,
+					Dst:  OrderStatusAwaitingFulfillment.String(),
+				},
+				{
+					Name: OrderStatusAwaitingPickup.String(),
+					Src:  AllOrderStatuses,
+					Dst:  OrderStatusAwaitingPickup.String(),
+				},
+				{
+					Name: OrderStatusAwaitingShipment.String(),
+					Src:  AllOrderStatuses,
+					Dst:  OrderStatusAwaitingShipment.String(),
+				},
+				{
+					Name: OrderStatusShipped.String(),
+					Src:  AllOrderStatuses,
+					Dst:  OrderStatusShipped.String(),
+				},
+				{
+					Name: OrderStatusDeclined.String(),
+					Src:  AllOrderStatuses,
+					Dst:  OrderStatusDeclined.String(),
+				},
+				{
+					Name: OrderStatusRefunded.String(),
+					Src:  AllOrderStatuses,
+					Dst:  OrderStatusRefunded.String(),
+				},
 			},
 			fsm.Callbacks{
-				"before_warn": func(e *fsm.Event) {
-					fmt.Println("before_warn")
+				fmt.Sprintf("after_%s", OrderStatusAwaitingFulfillment.String()): func(e *fsm.Event) {
+					//оплачен
+					fmt.Printf("after %s \n", OrderStatusAwaitingFulfillment.String())
 				},
-				"before_event": func(e *fsm.Event) {
-					fmt.Println("before_event")
+				fmt.Sprintf("after_%s", OrderStatusDeclined.String()): func(e *fsm.Event) {
+					//отменен
+					fmt.Printf("after %s \n", OrderStatusDeclined.String())
 				},
-				"leave_green": func(e *fsm.Event) {
-					fmt.Println("leave_green")
+				fmt.Sprintf("after_%s", OrderStatusShipped.String()): func(e *fsm.Event) {
+					//доставлен
+					fmt.Printf("after %s \n", OrderStatusShipped.String())
 				},
-				"leave_state": func(e *fsm.Event) {
-					fmt.Println("leave_state")
-				},
-				"enter_yellow": func(e *fsm.Event) {
-					fmt.Println("enter_yellow")
-				},
-				"enter_state": func(e *fsm.Event) {
-					fmt.Println("enter_state")
-				},
-				"after_warn": func(e *fsm.Event) {
-					fmt.Println("after_warn")
-				},
-				"after_event": func(e *fsm.Event) {
-					fmt.Println("after_event")
+				fmt.Sprintf("after_%s", OrderStatusAwaitingShipment.String()): func(e *fsm.Event) {
+					//отправлен
+					fmt.Printf("after %s \n", OrderStatusAwaitingShipment.String())
 				},
 			},
 		),
 		Order: order,
 	}
+
+	fsm.Visualize(f.FSM)
 
 	return &f
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/asdine/storm"
 	"strconv"
 	"github.com/asdine/storm/q"
+	"store/utils"
+	"store/services/emails"
 )
 
 type ControllerOrder struct {
@@ -99,6 +101,8 @@ func (p *ControllerOrder) SearchOrderPOST(c *gin.Context) {
 			Select(matcher).
 			Limit(limit).
 			Skip(offset).
+			OrderBy("CreatedAt").
+			Reverse().
 			Find(&orders)
 
 		if err != nil && err != storm.ErrNotFound {
@@ -141,30 +145,49 @@ func (p *ControllerOrder) UpdatePOST(c *gin.Context) {
 			return
 		}
 
+		orderNumber, err := strconv.Atoi(orderID)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
 		var order Order
-		err := p.GetStore().From(NodeNamedOrders).One("ID", orderID, &order)
+		err = p.GetStore().From(NodeNamedOrders).One("ID", orderNumber, &order)
 
 		if err == storm.ErrNotFound {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 
-		fsm := CreateOrderFsm(&order)
-		err = fsm.Event(json.Status)
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
+		order.Status = json.Status
+		order.ReceiptNumber = json.ReceiptNumber
+		order.TrackingNumber = json.TrackingNumber
+
+		if json.NoticeRecipient {
+			switch order.Status {
+			case OrderStatusAwaitingFulfillment:
+				//получили оплату
+				go utils.SendEmail(utils.CreateBrand(), emails.Processing{Order: order})
+			case OrderStatusDeclined:
+				//отменили
+				go utils.SendEmail(utils.CreateBrand(), emails.Declined{Order: order})
+			case OrderStatusShipped:
+				// доставили
+				//go utils.SendEmail(utils.CreateBrand(), emails.Receipt{Order: order})
+			case OrderStatusAwaitingShipment:
+				//отправили
+				go utils.SendEmail(utils.CreateBrand(), emails.Shipping{Order: order})
+			}
 		}
 
-		order.Status = fsm.Current()
 
-		err = p.DB.From(NodeNamedOrders).Save(&order)
+		err = p.GetStore().From(NodeNamedOrders).Save(&order)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
-		c.JSON(http.StatusOK, order)
+		c.JSON(http.StatusOK, &order)
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
