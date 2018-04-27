@@ -1,8 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
-type OrderStatus int32
+type OrderStatus int
 
 /**
 	Awaiting Payment — customer has completed the checkout process, but payment has yet to be confirmed. Authorize only transactions that are not yet captured have this status.
@@ -23,21 +25,28 @@ const (
 	// Ожидании оплаты
 	OrderStatusAwaitingPayment OrderStatus = 0
 
-	// Оплаченный заказ ждем результатов
+	// Оплаченный заказ, ждем результатов
 	OrderStatusAwaitingFulfillment OrderStatus = 1
 
+	//Заказ упакован, ждем отправки
+	OrderStatusAwaitingPickup OrderStatus = 2
+
 	// Отправлен
-	OrderStatusAwaitingShipment OrderStatus = 2
+	OrderStatusAwaitingShipment OrderStatus = 3
 
 	// Доставлен
-	OrderStatusShipped OrderStatus = 3
+	OrderStatusShipped OrderStatus = 4
 
 	// Отклонен/Отменен
-	OrderStatusDeclined OrderStatus = 4
+	OrderStatusDeclined OrderStatus = 5
 
 	// Возврат
-	OrderStatusRefunded OrderStatus = 5
+	OrderStatusRefunded OrderStatus = 6
 )
+
+func (p OrderStatus) String() string {
+	return string(p)
+}
 
 type (
 	// Квитанция

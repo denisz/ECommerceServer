@@ -9,6 +9,8 @@ func (p OrderStatus) Format() string {
 		return "Готов к выдаче"
 	case OrderStatusAwaitingFulfillment:
 		return "В обработке"
+	case OrderStatusAwaitingPickup:
+		return "Сформирован"
 	case OrderStatusAwaitingShipment:
 		return "Отправлен"
 	case OrderStatusDeclined:

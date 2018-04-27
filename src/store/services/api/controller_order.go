@@ -141,7 +141,6 @@ func (p *ControllerOrder) UpdatePOST(c *gin.Context) {
 			return
 		}
 
-		//вернуть исправленый order
 		var order Order
 		err := p.GetStore().From(NodeNamedOrders).One("ID", orderID, &order)
 
@@ -150,9 +149,22 @@ func (p *ControllerOrder) UpdatePOST(c *gin.Context) {
 			return
 		}
 
-		//fsm := CreateOrderFsm(order)
-		//fsm.FSM.Event(fsm)
-		//order.Status = fsm
+		fsm := CreateOrderFsm(&order)
+		err = fsm.Event(json.Status)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		order.Status = fsm.Current()
+
+		err = p.DB.From(NodeNamedOrders).Save(&order)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, order)
 	} else {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
