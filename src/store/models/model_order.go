@@ -44,6 +44,14 @@ const (
 	OrderStatusRefunded OrderStatus = "refunded"
 )
 
+type FilterOrderWhere string
+
+const (
+	FilterOrderWhereInvoice FilterOrderWhere = "invoice"
+	FilterOrderWhereDate FilterOrderWhere = "date"
+	FilterOrderWherePhone FilterOrderWhere = "phone"
+)
+
 func (p OrderStatus) String() string {
 	return string(p)
 }
@@ -117,6 +125,9 @@ type (
 		// IP автора
 		ClientIP string `storm:"index" json:"-"`
 
+		// Номер телефона
+		ClientPhone string `storm:"index" json:"-"`
+
 		// Корзина
 		CartID int `json:"cartID"`
 
@@ -177,7 +188,9 @@ type (
 
 	// Фильтр поиска
 	FilterOrder struct {
-		Invoice string `json:"invoice"`
+		Where FilterOrderWhere `json:"where"`
+		Query string `json:"query"`
+		Date time.Time `json:"date"`
 		Status OrderStatus `json:"status"`
 	}
 

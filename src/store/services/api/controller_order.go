@@ -9,10 +9,50 @@ import (
 	"github.com/asdine/storm/q"
 	"store/utils"
 	"store/services/emails"
+	"time"
 )
 
 type ControllerOrder struct {
 	Controller
+}
+
+//расформировать заказ
+func (p *ControllerOrder) BreakOrder(order *Order) error {
+	//каталог
+	store := p.GetStore()
+	//открыть транзакцию
+	tx, err := store.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	//бакеты
+	catalog := tx.From(NodeNamedCatalog)
+
+	for _, v := range order.Positions {
+		//пропускаем позиции с 0 количеством
+		if v.Amount <= 0 {
+			continue
+		}
+		//загружаем продукт
+		var product Product
+		err := catalog.One("SKU", v.ProductSKU, &product)
+		//продукт недоступен
+		if err != nil {
+			return err
+		}
+		//возвращаем товар
+		product.Quantity = product.Quantity + v.Amount
+		//сохраняем продукт
+		err = catalog.Save(&product)
+		if err != nil {
+			return err
+		}
+	}
+	//завершаем транзакцию
+	tx.Commit()
+	return nil
 }
 
 //получить информацию о заказе
@@ -77,7 +117,7 @@ func (p *ControllerOrder) OrderListPOST(c *gin.Context) {
 	})
 }
 
-//Поиск заказов
+//поиск заказов
 func (p *ControllerOrder) SearchOrderPOST(c *gin.Context) {
 	var filter FilterOrder
 
@@ -94,7 +134,22 @@ func (p *ControllerOrder) SearchOrderPOST(c *gin.Context) {
 			return
 		}
 
-		matcher := q.Or(q.Eq("Status", filter.Status), q.Eq("Invoice", filter.Invoice))
+		matcher := q.True()
+
+		if len(filter.Status) != 0 {
+			matcher = q.And(matcher, q.Eq("Status", filter.Status))
+		}
+
+		switch filter.Where {
+		case FilterOrderWhereDate:
+			beginningDay := filter.Date.Truncate(24 * time.Hour)
+			nextDay := filter.Date.AddDate(0, 0, 1).Truncate(24 * time.Hour)
+			matcher = q.And(matcher, q.Gte("CreatedAt", beginningDay), q.Lte("CreatedAt", nextDay))
+		case FilterOrderWhereInvoice:
+			matcher = q.And(matcher, q.Eq("Invoice", filter.Query))
+		case FilterOrderWherePhone:
+			matcher = q.And(matcher, q.Eq("ClientPhone", filter.Query))
+		}
 
 		var orders []Order
 		err = p.GetStore().From(NodeNamedOrders).
@@ -179,7 +234,6 @@ func (p *ControllerOrder) UpdatePOST(c *gin.Context) {
 				go utils.SendEmail(utils.CreateBrand(), emails.Shipping{Order: order})
 			}
 		}
-
 
 		err = p.GetStore().From(NodeNamedOrders).Save(&order)
 		if err != nil {

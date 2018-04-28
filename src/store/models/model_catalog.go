@@ -73,6 +73,12 @@ type (
 		// Скидка
 		Discount *Discount `json:"discount"`
 
+		//Минимальное количество в корзине
+		MinQtyAllowed int `json:"-"`
+
+		//Максимальное количество в корзине
+		MaxQtyAllowed int `json:"-"`
+
 		// Категория
 		CollectionSKU string `storm:"index" json:"collectionSKU"`
 

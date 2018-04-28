@@ -358,11 +358,11 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, ErrEmptyDelivery)
 		return
 	}
+	//блокировка
 	err := p.BlockCheckout(c)
-
 	if err != nil {
 		//отправляем письмо с блокировкой
-		utils.SendEmail(utils.CreateBrand(), emails.Ban{
+		go utils.SendEmail(utils.CreateBrand(), emails.Ban{
 			EmailRecipient: cart.Address.Email,
 			NameRecipient:  cart.Address.Name,
 		})
@@ -378,18 +378,12 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	defer tx.Rollback()
+
 	//бакеты
 	carts := tx.From(NodeNamedCarts)
 	orders := tx.From(NodeNamedOrders)
 	catalog := tx.From(NodeNamedCatalog)
-
-	invoice, err := CreateInvoice()
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	defer tx.Rollback()
 
 	var positions []Position
 
@@ -432,6 +426,12 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 	}
 	//фиксируем позиции
 	cart.Positions = positions
+	//создание счета
+	invoice, err := CreateInvoice()
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
 	//расчет доставки
 	deliveryPrice, err := p.GetDeliveryPrice(cart)
 	if err != nil {
@@ -456,6 +456,7 @@ func (p *ControllerCart) CheckoutPOST(c *gin.Context) {
 		DeliveryPrice: cart.DeliveryPrice,
 		Address:       cart.Address,
 		ClientIP:      c.ClientIP(),
+		ClientPhone:   cart.Address.Phone,
 		Invoice:       invoice,
 	}
 	//сохраняем заказ
