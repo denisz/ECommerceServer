@@ -1,23 +1,258 @@
 package themes
 
-// Flat is a theme
-type Default struct{}
-
-// Name returns the name of the flat theme
-func (dt *Default) Name() string {
-	return "flat"
-}
-
-
-// HTMLTemplate returns a Golang template that will generate an HTML email.
-func (dt *Default) HTMLTemplate() string {
-	return `
+//https://templates.mailchimp.com/resources/inline-css/
+const t = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" style="background-color: #fff;">
 <head style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
-  <style type="text/css" rel="stylesheet" media="all" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;"> 
+  <style type="text/css" rel="stylesheet" media="all" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
+    /* Base ------------------------------ */
+    *:not(br):not(tr):not(html) {
+      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+	html {
+		background-color: #fff;
+	}
+    body {
+      width: 100% !important;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border:0; 
+      outline:0;
+      line-height: 1.4;
+      background-color: #fff;
+      color: #000;
+      -webkit-text-size-adjust: none;
+    }
+    a {
+      color: #3869D4;
+    }
+
+    /* Layout ------------------------------ */
+    .email-wrapper {
+      width: 100%;
+      margin: 0;
+      padding: 0; 
+    }
+    .email-content {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    /* Masthead ----------------------- */
+    .email-masthead {
+      padding: 15px 10px;
+      text-align: left;
+      background-color: #0d253a;
+      height: 220px;
+    }
+    .email-masthead_logo {
+      max-width: 400px;
+      border: 0;
+    }
+    .email-masthead_name {
+      font-size: 16px;
+      font-weight: bold;
+      color: #2F3133;
+      text-decoration: none; 
+      text-shadow: 0 1px 0 white;
+    }
+    .email-logo {
+      max-height: 130px;
+    }
+    /* Footer ------------------------------ */
+	.email-footer {
+		background-color: #0d253a;
+	}
+    /* Body ------------------------------ */
+    .email-body {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #EDEFF2;
+      border-bottom: 1px solid #EDEFF2;
+      background-color: #FFF;
+    }
+    .email-body_inner {
+      //max-width: 640px;
+      //margin: 0 auto;
+      padding: 0;
+    }
+    .email-footer_inner {
+      width: 570px;
+      margin: 0 auto;
+      padding: 0;
+      background-color: rgb(13, 37, 58);
+      text-align: center;
+    }
+    .email-footer_inner p {
+      color: #eaeaea;
+    }
+    .body-action {
+      width: 100%;
+      margin: 30px auto;
+      padding: 0;
+      text-align: center;
+    }
+
+    .body-dictionary {
+      width: 100%;
+      overflow: hidden;
+      margin: 20px auto 20px;
+      padding: 0;
+    }
+    .body-dictionary dt {
+      clear: both;
+      color: #000;
+      font-weight: bold;
+      float: left;
+      width: 40%;
+      padding: 0;
+      margin: 0;
+      margin-bottom: 0.3em;
+    }
+    .body-dictionary dd {
+      float: left;
+      width: 60%;
+      padding: 0;
+      margin: 0;
+    }
+    .body-sub {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid #EDEFF2;
+      table-layout: fixed;
+    }
+    .body-sub a {
+      word-break: break-all;
+    }
+    .content-cell {
+      padding: 10px;
+    }
+    .align-right {
+      text-align: right;
+    }
+    /* Type ------------------------------ */
+    h1 {
+      margin-top: 0;
+      color: #2F3133;
+      font-size: 19px;
+      font-weight: bold;
+    }
+    h2 {
+      margin-top: 0;
+      color: #2F3133;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    h3 {
+      margin-top: 0;
+      color: #2F3133;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    blockquote {
+      margin: 1.7rem 0;
+      padding-left: 0.85rem;
+      border-left: 10px solid #F0F2F4;
+    }
+    blockquote p {
+        font-size: 1.1rem;
+        color: #999;
+    }
+    blockquote cite {
+        display: block;
+        text-align: right;
+        color: #666;
+        font-size: 1.2rem;
+    }
+    cite {
+      display: block;
+      font-size: 0.925rem; 
+    }
+    cite:before {
+      content: "\2014 \0020";
+    }
+    p {
+      margin-top: 0;
+      color: #000;
+      font-size: 16px;
+      line-height: 1.5em;
+    }
+    p.sub {
+      font-size: 12px;
+    }
+    p.center {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+    }
+    th {
+      padding: 0px 5px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #EDEFF2;
+    }
+    th p {
+      margin: 0;
+      color: #9BA2AB;
+      font-size: 12px;
+    }
+    td {
+      padding: 10px 5px;
+      color: #000;
+      font-size: 15px;
+      line-height: 18px;
+    }
+    .content {
+      align: center;
+      padding: 0;
+    }
+    /* Data table ------------------------------ */
+    .data-wrapper {
+      width: 100%;
+      margin: 0;
+      padding: 5px 0;
+    }
+    .data-table {
+      width: 100%;
+      margin: 0;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 0px 5px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #EDEFF2;
+    }
+    .data-table th p {
+      margin: 0;
+      color: #9BA2AB;
+      font-size: 12px;
+    }
+    .data-table td {
+      padding: 10px 5px;
+      color: #000;
+      font-size: 15px;
+      line-height: 18px;
+    }
+    /* Buttons ------------------------------ */
+    .button {
+      display: inline-block;
+      width: 100%;
+      background-color: #00948d;
+      color: #ffffff;
+      font-size: 15px;
+      line-height: 45px;
+      text-align: center;
+      text-decoration: none;
+      -webkit-text-size-adjust: none;
+      mso-hide: all;
+    }
     /*Media Queries ------------------------------ */
     @media only screen and (max-width: 600px) {
       .email-body_inner,
@@ -199,65 +434,4 @@ func (dt *Default) HTMLTemplate() string {
     </tr>
   </table>
 </body>
-</html>
-`
-}
-
-// PlainTextTemplate returns a Golang template that will generate an plain text email.
-func (dt *Default) PlainTextTemplate() string {
-	return `
-<h2>{{if .Email.Body.Title }}{{ .Email.Body.Title }}{{ else }}{{ .Email.Body.Greeting }} {{ .Email.Body.Name }}{{ end }},</h2>
-{{ with .Email.Body.Intros }}
-  {{ range $line := . }}
-    <p>{{ $line }}</p>
-  {{ end }}
-{{ end }}
-{{ if (ne .Email.Body.FreeMarkdown "") }}
-  {{ .Email.Body.FreeMarkdown.ToHTML }}
-{{ else }}
-  {{ with .Email.Body.Dictionary }}
-    <ul>
-    {{ range $entry := . }}
-      <li>{{ $entry.Key }}: {{ $entry.Value }}</li>
-    {{ end }}
-    </ul>
-  {{ end }}
-  {{ with .Email.Body.Table }}
-    {{ $data := .Data }}
-    {{ $columns := .Columns }}
-    {{ if gt (len $data) 0 }}
-      <table class="data-table" width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-          {{ $col := index $data 0 }}
-          {{ range $entry := $col }}
-            <th>{{ $entry.Key }} </th>
-          {{ end }}
-        </tr>
-        {{ range $row := $data }}
-          <tr>
-            {{ range $cell := $row }}
-              <td>
-                {{ $cell.Value }}
-              </td>
-            {{ end }}
-          </tr>
-        {{ end }}
-      </table>
-    {{ end }}
-  {{ end }}
-  {{ with .Email.Body.Actions }} 
-    {{ range $action := . }}
-      <p>{{ $action.Instructions }} {{ $action.Button.Link }}</p> 
-    {{ end }}
-  {{ end }}
-{{ end }}
-{{ with .Email.Body.Outros }} 
-  {{ range $line := . }}
-    <p>{{ $line }}<p>
-  {{ end }}
-{{ end }}
-<p>{{.Email.Body.Signature}},<br>{{.Hermes.Product.Name}} - {{.Hermes.Product.Link}}</p>
-
-<p>{{.Hermes.Product.Copyright}}</p>
-`
-}
+</html>`

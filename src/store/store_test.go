@@ -63,7 +63,7 @@ func CreateMockOrder(t *testing.T) Order {
 			PostalCode: "430030",
 			Phone: "+7 (999) 89-795-61",
 			Name: "Zaycev Denis",
-			Email: "denisxy12@gmail.com",
+			Email: "d.zaycev@bytexgames.ru",
 			Comment: "Код от домофона 309",
 		},
 		Invoice: invoice,
@@ -80,9 +80,9 @@ func CreateBrand() hermes.Hermes {
 			// Appears in header & footer of e-mails
 			Name: "Dark Waters",
 			Copyright: "Copyright © 2018 Dark Waters. All rights reserved.",
-			Link: "http://95.213.236.60",
+			Link: "http://darkwaters.store",
 			// Optional product logo
-			Logo: "http://95.213.236.60/img/ic_brand.png",
+			Logo: "http://darkwaters.store/img/ic_brand.png",
 		},
 	}
 }
