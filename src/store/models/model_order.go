@@ -135,16 +135,16 @@ type (
 		Invoice string `storm:"unique" json:"invoice"`
 
 		// Цена на товары
-		Subtotal int `json:"subtotal"`
+		Subtotal Price `json:"subtotal"`
 
 		//Цена товаров
-		ProductPrice int `json:"productPrice"`
+		ProductPrice Price `json:"productPrice"`
 
 		// Цена доставки
-		DeliveryPrice int `json:"deliveryPrice"`
+		DeliveryPrice Price `json:"deliveryPrice"`
 
 		// Общая цена
-		Total int `json:"total"`
+		Total Price `json:"total"`
 
 		// Комментарий заказа
 		Comment string `json:"comment"`
@@ -159,13 +159,16 @@ type (
 		ID int `storm:"id,increment"`
 
 		// Номер заказа
-		OrderID int `json:"orderId"`
+		OrderID int `storm:"index" json:"orderID"`
 
 		// Индентифкатор оператора
-		OperatorID int `json:"operatorId"`
+		OperatorID int `json:"operatorID"`
 
 		// Комментарий оператора
 		Comment string `json:"comment"`
+
+		// Время создания
+		CreatedAt time.Time `json:"createdAt"`
 
 		// Статус
 		Status OrderStatus `json:"status"`
@@ -184,6 +187,9 @@ type (
 
 		//оповещение пользователя
 		NoticeRecipient bool `json:"noticeRecipient"`
+
+		//Комеентарий
+		Comment string `json:"comment"`
 	}
 
 	// Фильтр поиска

@@ -1,9 +1,8 @@
-package loader
+package api
 
 import (
 	. "store/models"
-	"net/http"
-	"github.com/gin-gonic/gin"
+	"store/services/loader"
 	"fmt"
 )
 
@@ -15,41 +14,37 @@ var (
 )
 
 type ControllerLoader struct {
-	Config *Config
+	Config *loader.Config
 	Controller
 }
 
 //Загрузка каталога продуктов
-func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
+func (p *ControllerLoader) CatalogFromGoogle() error {
 	var err error
 
-	var collections []SheetCollection
-	err = UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCollectionsName)
+	var collections []loader.SheetCollection
+	err = loader.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCollectionsName)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return err
 	}
 
-	var products []SheetProduct
-	err = UnmarshalSpreadsheet(&products, p.Config.SpreadSheetID, RangeProductsName)
+	var products []loader.SheetProduct
+	err = loader.UnmarshalSpreadsheet(&products, p.Config.SpreadSheetID, RangeProductsName)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return err
 	}
 
-	var notations []SheetNotation
-	err = UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
+	var notations []loader.SheetNotation
+	err = loader.UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return err
 	}
 
 	var catalog = p.GetStore().From(NodeNamedCatalog)
 
 	tx, err := catalog.Begin(true)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return err
 	}
 	defer tx.Rollback()
 
@@ -76,66 +71,63 @@ func (p *ControllerLoader) CatalogFromGoogle(c *gin.Context) {
 
 	// Категории
 	for _, sheetData := range collections {
-		collection := CreateCollection(sheetData)
+		collection := loader.CreateCollection(sheetData)
 		err = tx.Save(&collection)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
+			return err
 		}
 	}
 
 	// Продукты
 	for _, sheetData := range products {
-		product := CreateProduct(sheetData)
+		product := loader.CreateProduct(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
+			return err
 		}
 	}
 
 	// Описания
 	for _, sheetData := range notations {
-		product := CreateNotation(sheetData)
+		product := loader.CreateNotation(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
+			return err
 		}
 	}
 
 	tx.Commit()
-	c.JSON(http.StatusOK, gin.H{})
+	return nil
 }
 
 //Загрузка рекламных баннеров
-func (p *ControllerLoader) AdsFromGoogle(c *gin.Context) {
+func (p *ControllerLoader) AdsFromGoogle() error {
 	var err error
-	var banners []SheetBanner
-	err = UnmarshalSpreadsheet(&banners, p.Config.SpreadSheetID, RangeBannersName)
+	var banners []loader.SheetBanner
+	err = loader.UnmarshalSpreadsheet(&banners, p.Config.SpreadSheetID, RangeBannersName)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		return err
 	}
 
 	settings := Settings {}
 	for _, sheetData := range banners {
 		if sheetData.Active {
-			settings.Banners = append(settings.Banners, CreateBanner(sheetData))
+			settings.Banners = append(settings.Banners, loader.CreateBanner(sheetData))
 		}
 	}
 	db := p.GetStore().From(NodeNamedSettings)
 
 	tx, err := db.Begin(true)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		return err
 	}
 	defer tx.Rollback()
 
 	err = tx.Set("settings", "754-3010", &settings)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		return err
 	}
 
 	tx.Commit()
-	c.JSON(http.StatusOK, gin.H{})
+	return nil
 }

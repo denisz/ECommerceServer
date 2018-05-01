@@ -7,7 +7,7 @@ import (
 )
 
 func TestPriceComputer(t *testing.T) {
-	price := 1000
+	var price Price = 1000
 	discount := Discount{
 		Type: DiscountTypePercentage,
 		Amount: 10,

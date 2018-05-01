@@ -1,20 +1,23 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	. "store/models"
-	"net/http"
 )
 
 type ControllerSettings struct {
 	Controller
 }
 
-func (p *ControllerSettings) Index(c *gin.Context) {
-	db := p.GetStore().From(NodeNamedSettings)
+func (p *ControllerSettings) GetSettings() (*Settings, error) {
 	var settings Settings
+	err := p.GetStore().
+		From(NodeNamedSettings).
+		Get("settings", "754-3010", &settings)
 
-	db.Get("settings", "754-3010", &settings)
-	c.JSON(http.StatusOK, &settings)
+	if err != nil {
+		return nil, err
+	}
+
+	return &settings, nil
 }
 

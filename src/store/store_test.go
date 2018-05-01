@@ -150,7 +150,7 @@ func TestEmailShipping(t *testing.T) {
 func TestEmailBan(t *testing.T) {
 	order := CreateMockOrder(t)
 	brand := CreateBrand()
-	email := emails.Ban{ Order: order }
+	email := emails.Ban{ EmailRecipient: order.Address.Email }
 	err := utils.SendEmail(brand, email)
 	if err != nil {
 		t.Error(err)

@@ -91,7 +91,7 @@ func CreateProduct(sheetData SheetProduct) Product {
 		SKU:           sheetData.SKU,
 		Quantity:      sheetData.Quantity,
 		CollectionSKU: sheetData.CollectionSKU,
-		Price:         sheetData.Price * 100, // 100 копеек
+		Price:         Price(sheetData.Price * 100) , // 100 копеек
 		Pictures:      []string{},
 	}
 

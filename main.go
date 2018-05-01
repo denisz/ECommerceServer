@@ -40,10 +40,11 @@ func main() {
 
 	wait := time.Second * 1
 
-	s, shutdownStore, err := store.NewStore(&store.Config{
+	store, err := store.NewStore(&store.Config{
 		MainServerURL: urls[0],
-		ExtraURLs: urls[1:],
-		HR: []string {
+		ExtraURLs:     urls[1:],
+		DBFile: "store.db",
+		HR: []string{
 			"denisxy12@gmail.com",
 			"kosmo_polit@rambler.ru",
 		},
@@ -58,7 +59,7 @@ func main() {
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      s, // Pass our instance of gorilla/mux in.
+		Handler:      store, // Pass our instance of gorilla/mux in.
 	}
 
 	// Run our server in a goroutine so that it doesn't block.
@@ -84,7 +85,7 @@ func main() {
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
 	srv.Shutdown(ctx)
-	shutdownStore(ctx)
+	store.Shutdown(ctx)
 	// Optionally, you could run srv.Shutdown in a goroutine and block on
 	//if your application should wait for other services
 	<-ctx.Done()

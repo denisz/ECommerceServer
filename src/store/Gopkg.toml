@@ -128,3 +128,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/looplab/fsm"
+
+[[constraint]]
+  name = "github.com/gedex/bp3d"
+  version = "0.0.1"

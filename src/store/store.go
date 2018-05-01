@@ -6,93 +6,52 @@ import (
 	"net/http"
 	"github.com/asdine/storm"
 	"github.com/asdine/storm/codec/gob"
-	"github.com/jasonlvhit/gocron"
 	"store/services/api"
-	"store/services/loader"
-	. "store/models"
-	"fmt"
 )
 
 type Store struct {
 	Config *Config
-
-	// API
-	Admin    api.ControllerAdmin
-	Cart     api.ControllerCart
-	Settings api.ControllerSettings
-	Order    api.ControllerOrder
-	Account  api.ControllerAccount
-	Session  api.ControllerSession
-	Catalog  api.ControllerCatalog
-	Delivery api.ControllerDelivery
-	Sales    api.ControllerSales
-
-	//Loader
-	Loader loader.ControllerLoader
+	API *api.API
+	DB *storm.DB
+	Scheduler *Scheduler
+	HTTPHandler http.Handler
 }
 
-func createShutdown(db *storm.DB) func(ctx context.Context) {
-	return func(ctx context.Context) {
-		for {
-			select {
-			case <-ctx.Done():
-				log.Println("DB close")
-				db.Close()
-				return
-			}
-		}
-	}
-}
-
-func task() {
-	fmt.Println("hello")
-}
-
-func NewStore(config *Config) (http.Handler, func(ctx context.Context), error) {
-	db, err := storm.Open("store.db", storm.Codec(gob.Codec))
+func NewStore(config *Config) (*Store, error) {
+	DB, err := storm.Open(config.DBFile, storm.Codec(gob.Codec))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	gocron.Every(1).Day().At("11:20").Do(task)
-	gocron.Start()
+	API := api.NewAPI(&api.Config{
+		DB: DB,
+	})
+
+	scheduler := CreateScheduler(API)
+	handlers := CreateMapping(API, append([]string{config.MainServerURL}, config.ExtraURLs...))
 
 	s := &Store{
 		Config: config,
-		Admin: api.ControllerAdmin{
-			Controller: Controller{DB: db},
-		},
-		Cart: api.ControllerCart{
-			Controller: Controller{DB: db},
-		},
-		Account: api.ControllerAccount{
-			Controller: Controller{DB: db},
-		},
-		Settings: api.ControllerSettings{
-			Controller: Controller{DB: db},
-		},
-		Session: api.ControllerSession{
-			Controller: Controller{DB: db},
-		},
-		Delivery: api.ControllerDelivery{
-			Controller: Controller{DB: db},
-		},
-		Order: api.ControllerOrder{
-			Controller: Controller{DB: db},
-		},
-		Catalog: api.ControllerCatalog{
-			Controller: Controller{DB: db},
-		},
-		Sales: api.ControllerSales{
-			Controller: Controller{DB: db},
-		},
-		Loader: loader.ControllerLoader{
-			Controller: Controller{DB: db},
-			Config: &loader.Config{
-				SpreadSheetID: "13Mr_bOjtMmJ8TivMz3Z5nniT0r92ujlk48m4tXFqSJE",
-			},
-		},
+		API: API,
+		DB: DB,
+		Scheduler: scheduler,
+		HTTPHandler: handlers,
 	}
 
-	return createRouter(s), createShutdown(db), nil
+	return s, nil
+}
+
+func(p *Store) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	p.HTTPHandler.ServeHTTP(w, r)
+}
+
+func (p *Store) Shutdown(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("DB close")
+			p.DB.Close()
+			return
+		}
+	}
 }

@@ -24,7 +24,7 @@ func (p Shipping) Email() hermes.Email {
 
 	for _, position := range p.Order.Positions {
 		table = append(table, []hermes.Entry{
-			{Key: "Позиция", Value: fmt.Sprintf("%s x %d", position.Product.Name, position.Amount )},
+			{Key: "Позиция", Value: position.ToFormat()},
 		})
 	}
 
@@ -41,6 +41,7 @@ func (p Shipping) Email() hermes.Email {
 				{Key: "Статус заказа", Value: p.Order.Status.Format()},
 				{Key: "Доставка", Value: p.Order.Delivery.Format()},
 				{Key: "Адрес", Value: p.Order.Address.Format()},
+				{Key: "Номер отслеживания", Value: p.Order.TrackingNumber},
 			},
 			Table: hermes.Table{
 				Data: table,
@@ -56,7 +57,7 @@ func (p Shipping) Email() hermes.Email {
 			},
 			Actions: []hermes.Action{
 				{
-					Instructions: "Отслеживать информацию о вашей посылке и получить трек-код вы можете на",
+					Instructions: "Отслеживать информацию о вашей посылке вы можете на",
 					Button: hermes.Button{
 						Color: "#22BC66", // Optional action button color
 						Text:  "Отследить посылку",

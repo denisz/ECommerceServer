@@ -24,14 +24,14 @@ func (p Receipt) Email() hermes.Email {
 
 	for _, position := range p.Order.Positions {
 		table = append(table, []hermes.Entry{
-			{Key: "Позиция", Value: fmt.Sprintf("%s x %d", position.Product.Name, position.Amount )},
-			{Key: "Цена", Value: fmt.Sprintf("%d руб.", position.Total / 100)},
+			{Key: "Позиция", Value: position.ToFormat()},
+			{Key: "Цена", Value: position.Total.ToFormat()},
 		})
 	}
 
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Цена товара:"},
-		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.ProductPrice / 100)},
+		{Key: "Цена", Value: p.Order.ProductPrice.ToFormat()},
 	})
 
 	if p.Order.Discount != nil {
@@ -43,12 +43,12 @@ func (p Receipt) Email() hermes.Email {
 
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Цена доставки:"},
-		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.DeliveryPrice / 100)},
+		{Key: "Цена", Value: p.Order.DeliveryPrice.ToFormat()},
 	})
 
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Итого к оплате:"},
-		{Key: "Цена", Value: fmt.Sprintf("%d руб.", p.Order.Total / 100)},
+		{Key: "Цена", Value: p.Order.Total.ToFormat()},
 	})
 
 	return hermes.Email{

@@ -2,11 +2,8 @@ package api
 
 import (
 	. "store/models"
-	"strconv"
-	"net/http"
 	"github.com/asdine/storm/q"
 	"github.com/asdine/storm"
-	"github.com/gin-gonic/gin"
 )
 
 type ControllerSales struct {
@@ -14,53 +11,39 @@ type ControllerSales struct {
 }
 
 
-func(p *ControllerSales) IndexPOST(c *gin.Context) {
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if err != nil  {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
+func(p *ControllerSales) GetProducts(pagination Pagination) (*PageProducts, error) {
 	var products []Product
 
-	err = p.GetStore().From(NodeNamedCatalog).Select(q.Not(q.Eq("Discount", nil))).Limit(limit).Skip(offset).Find(&products)
+	matcher := q.Not(q.Eq("Discount", nil))
+
+	err := p.GetStore().From(NodeNamedCatalog).
+		Select(matcher).
+		Limit(pagination.Limit).
+		Skip(pagination.Offset).
+		Find(&products)
 
 	if err != nil && err != storm.ErrNotFound {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return nil, err
 	}
 
-	total, err := p.GetStore().From(NodeNamedCatalog).Select(q.Not(q.Eq("Discount", nil))).Count(new(Product))
+	total, err := p.GetStore().From(NodeNamedCatalog).
+		Select(matcher).
+		Count(new(Product))
+
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return nil, err
 	}
 
 	for _, product := range products {
 		product.PriceCalculate()
 	}
 
-	c.JSON(http.StatusOK, PageProducts{
+	return &PageProducts{
 		Content: products,
 		Cursor: Cursor{
 			Total: total,
-			Limit: limit,
-			Offset: offset,
+			Limit: pagination.Limit,
+			Offset: pagination.Offset,
 		},
-	})
-}
-
-/**
-	1. Поиск всех акционных товаров
-	2. Удалить акционные товары
-	3. Выбрать 3 следующих
- */
-func(p *ControllerSales) UpdatePOST(c *gin.Context) {
-
+	}, nil
 }

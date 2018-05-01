@@ -7,14 +7,19 @@ import (
 	"net/http"
 	"time"
 	Middleware "store/middlewares"
+	"store/services/router"
+	"store/services/api"
 )
 
 var I = Middleware.Instrument
 
-func createRouter(store *Store) http.Handler {
+func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 	//gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
+
+	// Handlers
+	h := router.NewRouter(api)
 
 	// Statistics middleware
 	r.Use(Middleware.Stats())
@@ -29,7 +34,7 @@ func createRouter(store *Store) http.Handler {
 
 	// CORS Request
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     append([]string{store.Config.MainServerURL}, store.Config.ExtraURLs...),
+		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "HEAD", "PATCH", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -67,27 +72,28 @@ func createRouter(store *Store) http.Handler {
 		TimeFunc: time.Now,
 	}
 
+	//Mapping
 	v1 := r.Group("/api/v1/")
 	{
-		v1.POST("/settings", I("/settings"), store.Settings.Index)
-		v1.POST("/catalog/collections", I("/catalog/collection"), store.Catalog.CollectionsPOST)
-		v1.POST("/catalog/collection/:sku", I("/catalog/collection/:sku"), store.Catalog.CollectionPOST)
-		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), store.Catalog.ProductsPOST)
-		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), store.Catalog.ProductPOST)
-		v1.POST("/catalog/notation/:sku", I("/catalog/notation/:sku"), store.Catalog.NotationPOST)
-		v1.POST("/catalog/search", I("/catalog/search"), store.Catalog.SearchProductsPOST)
-		v1.POST("/sales", I("/sales"), store.Sales.IndexPOST)
-		v1.POST("/cart", I("/cart"), store.Cart.IndexPOST)
-		v1.POST("/cart/detail", I("/cart"), store.Cart.DetailPOST)
-		v1.POST("/cart/update", I("/cart/update"), store.Cart.UpdatePOST)
-		v1.POST("/cart/address", I("/cart/address"), store.Cart.UpdateAddressPOST)
-		v1.POST("/cart/delivery", I("/cart/delivery"), store.Cart.UpdateDeliveryPOST)
-		v1.POST("/cart/checkout", I("/order/checkout"), store.Cart.CheckoutPOST)
-		v1.POST("/orders/check/:invoice", I("/orders/check/:invoice"), store.Order.OrderDetailPOST)
+		v1.POST("/settings", I("/settings"), h.SettingsIndex)
+		v1.POST("/catalog/collections", I("/catalog/collection"), h.CatalogCollectionsPOST)
+		v1.POST("/catalog/collection/:sku", I("/catalog/collection/:sku"), h.CatalogCollectionDetailPOST)
+		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), h.CatalogProductsPOST)
+		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), h.CatalogProductDetailPOST)
+		v1.POST("/catalog/notation/:sku", I("/catalog/notation/:sku"), h.CatalogNotationPOST)
+		v1.POST("/catalog/search", I("/catalog/search"), h.CatalogSearchProductsPOST)
+		v1.POST("/sales", I("/sales"), h.SalesIndexPOST)
+		v1.POST("/cart", I("/cart"), h.CartIndexPOST)
+		v1.POST("/cart/detail", I("/cart"), h.CartDetailPOST)
+		v1.POST("/cart/update", I("/cart/update"), h.CartUpdatePOST)
+		v1.POST("/cart/address", I("/cart/address"), h.CartUpdateAddressPOST)
+		v1.POST("/cart/delivery", I("/cart/delivery"), h.CartUpdateDeliveryPOST)
+		v1.POST("/cart/checkout", I("/order/checkout"), h.CartCheckoutPOST)
+		v1.POST("/orders/check/:invoice", I("/orders/check/:invoice"), h.OrderDetailPOST)
 
 		v1.POST("/account/login", authMiddleware.LoginHandler)
-		v1.GET("/load/catalog", I("/load/catalog"), store.Loader.CatalogFromGoogle)
-		v1.GET("/load/ads", I("/load/ads"), store.Loader.AdsFromGoogle)
+		v1.GET("/load/catalog", I("/load/catalog"), h.LoaderCatalogFromGoogle)
+		v1.GET("/load/ads", I("/load/ads"), h.LoaderAdsFromGoogle)
 	}
 
 	v1.Use(authMiddleware.MiddlewareFunc())
@@ -95,10 +101,11 @@ func createRouter(store *Store) http.Handler {
 		//v1.GET("/admin", )
 		//v1.POST("/order/cancel/:invoice", I("/order/cancel/:invoice"))
 		//v1.POST("/order/")
-		v1.POST("/account/me", I("/account/me"), store.Account.MePOST)
-		v1.POST("/order/:id", I("/order/:id"), store.Order.UpdatePOST)
-		v1.POST("/orders/list", I("/orders/list"), store.Order.OrderListPOST)
-		v1.POST("/orders/search", I("/orders/search"), store.Order.SearchOrderPOST)
+		v1.POST("/account/me", I("/account/me"), h.AccountMePOST)
+		v1.POST("/order/:id", I("/order/:id"), h.OrderUpdatePOST)
+		v1.POST("/orders/list", I("/orders/list"), h.OrderListPOST)
+		v1.POST("/orders/clear", I("/orders/clear"), h.OrderClearExpired)
+		v1.POST("/orders/search", I("/orders/search"), h.SearchOrdersPOST)
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

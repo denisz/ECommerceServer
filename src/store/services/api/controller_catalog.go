@@ -1,10 +1,7 @@
 package api
 
 import (
-	"net/http"
 	"github.com/asdine/storm"
-	"github.com/gin-gonic/gin"
-	"strconv"
 	"github.com/asdine/storm/q"
 	. "store/models"
 	"fmt"
@@ -14,212 +11,137 @@ type ControllerCatalog struct {
 	Controller
 }
 
-func (p *ControllerCatalog) CollectionPOST(c *gin.Context) {
-	sku := c.Param("sku")
-
-	if len(sku) == 0 {
-		c.AbortWithError(http.StatusBadRequest, nil)
-		return
-	}
-
+// Коллекция
+func (p *ControllerCatalog) GetCollectionBySKU(sku string) (*Collection, error){
 	var collection Collection
 	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &collection)
 
 	if err == storm.ErrNotFound {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+		return nil, err
 	}
 
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, collection)
+	return &collection, nil
 }
 
 // Список коллекции
-func (p *ControllerCatalog) CollectionsPOST(c *gin.Context) {
+func (p *ControllerCatalog) GetAllCollections() (*PageCollections, error) {
 	var collections []Collection
 	err := p.GetStore().From(NodeNamedCatalog).All(&collections)
 	if err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
-		return
+		return nil, err
 	}
 
-	c.JSON(http.StatusOK, PageCollections{
+	return &PageCollections{
 		Content: collections,
 		Cursor: Cursor{
 			Total:  len(collections),
 			Limit:  len(collections),
 			Offset: 0,
 		},
-	})
+	}, nil
 }
 
-func (p *ControllerCatalog) ProductsPOST(c *gin.Context) {
-	sku := c.Param("sku")
-
-	if len(sku) == 0 {
-		c.AbortWithError(http.StatusBadRequest, nil)
-		return
-	}
-
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
+// Список товаров
+func (p *ControllerCatalog) GetProductsByCollectionSKU(sku string, pagination Pagination) (*PageProducts, error) {
 	var products []Product
-	err = p.GetStore().From(NodeNamedCatalog).Find("CollectionSKU", sku, &products, storm.Limit(limit), storm.Skip(offset))
+	err := p.GetStore().From(NodeNamedCatalog).
+		Find("CollectionSKU", sku, &products, storm.Limit(pagination.Limit), storm.Skip(pagination.Offset))
 
 	if err != nil && err != storm.ErrNotFound {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return nil, err
 	}
 
-	total, err := p.GetStore().From(NodeNamedCatalog).Select(q.Eq("CollectionSKU", sku)).Count(new(Product))
+	total, err := p.GetStore().From(NodeNamedCatalog).
+		Select(q.Eq("CollectionSKU", sku)).
+		Count(new(Product))
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return nil, err
 	}
 
 	for _, product := range products {
 		product.PriceCalculate()
 	}
 
-	//update prices
-	c.JSON(http.StatusOK, PageProducts{
+	return &PageProducts{
 		Content: products,
 		Cursor: Cursor{
 			Total:  total,
-			Limit:  limit,
-			Offset: offset,
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
 		},
-	})
+	}, nil
 }
 
 //Поиск по наименованию товара
-func (p *ControllerCatalog) SearchProductsPOST(c *gin.Context) {
-	var filter FilterCatalog
+func (p *ControllerCatalog) SearchProductsWithFilter(filter FilterCatalog, pagination Pagination) (*PageProducts, error) {
+	matcher := q.True()
 
-	if err := c.ShouldBindJSON(&filter); err == nil {
-		limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-
-		offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-
-		matcher := q.True()
-
-		if len(filter.CollectionSKU) > 0 {
-			matcher = q.And(matcher, q.Eq("CollectionSKU", filter.CollectionSKU))
-		}
-
-		if len(filter.Query) > 0 {
-			matcher = q.And(matcher, q.Re("Name", fmt.Sprintf("^%s", filter.Query)))
-		}
-
-		if len(filter.Producer) > 0 {
-			matcher = q.And(matcher, q.Eq("Producer", filter.Producer))
-		}
-
-		var products []Product
-		err = p.GetStore().From(NodeNamedCatalog).
-			Select(matcher).
-			Limit(limit).
-			Skip(offset).
-			Find(&products)
-
-		if err != nil && err != storm.ErrNotFound {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		total, err := p.GetStore().From(NodeNamedCatalog).
-			Select(matcher).
-			Count(new(Product))
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		for _, product := range products {
-			product.PriceCalculate()
-		}
-
-		//update prices
-		c.JSON(http.StatusOK, PageProducts{
-			Content: products,
-			Cursor: Cursor{
-				Total:  total,
-				Limit:  limit,
-				Offset: offset,
-			},
-		})
-	} else {
-		c.AbortWithError(http.StatusBadRequest, err)
+	if len(filter.CollectionSKU) > 0 {
+		matcher = q.And(matcher, q.Eq("CollectionSKU", filter.CollectionSKU))
 	}
+
+	if len(filter.Query) > 0 {
+		matcher = q.And(matcher, q.Re("Name", fmt.Sprintf("^%s", filter.Query)))
+	}
+
+	if len(filter.Producer) > 0 {
+		matcher = q.And(matcher, q.Eq("Producer", filter.Producer))
+	}
+
+	var products []Product
+	err := p.GetStore().From(NodeNamedCatalog).
+		Select(matcher).
+		Limit(pagination.Limit).
+		Skip(pagination.Offset).
+		Find(&products)
+
+	if err != nil && err != storm.ErrNotFound {
+		return nil, err
+	}
+
+	total, err := p.GetStore().From(NodeNamedCatalog).
+		Select(matcher).
+		Count(new(Product))
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, product := range products {
+		product.PriceCalculate()
+	}
+
+	return &PageProducts{
+		Content: products,
+		Cursor: Cursor{
+			Total:  total,
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		},
+	}, nil
 }
 
-func (p *ControllerCatalog) ProductPOST(c *gin.Context) {
-	sku := c.Param("sku")
-
-	if len(sku) == 0 {
-		c.AbortWithError(http.StatusBadRequest, nil)
-		return
-	}
-
+//Продукт
+func (p *ControllerCatalog) GetProductBySKU(sku string) (*Product, error) {
 	var product Product
 	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &product)
 
 	if err == storm.ErrNotFound {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return nil, err
 	}
 
 	product.PriceCalculate()
-	c.JSON(http.StatusOK, product)
+	return &product, nil
 }
 
-func (p *ControllerCatalog) NotationPOST(c *gin.Context) {
-	sku := c.Param("sku")
-
-	if len(sku) == 0 {
-		c.AbortWithError(http.StatusBadRequest, nil)
-		return
-	}
-
+//Описания продукта
+func (p *ControllerCatalog) GetNotationBySKU(sku string) (*Notation, error) {
 	var notation Notation
 	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &notation)
 
 	if err == storm.ErrNotFound {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+		return nil, err
 	}
 
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, notation)
+	return &notation, nil
 }

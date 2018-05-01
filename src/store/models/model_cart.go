@@ -19,9 +19,9 @@ const (
 
 type (
 	// Модель хранения корзины
-	Session struct {
+	SessionClaims struct {
 		// Корзина
-		CardID int
+		CartID int
 
 		jwt.StandardClaims
 	}
@@ -29,10 +29,10 @@ type (
 	// Позиция
 	Position struct {
 		// Цена позиции без скидки
-		Subtotal int `json:"subtotal"`
+		Subtotal Price `json:"subtotal"`
 
 		// Окончательная цена
-		Total int `json:"total"`
+		Total Price `json:"total"`
 
 		//скидка
 		Discount *Discount `json:"discount"`
@@ -53,19 +53,19 @@ type (
 		ID int `storm:"id,increment" json:"id"`
 
 		// Цена корзины без скидок
-		Subtotal int `json:"subtotal"`
+		Subtotal Price `json:"subtotal"`
 
 		// Скидка
 		Discount *Discount `json:"discount"`
 
 		//Цена товаров
-		ProductPrice int `json:"productPrice"`
+		ProductPrice Price `json:"productPrice"`
 
 		// Цена доставки
-		DeliveryPrice int `json:"deliveryPrice"`
+		DeliveryPrice Price `json:"deliveryPrice"`
 
 		// Окончательная цена
-		Total int `json:"total"`
+		Total Price `json:"total"`
 
 		//Адресс
 		Address *Address `json:"address"`

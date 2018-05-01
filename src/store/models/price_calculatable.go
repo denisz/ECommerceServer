@@ -1,7 +1,5 @@
 package models
 
-import "math"
-
 // обновление цены у продукта
 func (p Product) PriceCalculate() {
 	if p.Discount != nil {
@@ -19,8 +17,8 @@ func (p Product) PriceCalculate() {
 	(продукты со скидкой) + (продукты без скидки) * (динамическую кидку)
 */
 func (p *Cart) PriceCalculate() {
-	priceSale := 0
-	priceWithoutSale := 0
+	var priceSale Price
+	var priceWithoutSale Price
 	positions := p.Positions
 
 	//сброс цены
@@ -46,7 +44,7 @@ func (p *Cart) PriceCalculate() {
 	p.ProductPrice = priceWithoutSale + priceSale
 	p.Subtotal = priceWithoutSale + priceSale
 
-	if InBetween(priceWithoutSale, 6000*100, 10000*100) {
+	if InBetween(priceWithoutSale, Price(6000*100), Price(10000*100)) {
 		p.Discount = &Discount{
 			Type:   DiscountTypePercentage,
 			Amount: 2.5,
@@ -55,7 +53,7 @@ func (p *Cart) PriceCalculate() {
 		p.Subtotal = p.Discount.Price
 	}
 
-	if InBetween(priceWithoutSale, 10000*100, 20000*100) {
+	if InBetween(priceWithoutSale, Price(10000*100), Price(20000*100)) {
 		p.Discount = &Discount{
 			Type:   DiscountTypePercentage,
 			Amount: 5,
@@ -64,7 +62,7 @@ func (p *Cart) PriceCalculate() {
 		p.Subtotal = p.Discount.Price
 	}
 
-	if InBetween(priceWithoutSale, 20000*100, math.MaxInt32) {
+	if InBetween(priceWithoutSale, Price(20000*100), MaxPrice) {
 		p.Discount = &Discount{
 			Type:   DiscountTypePercentage,
 			Amount: 7.5,

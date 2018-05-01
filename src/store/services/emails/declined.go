@@ -26,7 +26,7 @@ func (p Declined) Email() hermes.Email {
 			Name:      p.Order.Address.Name,
 			Signature: "С уважением",
 			Intros: []string{
-				fmt.Sprintf("Информируем вас о том, что ваш заказ %s был отменен. ", p.Order.Invoice),
+				fmt.Sprintf("Информируем вас о том, что ваш заказ №%s был отменен в связи с просрочкой его оплаты. ", p.Order.Invoice),
 			},
 		},
 	}

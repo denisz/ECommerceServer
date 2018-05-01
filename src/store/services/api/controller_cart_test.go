@@ -7,8 +7,8 @@ import (
 )
 
 func TestCreateInvoice(t *testing.T) {
-	invoice1 := CreateInvoice()
-	invoice2 := CreateInvoice()
+	invoice1, _ := CreateInvoice()
+	invoice2, _ := CreateInvoice()
 
 	fmt.Printf("invoice1: %v \n", invoice1)
 	fmt.Printf("invoice2: %v \n", invoice2)

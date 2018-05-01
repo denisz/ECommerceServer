@@ -23,7 +23,7 @@ type (
 		Amount float64 `json:"amount"`
 
 		// Цена со скидкой
-		Price int `json:"price"`
+		Price Price `json:"price"`
 	}
 
 	// Категория
@@ -68,7 +68,7 @@ type (
 		Quantity int `json:"quantity"`
 
 		// Цена
-		Price int `json:"price"`
+		Price Price `json:"price"`
 
 		// Скидка
 		Discount *Discount `json:"discount"`

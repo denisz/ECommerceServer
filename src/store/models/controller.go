@@ -8,6 +8,7 @@ const (
 	NodeNamedStore = "Store"
 	NodeNamedCarts = "Cart"
 	NodeNamedOrders = "Order"
+	NodeNamedHistory = "History"
 	NodeNamedCatalog = "Catalog"
 	NodeNamedSettings = "Settings"
 )
