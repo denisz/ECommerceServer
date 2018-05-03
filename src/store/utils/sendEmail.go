@@ -27,7 +27,7 @@ func CreateBrand() hermes.Hermes {
 		Product: hermes.Product{
 			// Appears in header & footer of e-mails
 			Name: "Dark Waters",
-			Copyright: "Copyright © 2018 Dark Waters. All rights reserved.",
+			Copyright: "Dark Waters",
 			Link: "http://darkwaters.store",
 			// Optional product logo
 			Logo: "http://darkwaters.store/img/ic_brand.png",

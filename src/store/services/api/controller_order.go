@@ -254,7 +254,7 @@ func (p *ControllerOrder) ClearExpiredOrders() error {
 		p.Update(order, OrderUpdateRequest{
 			Status: OrderStatusDeclined,
 			NoticeRecipient: true,
-			Comment: fmt.Sprintf("Изменен атоматом в %v", time.Now().Format("Mon Jan 2 15:04:05")),
+			Comment: fmt.Sprintf("Изменен атоматом в %v", time.Now().Format("02-01-2006 15:04:05")),
 		})
 	}
 

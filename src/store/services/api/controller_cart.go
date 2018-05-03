@@ -84,7 +84,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 				Length: dimension.Length,
 			},
 			Fragile:           false,
-			DeclareValue:      3000,
+			DeclareValue:      100,
 			WithSimpleNotice:  false,
 			WithOrderOfNotice: false,
 		}
@@ -174,6 +174,8 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 		//добавляем позицию
 		positions = append(positions, v)
 	}
+	//проверить вес
+
 	//указываем возможные способы доставки
 	cart.DeliveryProviders = []DeliveryProvider{
 		DeliveryProviderRussiaPost,

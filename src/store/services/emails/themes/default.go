@@ -158,24 +158,7 @@ func (dt *Default) HTMLTemplate() string {
                       {{.Email.Body.Signature}},
                       <br>
                       {{.Hermes.Product.Name}}
-                    </p>
-
-                    {{ if (eq .Email.Body.FreeMarkdown "") }}
-                      {{ with .Email.Body.Actions }} 
-                        <table class="body-sub" style="width: 100%;margin-top: 25px;padding-top: 25px;border-top: 1px solid #EDEFF2;table-layout: fixed;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
-                          <tbody style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
-                              {{ range $action := . }}
-                                <tr>
-                                  <td style="padding: 10px 5px;color: #000;font-size: 15px;line-height: 18px;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
-                                    <p class="sub" style="margin-top: 0;color: #000;font-size: 12px;line-height: 1.5em;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">{{$.Hermes.Product.TroubleText | replace "{ACTION}" $action.Button.Text}}</p>
-                                    <p class="sub" style="margin-top: 0;color: #000;font-size: 12px;line-height: 1.5em;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;"><a href="{{ $action.Button.Link }}" style="color: #3869D4;word-break: break-all;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">{{ $action.Button.Link }}</a></p>
-                                  </td>
-                                </tr>
-                              {{ end }}
-                          </tbody>
-                        </table>
-                      {{ end }}
-                    {{ end }}
+                    </p> 
                   </td>
                 </tr>
               </table>

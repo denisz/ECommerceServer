@@ -11,5 +11,5 @@ func (p *Cart) DimensionCalculate() Dimension {
 
 //расчет объема
 func (p *Dimension) VolumeCalculate() int {
-	return p.Width * p.Length * p.Height;
+	return p.Width * p.Length * p.Height
 }
