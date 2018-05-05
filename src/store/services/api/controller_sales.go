@@ -47,3 +47,7 @@ func(p *ControllerSales) GetProducts(pagination Pagination) (*PageProducts, erro
 		},
 	}, nil
 }
+
+func (p *ControllerSales) UpdateProducts() error {
+	return nil
+}

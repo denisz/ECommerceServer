@@ -2,6 +2,6 @@ package models
 
 import "fmt"
 
-func(p Price) ToFormat() string {
+func(p Price) Format() string {
 	return fmt.Sprintf("%d руб.", p / 100)
 }

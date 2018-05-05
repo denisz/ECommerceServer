@@ -11,7 +11,6 @@ import (
 	"fmt"
 )
 
-
 var (
 	ErrOrderAlwaysDeclined = errors.New("заказ уже расформирован")
 )
@@ -182,7 +181,10 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 
 	//сформирован
 	if order.Status == OrderStatusAwaitingPickup {
-		//формируем заказ в поставщике доставки
+		err = CreateOrderInToRussiaPost(&order)
+		if err != nil {
+			return err
+		}
 	}
 
 	//сохраняем заказ
@@ -237,7 +239,7 @@ func (p *ControllerOrder) NoticeRecipient(order Order) error {
 }
 
 func (p *ControllerOrder) ClearExpiredOrders() error {
-	threshold := time.Now().AddDate(0, 0, -1)
+	threshold := time.Now().AddDate(0, 0, -1).Add(time.Hour * time.Duration(1))
 	matcher := q.And(q.Eq("Status", OrderStatusAwaitingPayment), q.Lte("CreatedAt", threshold))
 	var orders []Order
 	var ordersBucket = p.GetStore().From(NodeNamedOrders)

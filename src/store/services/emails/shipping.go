@@ -24,7 +24,7 @@ func (p Shipping) Email() hermes.Email {
 
 	for _, position := range p.Order.Positions {
 		table = append(table, []hermes.Entry{
-			{Key: "Позиция", Value: position.ToFormat()},
+			{Key: "Позиция", Value: position.Format()},
 		})
 	}
 

@@ -53,11 +53,6 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 
 	switch cart.Delivery.Provider {
 	case DeliveryProviderRussiaPost:
-		token := "MmmDeJqGxRlL2MXX4oZiknt25K5mUFEg"
-		login := "denisxy12@hotmail.com"
-		password := "2Q2sminvc"
-		client := russiaPost.NewClient(login, password, token, true)
-
 		mailType := russiaPost.MailTypeONLINE_PARCEL
 
 		switch cart.Delivery.Method {
@@ -71,7 +66,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 
 		dimension := cart.DimensionCalculate()
 
-		r := &russiaPost.DestinationRequest{
+		r := russiaPost.DestinationRequest{
 			Mass:          cart.WeightCalculate(),
 			IndexFrom:     "430005",
 			IndexTo:       cart.Address.PostalCode,
@@ -89,7 +84,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 			WithOrderOfNotice: false,
 		}
 
-		res, err := client.Tariff(r)
+		res, err := russiaPost.DefaultClient.Tariff(r)
 		if err != nil {
 			return 0, err
 		}
@@ -130,7 +125,7 @@ func (p *ControllerCart) BlockCheckout(clientIP string) error {
 func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, error) {
 	var positions []Position
 	//позиции
-	cart.Positions = appendIfNeeded(cart.Positions, update.ProductSKU)
+	cart.Positions = AppendIfNeeded(cart.Positions, update.ProductSKU)
 
 	for _, v := range cart.Positions {
 		//пустые SKU
@@ -204,6 +199,12 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 }
 
 func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error)  {
+	//проверка валидность адреса
+	err := CheckValidAddress(&address)
+	if err != nil {
+		return nil, err
+	}
+
 	//устанавливаем адрес
 	cart.Address = &address
 	//указываем возможные способы доставки
@@ -223,7 +224,7 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 	//получаем магазин
 	db := p.GetStore().From(NodeNamedCarts)
 	//сохранить корзину
-	err := db.Save(cart)
+	err = db.Save(cart)
 	//невозможно сохранить
 	if err != nil {
 		//отрпавляем ошибку
@@ -358,7 +359,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 	//создаем заказ
 	order := Order{
 		Status:        OrderStatusAwaitingPayment,
-		CreatedAt:     time.Now(),
+		CreatedAt:     time.Now().AddDate(0,0,-1).Add(time.Hour * time.Duration(2)),
 		Positions:     positions,
 		Subtotal:      cart.Subtotal,
 		Discount:      cart.Discount,

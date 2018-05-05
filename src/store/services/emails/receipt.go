@@ -24,31 +24,31 @@ func (p Receipt) Email() hermes.Email {
 
 	for _, position := range p.Order.Positions {
 		table = append(table, []hermes.Entry{
-			{Key: "Позиция", Value: position.ToFormat()},
-			{Key: "Цена", Value: position.Total.ToFormat()},
+			{Key: "Позиция", Value: position.Format()},
+			{Key: "Цена", Value: position.Total.Format()},
 		})
 	}
 
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Цена товара:"},
-		{Key: "Цена", Value: p.Order.ProductPrice.ToFormat()},
+		{Key: "Цена", Value: p.Order.ProductPrice.Format()},
 	})
 
 	if p.Order.Discount != nil {
 		table = append(table, []hermes.Entry{
 			{Key: "Итого", Value: "Скидка:"},
-			{Key: "Цена", Value: p.Order.Discount.ToFormat()},
+			{Key: "Цена", Value: p.Order.Discount.Format()},
 		})
 	}
 
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Цена доставки:"},
-		{Key: "Цена", Value: p.Order.DeliveryPrice.ToFormat()},
+		{Key: "Цена", Value: p.Order.DeliveryPrice.Format()},
 	})
 
 	table = append(table, []hermes.Entry{
 		{Key: "Итого", Value: "Итого к оплате:"},
-		{Key: "Цена", Value: p.Order.Total.ToFormat()},
+		{Key: "Цена", Value: p.Order.Total.Format()},
 	})
 
 	return hermes.Email{

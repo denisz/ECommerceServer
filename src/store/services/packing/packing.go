@@ -11,7 +11,7 @@ type Bin struct {
 	Name      string
 	Width     float64
 	Height    float64
-	Depth     float64
+	Length    float64
 	MaxWeight float64
 
 	Items []*Item // Items that packed in this bin
@@ -28,12 +28,12 @@ func (bs BinSlice) Swap(i, j int) {
 }
 
 // NewBin constructs new Bin with width w, height h, depth d, and max weight mw.
-func NewBin(name string, w, h, d, mw float64) *Bin {
+func NewBin(name string, w, h, l, mw float64) *Bin {
 	return &Bin{
 		Name:      name,
 		Width:     w,
 		Height:    h,
-		Depth:     d,
+		Length:    l,
 		MaxWeight: mw,
 		Items:     make([]*Item, 0),
 	}
@@ -56,12 +56,12 @@ func (b *Bin) GetHeight() float64 {
 
 // GetDepth returns bin's depth.
 func (b *Bin) GetDepth() float64 {
-	return b.Depth
+	return b.Length
 }
 
 // GetDepth returns bin's volume.
 func (b *Bin) GetVolume() float64 {
-	return b.Width * b.Height * b.Depth
+	return b.Width * b.Height * b.Length
 }
 
 // GetDepth returns bin's max weight.
@@ -128,7 +128,7 @@ func (rt RotationType) String() string {
 type Axis int
 
 const (
-	WidthAxis Axis = iota
+	WidthAxis  Axis = iota
 	HeightAxis
 	DepthAxis
 )
@@ -146,7 +146,7 @@ type Item struct {
 	Name   string
 	Width  float64
 	Height float64
-	Depth  float64
+	Length float64
 	Weight float64
 
 	// Used during packer.Pack()
@@ -166,12 +166,12 @@ func (is ItemSlice) Swap(i, j int) {
 
 // NewItem returns an Item named name, with width w, height h, depth h, and
 // weight w. The quantity defaults to one.
-func NewItem(name string, w, h, d, wg float64) *Item {
+func NewItem(name string, w, h, l, wg float64) *Item {
 	return &Item{
 		Name:   name,
 		Width:  w,
 		Height: h,
-		Depth:  d,
+		Length: l,
 		Weight: wg,
 	}
 }
@@ -189,11 +189,11 @@ func (i *Item) GetHeight() float64 {
 }
 
 func (i *Item) GetDepth() float64 {
-	return i.Depth
+	return i.Length
 }
 
 func (i *Item) GetVolume() float64 {
-	return i.Width * i.Height * i.Depth
+	return i.Width * i.Height * i.Length
 }
 
 func (i *Item) GetWeight() float64 {
@@ -313,8 +313,8 @@ func (p *Packer) packToBin(b *Bin, items []*Item) (unpacked []*Item) {
 		var fitted bool
 	lookup:
 
-		// Try available pivots in current bin that are not intersect with
-		// existing items in current bin.
+	// Try available pivots in current bin that are not intersect with
+	// existing items in current bin.
 		for pt := 0; pt < 3; pt++ {
 			for _, ib := range b.Items {
 				var pv Pivot

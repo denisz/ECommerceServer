@@ -84,6 +84,9 @@ type (
 
 		// Список изображений
 		Pictures []string `json:"pictures"`
+
+		// Линейные размеры
+		Dimension Dimension `json:"dimension"`
 	}
 
 	// Описание

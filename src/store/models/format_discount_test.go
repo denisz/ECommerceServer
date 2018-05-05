@@ -11,12 +11,12 @@ func TestDiscountFormat(t *testing.T) {
 		Type: DiscountTypePercentage,
 	}
 
-	assert.Equal(t, discount.ToFormat(), "2.5%")
+	assert.Equal(t, discount.Format(), "2.5%")
 
 	discount = &Discount{
 		Amount: 2.5,
 		Type: DiscountTypeFixedAmount,
 	}
 
-	assert.Equal(t, discount.ToFormat(), "2.5 руб.")
+	assert.Equal(t, discount.Format(), "2.5 руб.")
 }

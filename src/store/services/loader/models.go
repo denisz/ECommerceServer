@@ -3,6 +3,8 @@ package loader
 import (
 	. "store/models"
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 type (
@@ -18,6 +20,13 @@ type (
 		SKU           string   `sheet:"Артикул"`
 		Discount      string   `sheet:"Скидка"`
 		Pictures      []string `sheet:"Картинки"`
+		Dimension     string   `sheet:"ШxДxВ"`
+		Disabled      bool     `sheet:"Снят с продажи"`
+	}
+
+	SheetProductMedia struct {
+		SKU      string   `sheet:"Артикул"`
+		Pictures []string `sheet:"Картинки"`
 	}
 
 	SheetCollection struct {
@@ -37,7 +46,7 @@ type (
 
 	SheetBanner struct {
 		Image  string `sheet:"Изображение"`
-		Active bool    `sheet:"Активен"`
+		Active bool   `sheet:"Активен"`
 		Href   string `sheet:"Переход"`
 		Type   string `sheet:"Тип"`
 	}
@@ -55,10 +64,10 @@ func parseBannerType(label string) BannerType {
 
 func CreateBanner(sheetData SheetBanner) Banner {
 	return Banner{
-		Image: sheetData.Image,
-		Href:  sheetData.Href,
+		Image:  sheetData.Image,
+		Href:   sheetData.Href,
 		Active: sheetData.Active,
-		Type:  parseBannerType(sheetData.Type),
+		Type:   parseBannerType(sheetData.Type),
 	}
 }
 
@@ -81,6 +90,38 @@ func CreateCollection(sheetData SheetCollection) Collection {
 	}
 }
 
+/**
+	ШxДxВ
+ */
+func CreateDimension(token string) Dimension {
+	split := strings.Split(token, "x")
+
+	if len(split) < 3 {
+		return Dimension{}
+	}
+
+	width, err := strconv.Atoi(split[0])
+	if err != nil {
+		return Dimension{}
+	}
+
+	length, err := strconv.Atoi(split[1])
+	if err != nil {
+		return Dimension{}
+	}
+
+	height, err := strconv.Atoi(split[2])
+	if err != nil {
+		return Dimension{}
+	}
+
+	return Dimension{
+		Width: width,
+		Height:height,
+		Length: length,
+	}
+}
+
 func CreateProduct(sheetData SheetProduct) Product {
 	product := Product{
 		Name:          sheetData.Name,
@@ -91,8 +132,9 @@ func CreateProduct(sheetData SheetProduct) Product {
 		SKU:           sheetData.SKU,
 		Quantity:      sheetData.Quantity,
 		CollectionSKU: sheetData.CollectionSKU,
-		Price:         Price(sheetData.Price * 100) , // 100 копеек
+		Price:         Price(sheetData.Price * 100), // 100 копеек
 		Pictures:      []string{},
+		Dimension:		CreateDimension(sheetData.Dimension),
 	}
 
 	for _, p := range sheetData.Pictures {

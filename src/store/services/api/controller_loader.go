@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	RangeMediaName = "Media"
 	RangeBannersName = "Banners"
 	RangeProductsName = "Products"
 	RangeNotationsName = "Notations"
@@ -36,6 +37,12 @@ func (p *ControllerLoader) CatalogFromGoogle() error {
 
 	var notations []loader.SheetNotation
 	err = loader.UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
+	if err != nil {
+		return err
+	}
+
+	var media []loader.SheetProductMedia
+	err = loader.UnmarshalSpreadsheet(&media, p.Config.SpreadSheetID, RangeMediaName)
 	if err != nil {
 		return err
 	}
@@ -80,6 +87,14 @@ func (p *ControllerLoader) CatalogFromGoogle() error {
 
 	// Продукты
 	for _, sheetData := range products {
+		if sheetData.Disabled { continue }
+
+		for _, m := range media {
+			if m.SKU == sheetData.SKU {
+				sheetData.Pictures = m.Pictures
+			}
+		}
+
 		product := loader.CreateProduct(sheetData)
 		err = tx.Save(&product)
 		if err != nil {

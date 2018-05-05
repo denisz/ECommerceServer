@@ -2,7 +2,7 @@ package models
 
 import "fmt"
 
-func (p *Discount) ToFormat() string {
+func (p *Discount) Format() string {
 	switch p.Type {
 	case DiscountTypeFreeShipping:
 		return fmt.Sprintf("Бесплатная доставка")

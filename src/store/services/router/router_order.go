@@ -105,7 +105,7 @@ func (p *Router) OrderUpdatePOST(c *gin.Context) {
 //Удаляем просроченные заказы
 func (p *Router) OrderClearExpired(c *gin.Context) {
 	err := p.API.Order.ClearExpiredOrders()
-	if err != nil {
+	if err != nil && err != storm.ErrNotFound {
 		p.AbortWithError(c, http.StatusBadRequest, err)
 		return
 	}

@@ -24,3 +24,23 @@ func (p *Address) Format() string {
 		p.Comment,
 	}, ", ")
 }
+
+func (p *Address) Normalize() string {
+	if p.ManualInput {
+		return strings.Join([]string {
+			p.PostalCode,
+			p.Country,
+			p.Region,
+			p.City,
+			p.Street,
+			p.House,
+			p.Room,
+		}, ", ")
+	}
+
+	return strings.Join([]string{
+		p.PostalCode,
+		p.Address,
+	}, ", ")
+}
+
