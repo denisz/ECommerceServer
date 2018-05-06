@@ -359,7 +359,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 	//создаем заказ
 	order := Order{
 		Status:        OrderStatusAwaitingPayment,
-		CreatedAt:     time.Now().AddDate(0,0,-1).Add(time.Hour * time.Duration(2)),
+		CreatedAt:     time.Now(),
 		Positions:     positions,
 		Subtotal:      cart.Subtotal,
 		Discount:      cart.Discount,

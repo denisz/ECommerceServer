@@ -239,7 +239,7 @@ func (p *ControllerOrder) NoticeRecipient(order Order) error {
 }
 
 func (p *ControllerOrder) ClearExpiredOrders() error {
-	threshold := time.Now().AddDate(0, 0, -1).Add(time.Hour * time.Duration(1))
+	threshold := time.Now().AddDate(0, 0, -1)
 	matcher := q.And(q.Eq("Status", OrderStatusAwaitingPayment), q.Lte("CreatedAt", threshold))
 	var orders []Order
 	var ordersBucket = p.GetStore().From(NodeNamedOrders)
