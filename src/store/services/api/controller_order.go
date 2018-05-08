@@ -5,14 +5,9 @@ import (
 	"github.com/asdine/storm"
 	"github.com/asdine/storm/q"
 	"time"
-	"errors"
 	"store/utils"
 	"store/services/emails"
 	"fmt"
-)
-
-var (
-	ErrOrderAlwaysDeclined = errors.New("заказ уже расформирован")
 )
 
 type ControllerOrder struct {
@@ -124,7 +119,7 @@ func (p *ControllerOrder) GetOrderByID(id int) (Order, error) {
 func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 	//расформированные заказ
 	if order.Status == OrderStatusDeclined {
-		return ErrOrderAlwaysDeclined
+		return ErrORDER_ALWAYS_DECLINED
 	}
 
 	//каталог
@@ -181,9 +176,11 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 
 	//сформирован
 	if order.Status == OrderStatusAwaitingPickup {
-		err = CreateOrderInToRussiaPost(&order)
-		if err != nil {
-			return err
+		if order.Delivery.Provider == DeliveryProviderRussiaPost {
+			err = CreateOrderInToRussiaPost(&order)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

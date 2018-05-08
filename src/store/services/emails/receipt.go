@@ -83,7 +83,7 @@ func (p Receipt) Email() hermes.Email {
 					Button: hermes.Button{
 						Color: "#22BC66",
 						Text:  "Заказ",
-						Link:  fmt.Sprintf("http://darkwaters.store/order/check/%s", p.Order.Invoice),
+						Link:  fmt.Sprintf("https://darkwaters.store/order/check/%s", p.Order.Invoice),
 					},
 				},
 			},

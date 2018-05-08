@@ -26,8 +26,12 @@ func (p *Router) GetPagination(c *gin.Context) Pagination {
 }
 
 func (p *Router) AbortWithError(c *gin.Context, code int, err error) {
-	c.AbortWithError(code, err)
+	//c.AbortWithError(code, err)
 	//panic
+	c.JSON(code, gin.H{
+		"message": err.Error(),
+		"code": code,
+	})
 }
 
 func (p *Router) JSON(c *gin.Context, code int, obj interface{}) {

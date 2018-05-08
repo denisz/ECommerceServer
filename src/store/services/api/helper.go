@@ -33,13 +33,51 @@ func NormalizeAddressForRussiaPost(address *Address) (*russiaPost.NormalizeAddre
 	return russiaPost.DefaultClient.NormalizeAddress(req)
 }
 
+func NormalizePhysicalForRussiaPost(address *Address) (*russiaPost.NormalizePhysical, error) {
+	req := russiaPost.NormalizePhysicalRequest{
+		ID:             "Physical 1",
+		OriginalString: address.Name,
+	}
+
+	return russiaPost.DefaultClient.NormalizePhysical(req)
+}
+
+func NormalizePhoneForRussiaPost(address *Address) (*russiaPost.NormalizePhone, error) {
+	req := russiaPost.NormalizePhoneRequest{
+		ID:             "Phone 1",
+		OriginalString: address.Phone,
+	}
+
+	return russiaPost.DefaultClient.NormalizePhone(req)
+}
+
 func CheckValidAddress(address *Address) error {
-	res, err := NormalizeAddressForRussiaPost(address)
+	nAddress, err := NormalizeAddressForRussiaPost(address)
 	if err != nil {
 		return err
 	}
 
-	err = russiaPost.CheckValidateAddress(res)
+	err = russiaPost.CheckValidateAddress(nAddress)
+	if err != nil {
+		return err
+	}
+
+	nPhysical, err := NormalizePhysicalForRussiaPost(address)
+	if err != nil {
+		return err
+	}
+
+	err = russiaPost.CheckValidatePhysical(nPhysical)
+	if err != nil {
+		return err
+	}
+
+	nPhone, err := NormalizePhoneForRussiaPost(address)
+	if err != nil {
+		return err
+	}
+
+	err = russiaPost.CheckValidatePhone(nPhone)
 	if err != nil {
 		return err
 	}
@@ -51,45 +89,49 @@ func CreateOrderInToRussiaPost(order *Order) error {
 	if order.Delivery.Provider != DeliveryProviderRussiaPost {
 		return ErrNotSupportedMethod
 	}
-	//формируем заказ в поставщике доставки
+
 	normalizeAddress, err := NormalizeAddressForRussiaPost(order.Address)
 	if err != nil {
 		return err
 	}
 
-	mailType := russiaPost.MailTypeONLINE_PARCEL
+	normalizePhone, err := NormalizePhoneForRussiaPost(order.Address)
+	if err != nil {
+		return err
+	}
+
+	normalizePhysical, err := NormalizePhysicalForRussiaPost(order.Address)
+	if err != nil {
+		return err
+	}
+
+	request := russiaPost.OrderRequest{
+		PostOfficeCode: "430005",
+		OrderNum:     order.Invoice,
+		BrandName:    "DarkWaters",
+		MailDirect:   643,
+		MailCategory: russiaPost.MailCategoryORDINARY,
+		Mass:         order.WeightCalculate(),
+	}
 
 	switch order.Delivery.Method {
 	case DeliveryMethodEMC:
-		mailType = russiaPost.MailTypePARCEL_CLASS_1
+		request.MailType = russiaPost.MailTypePARCEL_CLASS_1
 	case DeliveryMethodRapid:
-		mailType = russiaPost.MailTypeBUSINESS_COURIER
+		request.MailType = russiaPost.MailTypeBUSINESS_COURIER
 	case DeliveryMethodStandard:
-		mailType = russiaPost.MailTypeONLINE_PARCEL
+		request.MailType = russiaPost.MailTypeONLINE_PARCEL
 	}
 
-	dimension := order.DimensionCalculate()
-	request := russiaPost.CreateOrderRequestWithAddress(normalizeAddress)
-	request.PostOfficeCode = "430005"
-	request.Dimension = russiaPost.Dimension{
-		Width:  dimension.Width,
-		Height: dimension.Height,
-		Length: dimension.Length,
-	}
-	request.GivenName = order.Address.Name
-	request.OrderNum = order.Invoice
-	//request.TelAddress = order.Address.Phone
-	request.RecipientName = order.Address.Name
-	request.BrandName = "DarkWaters"
-	request.MailType = mailType
-	request.MailCategory = russiaPost.MailCategoryORDINARY
-	request.PaymentMethod = russiaPost.PaymentMethodCASHLESS
-	request.Mass = order.WeightCalculate()
+	russiaPost.UpdateOrderRequestWithPhone(&request, normalizePhone)
+	russiaPost.UpdateOrderRequestWithAddress(&request, normalizeAddress)
+	russiaPost.UpdateOrderRequestWithPhysical(&request, normalizePhysical)
+
 	resp, err := russiaPost.DefaultClient.Backlog(request)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
 	fmt.Printf("%v \n", resp)
-	return  nil
+	return nil
 }

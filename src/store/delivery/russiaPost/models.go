@@ -176,7 +176,7 @@ const (
 	//Подтверждено контролером
 	QualityPhysicalCodeCONFIRMED_MANUALLY QualityPhysicalCode = "CONFIRMED_MANUALLY"
 
-	//Подтверждено контролером
+	//Правильное значение
 	QualityPhysicalCodeEDITED QualityPhysicalCode = "EDITED"
 
 	//Сомнительное значение
@@ -240,92 +240,92 @@ type (
 
 	OrderRequest struct {
 		//Тип адреса
-		AddressType AddressType `json:"address-type-to"`
+		AddressType AddressType `json:"address-type-to,omitempty"`
 		//Район
-		Area string `json:"area-to"`
+		Area string `json:"area-to,omitempty"`
 		//Отправитель на посылке/название брэнда
-		BrandName string `json:"brand-name"`
+		BrandName string `json:"-"`
 		//Часть здания: Строение
-		Building string `json:"building-to"`
+		Building string `json:"building-to,omitempty"`
 		//Комментарий:Номер заказа. Внешний идентификатор заказа, который формируется отправителем
-		Comment string `json:"comment"`
+		Comment string `json:"comment,omitempty"`
 		//Часть здания: Корпус
-		Corpus string `json:"corpus-to"`
+		Corpus string `json:"corpus-to,omitempty"`
 		//Отметка 'Курьер'
-		Courier bool `json:"courier"`
+		Courier bool `json:"courier,omitempty"`
 		//Линейные размеры
-		Dimension Dimension `json:"dimension"`
+		Dimension Dimension `json:"dimension,omitempty"`
 		//Тип конверта - ГОСТ Р 51506-99.
-		EnvelopeType EnvelopeType `json:"envelope-type"`
+		EnvelopeType EnvelopeType `json:"envelope-type,omitempty"`
 		//Установлена ли отметка 'Осторожно/Хрупкое'?
-		Fragile bool `json:"fragile"`
+		Fragile bool `json:"fragile,omitempty"`
 		//Имя получателя
-		GivenName string `json:"given-name"`
+		GivenName string `json:"given-name,omitempty"`
 		//Отчество получателя
-		MiddleName string `json:"middle-name"`
+		MiddleName string `json:"middle-name,omitempty"`
 		//Фамилия получателя
-		Surname string `json:"surname"`
+		Surname string `json:"surname,omitempty"`
 		//Название гостиницы
-		Hotel string `json:"hotel-to"`
+		Hotel string `json:"hotel-to,omitempty"`
 		//Часть адреса: Номер здания
-		House string `json:"house-to"`
+		House string `json:"house-to,omitempty"`
 		//Почтовый индекс
-		Index int `json:"index-to"`
+		Index int `json:"index-to,omitempty"`
 		//Сумма объявленной ценности (копейки)
-		InsrValue int `json:"insr-value"`
+		InsrValue int `json:"insr-value,omitempty"`
 		//Часть здания: Литера
-		Letter string `json:"letter-to"`
+		Letter string `json:"letter-to,omitempty"`
 		//Микрорайон
-		Location string `json:"location-to"`
+		Location string `json:"location-to,omitempty"`
 		//Категория РПО
-		MailCategory MailCategory `json:"mail-category"`
+		MailCategory MailCategory `json:"mail-category,omitempty"`
 		//Код страны Россия: 643
-		MailDirect int `json:"mail-direct"`
+		MailDirect int `json:"mail-direct,omitempty"`
 		//Вид РПО
-		MailType MailType `json:"mail-type"`
+		MailType MailType `json:"mail-type,omitempty"`
 		//Отметка 'Ручной ввод адреса'
-		ManualAddressInput bool `json:"manual-address-input"`
+		ManualAddressInput bool `json:"manual-address-input,omitempty"`
 		//Вес РПО (в граммах)
-		Mass int `json:"mass"`
+		Mass int `json:"mass,omitempty"`
 		//Номер для а/я, войсковая часть, войсковая часть ЮЯ, полевая почта
-		NumAddressTypeTo string `json:"num-address-type-to"`
+		NumAddressTypeTo string `json:"num-address-type-to,omitempty"`
 		//Номер заказа. Внешний идентификатор заказа, который формируется отправителем
-		OrderNum string `json:"order-num"`
+		OrderNum string `json:"order-num,omitempty"`
 		//Сумма наложенного платежа (копейки)
-		Payment int `json:"payment"`
+		Payment int `json:"payment,omitempty"`
 		//Способ оплаты.
-		PaymentMethod PaymentMethod `json:"payment-method"`
+		PaymentMethod PaymentMethod `json:"payment-method,omitempty"`
 		//Населенный пункт
-		Place string `json:"place-to"`
+		Place string `json:"place-to,omitempty"`
 		//Индекс места приема
-		PostOfficeCode string `json:"postoffice-code"`
+		PostOfficeCode string `json:"postoffice-code,omitempty"`
 		//Наименование получателя одной строкой (ФИО, наименование организации)
-		RecipientName string `json:"recipient-name"`
+		RecipientName string `json:"recipient-name,omitempty"`
 		//Область, регион
-		Region string `json:"region-to"`
+		Region string `json:"region-to,omitempty"`
 		//Часть здания: Номер помещения
-		Room string `json:"room-to"`
+		Room string `json:"room-to,omitempty"`
 		//Часть здания: Дробь
-		Slash string `json:"slash-to"`
+		Slash string `json:"slash-to,omitempty"`
 		//Признак услуги SMS уведомления
-		SMSNoticeRecipient int `json:"sms-notice-recipient"`
+		SMSNoticeRecipient int `json:"sms-notice-recipient,omitempty"`
 		//Часть адреса: Улица
-		Street string `json:"street-to"`
+		Street string `json:"street-to,omitempty"`
 		//Телефон получателя (может быть обязательным для некоторых типов отправлений)
-		TelAddress int `json:"tel-address"`
+		TelAddress int `json:"tel-address,omitempty"`
 		//Отметка 'С заказным уведомлением'
-		WithOrderOfNotice bool `json:"with-order-of-notice"`
+		WithOrderOfNotice bool `json:"with-order-of-notice,omitempty"`
 		//Отметка 'С простым уведомлением'
-		WithSimpleNotice bool `json:"with-simple-notice"`
+		WithSimpleNotice bool `json:"with-simple-notice,omitempty"`
 		//Отметка 'Без разряда'
-		WoMailRank bool `json:"wo-mail-rank"`
+		WoMailRank bool `json:"wo-mail-rank,omitempty"`
 	}
 
 	OrderError struct {
 		//Список кодов ошибок
 		Codes []struct {
 			Code    string `json:"code"`
-			Details string `json:"details"`
+			Details string `json:"description"`
 		} `json:"error-codes"`
 		//Индекс в исходном массиве
 		Position int `json:"position"`
@@ -457,14 +457,14 @@ type (
 		ID string `json:"id"`
 	}
 
-	NormalizeNameRequest struct {
+	NormalizePhysicalRequest struct {
 		//Идентификатор записи
 		ID string `json:"id"`
 		//Оригинальные адрес одной строкой
 		OriginalString string `json:"original-fio"`
 	}
 
-	NormalizeName struct {
+	NormalizePhysical struct {
 		//Идентификатор записи
 		ID string `json:"id"`
 		//Оригинальные фамилия, имя, отчество одной строкой

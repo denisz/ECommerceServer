@@ -37,7 +37,7 @@ func (dt *Default) HTMLTemplate() string {
             <td class="email-masthead" style="padding: 15px 10px;color: #000;font-size: 15px;line-height: 18px;text-align: left;background-color: #0d253a;height: 220px;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
               <a class="email-masthead_name" href="{{.Hermes.Product.Link}}" target="_blank" style="color: #2F3133;font-size: 16px;font-weight: bold;text-decoration: none;text-shadow: 0 1px 0 white;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
                 {{ if .Hermes.Product.Logo }}
-                  <img src="{{.Hermes.Product.Logo | url }}" class="email-logo" style="max-height: 130px;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
+                  <img src="{{.Hermes.Product.Logo | url }}" alt="Logo" title="Logo" class="email-logo" style="max-height: 130px;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
                 {{ else }}
                   {{ .Hermes.Product.Name }}
                 {{ end }}

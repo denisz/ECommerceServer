@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"io"
 	"github.com/pkg/errors"
+	"strings"
 )
 
 const (
@@ -24,7 +25,9 @@ type RussiaPost struct {
 }
 
 var (
-	ErrAddressNotValid = errors.New("адрес неприемлем для доставки")
+	ErrAddressNotValid = errors.New("Адрес неприемлем для доставки")
+	ErrPhysicalNotValid = errors.New("Имя отрпавителя неприемлем для доставки")
+	ErrPhoneNotValid = errors.New("Номер телефона неприемлем для доставки")
 )
 
 const (
@@ -73,7 +76,7 @@ func (p *RussiaPost) doRequest(method, path string, body interface{}) (*http.Res
 }
 
 func(p *RussiaPost) Backlog(request OrderRequest) (*OrderResponse, error) {
-	resp, err := p.doRequest("PUT", "user/backlog", request)
+	resp, err := p.doRequest("PUT", "user/backlog", []OrderRequest{request})
 
 	if err != nil {
 		return nil, err
@@ -97,8 +100,13 @@ func(p *RussiaPost) Backlog(request OrderRequest) (*OrderResponse, error) {
 		fmt.Printf("Response: %v %v", string(strJson), resp.StatusCode)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("Ответ 404")
+	if len(response.Errors) > 0 {
+		errDescription := strings.Builder{}
+		codes := response.Errors[0].Codes
+		for _, code := range codes {
+			errDescription.WriteString(code.Details)
+		}
+		return nil, errors.New(errDescription.String())
 	}
 
 	return &response, nil
@@ -183,8 +191,8 @@ func(p *RussiaPost) NormalizeAddress(request NormalizeAddressRequest) (*Normaliz
 	return &response[0], nil
 }
 
-func(p *RussiaPost) NormalizeName(request NormalizeNameRequest) (*NormalizeName, error) {
-	resp, err := p.doRequest("POST", "clean/physical", []NormalizeNameRequest{request})
+func(p *RussiaPost) NormalizePhysical(request NormalizePhysicalRequest) (*NormalizePhysical, error) {
+	resp, err := p.doRequest("POST", "clean/physical", []NormalizePhysicalRequest{request})
 
 	if err != nil {
 		return nil, err
@@ -196,7 +204,7 @@ func(p *RussiaPost) NormalizeName(request NormalizeNameRequest) (*NormalizeName,
 		return nil, errors.New("Ответ 404")
 	}
 
-	var response []NormalizeName
+	var response []NormalizePhysical
 	dec := json.NewDecoder(resp.Body)
 
 	for {
