@@ -15,7 +15,7 @@ type ControllerOrder struct {
 }
 
 //получить информацию о заказе
-func (p *ControllerOrder) GetOrderByInvoice(invoice string) (*Order, error){
+func (p *ControllerOrder) GetOrderByInvoice(invoice string) (*Order, error) {
 	var order Order
 	err := p.GetStore().From(NodeNamedOrders).One("Invoice", invoice, &order)
 
@@ -27,7 +27,7 @@ func (p *ControllerOrder) GetOrderByInvoice(invoice string) (*Order, error){
 }
 
 //список заказов
-func (p *ControllerOrder) GetAllOrders(pagination Pagination) (*PageOrders, error){
+func (p *ControllerOrder) GetAllOrders(pagination Pagination) (*PageOrders, error) {
 	var orders []Order
 	err := p.GetStore().From(NodeNamedOrders).
 		AllByIndex("ID", &orders, storm.Limit(pagination.Limit), storm.Skip(pagination.Offset), storm.Reverse())
@@ -192,10 +192,10 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 	}
 
 	//история
-	history := History {
-		OrderID: order.ID,
-		Comment: update.Comment,
-		Status: update.Status,
+	history := History{
+		OrderID:   order.ID,
+		Comment:   update.Comment,
+		Status:    update.Status,
 		CreatedAt: time.Now(),
 	}
 
@@ -251,9 +251,9 @@ func (p *ControllerOrder) ClearExpiredOrders() error {
 
 	for _, order := range orders {
 		p.Update(order, OrderUpdateRequest{
-			Status: OrderStatusDeclined,
+			Status:          OrderStatusDeclined,
 			NoticeRecipient: true,
-			Comment: fmt.Sprintf("Изменен атоматом в %v", time.Now().Format("02-01-2006 15:04:05")),
+			Comment:         fmt.Sprintf("Изменен атоматом в %v", time.Now().Format("02-01-2006 15:04:05")),
 		})
 	}
 
