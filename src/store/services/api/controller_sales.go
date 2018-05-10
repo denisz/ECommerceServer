@@ -16,7 +16,8 @@ func(p *ControllerSales) GetProducts(pagination Pagination) (*PageProducts, erro
 
 	matcher := q.Not(q.Eq("Discount", nil))
 
-	err := p.GetStore().From(NodeNamedCatalog).
+	err := p.GetStore().
+		From(NodeNamedCatalog).
 		Select(matcher).
 		Limit(pagination.Limit).
 		Skip(pagination.Offset).
@@ -26,7 +27,8 @@ func(p *ControllerSales) GetProducts(pagination Pagination) (*PageProducts, erro
 		return nil, err
 	}
 
-	total, err := p.GetStore().From(NodeNamedCatalog).
+	total, err := p.GetStore().
+		From(NodeNamedCatalog).
 		Select(matcher).
 		Count(new(Product))
 

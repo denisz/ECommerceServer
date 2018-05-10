@@ -8,6 +8,7 @@ import (
 	"store/utils"
 	"store/services/emails"
 	"fmt"
+	"store/delivery/russiaPost"
 )
 
 type ControllerOrder struct {
@@ -17,7 +18,9 @@ type ControllerOrder struct {
 //получить информацию о заказе
 func (p *ControllerOrder) GetOrderByInvoice(invoice string) (*Order, error) {
 	var order Order
-	err := p.GetStore().From(NodeNamedOrders).One("Invoice", invoice, &order)
+	err := p.GetStore().
+		From(NodeNamedOrders).
+		One("Invoice", invoice, &order)
 
 	if err == storm.ErrNotFound {
 		return nil, err
@@ -31,7 +34,6 @@ func (p *ControllerOrder) GetAllOrders(pagination Pagination) (*PageOrders, erro
 	var orders []Order
 	err := p.GetStore().From(NodeNamedOrders).
 		AllByIndex("ID", &orders, storm.Limit(pagination.Limit), storm.Skip(pagination.Offset), storm.Reverse())
-
 	if err != nil {
 		return nil, err
 	}
@@ -60,9 +62,13 @@ func (p *ControllerOrder) SearchOrdersWithFilter(filter FilterOrder, pagination 
 	}
 
 	switch filter.Where {
+	case FilterOrderWhereRangeDate:
+		startDate := filter.StartDate.Truncate(24 * time.Hour)
+		endDate := filter.EndDate.AddDate(0, 0, 1).Truncate(24 * time.Hour)
+		matcher = q.And(matcher, q.Gte("CreatedAt", startDate), q.Lte("CreatedAt", endDate))
 	case FilterOrderWhereDate:
-		beginningDay := filter.Date.Truncate(24 * time.Hour)
-		nextDay := filter.Date.AddDate(0, 0, 1).Truncate(24 * time.Hour)
+		beginningDay := filter.StartDate.Truncate(24 * time.Hour)
+		nextDay := filter.StartDate.AddDate(0, 0, 1).Truncate(24 * time.Hour)
 		matcher = q.And(matcher, q.Gte("CreatedAt", beginningDay), q.Lte("CreatedAt", nextDay))
 	case FilterOrderWhereInvoice:
 		matcher = q.And(matcher, q.Eq("Invoice", filter.Query))
@@ -71,7 +77,8 @@ func (p *ControllerOrder) SearchOrdersWithFilter(filter FilterOrder, pagination 
 	}
 
 	var orders []Order
-	err := p.GetStore().From(NodeNamedOrders).
+	err := p.GetStore().
+		From(NodeNamedOrders).
 		Select(matcher).
 		Limit(pagination.Limit).
 		Skip(pagination.Offset).
@@ -83,7 +90,8 @@ func (p *ControllerOrder) SearchOrdersWithFilter(filter FilterOrder, pagination 
 		return nil, err
 	}
 
-	total, err := p.GetStore().From(NodeNamedOrders).
+	total, err := p.GetStore().
+		From(NodeNamedOrders).
 		Select(matcher).
 		Count(new(Order))
 
@@ -122,7 +130,7 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 		return ErrORDER_ALWAYS_DECLINED
 	}
 
-	//каталог
+	//магазин
 	store := p.GetStore()
 	//открыть транзакцию
 	tx, err := store.Begin(true)
@@ -174,24 +182,28 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 		}
 	}
 
-	//сформирован
+	// Сформирован
 	if order.Status == OrderStatusAwaitingPickup {
 		if order.Delivery.Provider == DeliveryProviderRussiaPost {
-			err = CreateOrderInToRussiaPost(&order)
-			if err != nil {
-				return err
+			if len(order.Shipment.ExternalNumber) == 0 {
+				providerEntity, err := CreateOrderInToRussiaPost(&order)
+				if err != nil {
+					return err
+				}
+				order.Shipment.Price = PriceFloor(Price(providerEntity.TotalRate + providerEntity.TotalVat))
+				order.Shipment.TrackingNumber = providerEntity.Barcode
+				order.Shipment.ExternalNumber = fmt.Sprintf("%d", providerEntity.ID)
 			}
 		}
 	}
 
-	//сохраняем заказ
+	// Сохраняем заказ
 	err = orders.Save(&order)
-
 	if err != nil {
 		return err
 	}
 
-	//история
+	// История
 	history := History{
 		OrderID:   order.ID,
 		Comment:   update.Comment,
@@ -199,7 +211,7 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 		CreatedAt: time.Now(),
 	}
 
-	//сохраняем историю изменений
+	// Сохраняем историю изменений
 	err = chronology.Save(&history)
 	if err != nil {
 		return err
@@ -209,7 +221,7 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 		p.NoticeRecipient(order)
 	}
 
-	//завершаем транзакцию
+	// Завершаем транзакцию
 	tx.Commit()
 
 	return nil
@@ -239,9 +251,9 @@ func (p *ControllerOrder) ClearExpiredOrders() error {
 	threshold := time.Now().AddDate(0, 0, -1)
 	matcher := q.And(q.Eq("Status", OrderStatusAwaitingPayment), q.Lte("CreatedAt", threshold))
 	var orders []Order
-	var ordersBucket = p.GetStore().From(NodeNamedOrders)
 
-	err := ordersBucket.
+	err := p.GetStore().
+		From(NodeNamedOrders).
 		Select(matcher).
 		Find(&orders)
 
@@ -260,6 +272,62 @@ func (p *ControllerOrder) ClearExpiredOrders() error {
 	return nil
 }
 
-func (p *ControllerOrder) ResetDeclined(order Order) error {
+// создание партии и перевод заказов в статсу отправлены
+func (p *ControllerOrder) CreateBatch(orderIDs []int) error {
+	//магазин
+	store := p.GetStore()
+	//открыть транзакцию
+	tx, err := store.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	orders := tx.From(NodeNamedOrders)
+	batches := tx.From(NodeNamedBatches)
+
+	var jobs []Order
+	var externalNumbersIDs []string
+
+	for _, orderID := range orderIDs {
+		var order Order
+		err := orders.One("ID", orderID, &order)
+
+		if err != nil {
+			return err
+		}
+
+		if order.Delivery.Provider != DeliveryProviderRussiaPost {
+			continue
+		}
+
+		if len(order.Shipment.ExternalNumber) == 0 {
+			return fmt.Errorf("not found russiaPostOrder")
+		}
+
+		order.Status = OrderStatusAwaitingShipment
+		externalNumbersIDs = append(externalNumbersIDs, order.Shipment.ExternalNumber)
+		jobs = append(jobs, order)
+	}
+
+	shipment, err := russiaPost.DefaultClient.Shipment(externalNumbersIDs, time.Now())
+	if err != nil {
+		return err
+	}
+
+	for _, item := range shipment.Batches {
+		batch := Batch{
+			Provider:          DeliveryProviderRussiaPost,
+			PayloadRussiaPost: item,
+			CreatedAt:         time.Now(),
+		}
+
+		err := batches.Save(&batch)
+		if err != nil {
+			return err
+		}
+	}
+	//  собрать документы
+
 	return nil
 }

@@ -2,7 +2,7 @@ package api
 
 import (
 	. "store/models"
-	"store/services/loader"
+	"store/services/updater"
 )
 
 type API struct {
@@ -14,14 +14,15 @@ type API struct {
 	Account  ControllerAccount
 	Catalog  ControllerCatalog
 	Sales    ControllerSales
-	Loader   ControllerLoader
+	Batches  ControllerBatches
+	Loader   ControllerUpdater
 }
 
 func NewAPI(config *Config) *API {
 	db := config.DB
 
 	return &API{
-		Admin: ControllerAdmin {
+		Admin: ControllerAdmin{
 			Controller: Controller{DB: db},
 		},
 		Cart: ControllerCart{
@@ -42,9 +43,12 @@ func NewAPI(config *Config) *API {
 		Sales: ControllerSales{
 			Controller: Controller{DB: db},
 		},
-		Loader: ControllerLoader{
+		Batches: ControllerBatches{
 			Controller: Controller{DB: db},
-			Config: &loader.Config{
+		},
+		Loader: ControllerUpdater{
+			Controller: Controller{DB: db},
+			Config: &updater.Config{
 				SpreadSheetID: "13Mr_bOjtMmJ8TivMz3Z5nniT0r92ujlk48m4tXFqSJE",
 			},
 		},

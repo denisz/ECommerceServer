@@ -2,51 +2,38 @@ package models
 
 // Адрес
 type Address struct {
-	//Имя получателя
+	// Имя получателя
 	Name string `json:"name"`
-
-	//Электронная почта
+	// Электронная почта
 	Email string `json:"email"`
-
-	//Телефон
+	// Телефон
 	Phone string `json:"phone"`
-
-	//Улица, номер дома, корпус или строение
+	// Улица, номер дома, корпус или строение
 	Address string `json:"address"`
-
-	//Ручной ввод
+	// Ручной ввод
 	ManualInput bool `json:"manualInput"`
-
-	//Страна
+	// Страна
 	Country string `json:"country"`
-
-	//Регион
+	// Регион
 	Region string `json:"region"`
-
-	//Область, район
+	// Область, район
 	District string `json:"district"`
-
-	//Город/Деревня
+	// Город/Деревня
 	City string `json:"city"`
-
-	//Улица
+	// Улица
 	Street string `json:"street"`
-
-	//Дом
+	// Дом
 	House string `json:"house"`
-
-	//Корпус
+	// Корпус
 	Building string `json:"building"`
-
-	//Квартира
+	// Квартира
 	Room string `json:"room"`
-
-	//Комментарий
+	// Комментарий
 	Comment string `json:"comment"`
-
-	//Почтовый индекс
+	// Почтовый индекс
 	PostalCode string `json:"postalCode"`
-
-	//Координаты
+	// Праавильный ли указан индекс
+	UserInvalidIndex bool `json:"userInvalidIndex"`
+	// Координаты
 	GeoPoint []float64 `json:"geopoint"`
 }

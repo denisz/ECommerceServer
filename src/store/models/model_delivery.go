@@ -30,14 +30,11 @@ const (
 )
 
 type (
-	//Доставка
+	// Доставка
 	Delivery struct {
+		// Повставщик услуг
 		Provider DeliveryProvider `json:"provider"`
+		// Способ доставки
 		Method   DeliveryMethod   `json:"method"`
-	}
-
-	//Стоимость доставки
-	DeliveryPayment struct {
-		Price int `json:"price"`
 	}
 )

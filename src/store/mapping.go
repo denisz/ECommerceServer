@@ -104,8 +104,10 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 		v1.POST("/account/me", I("/account/me"), h.AccountMePOST)
 		v1.POST("/order/:id", I("/order/:id"), h.OrderUpdatePOST)
 		v1.POST("/orders/list", I("/orders/list"), h.OrderListPOST)
-		v1.POST("/orders/clear", I("/orders/clear"), h.OrderClearExpired)
+		v1.POST("/orders/clear", I("/orders/clear"), h.OrderClearExpiredPOST)
 		v1.POST("/orders/search", I("/orders/search"), h.SearchOrdersPOST)
+		v1.POST("/orders/batch", I("/orders/batch"), h.CreateBatchPOST)
+		v1.POST("/batches/search", I("/batches/search"), h.SearchBatchesPOST)
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

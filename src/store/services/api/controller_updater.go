@@ -2,7 +2,7 @@ package api
 
 import (
 	. "store/models"
-	"store/services/loader"
+	"store/services/updater"
 	"fmt"
 )
 
@@ -14,35 +14,35 @@ var (
 	RangeCollectionsName = "Collections"
 )
 
-type ControllerLoader struct {
-	Config *loader.Config
+type ControllerUpdater struct {
+	Config *updater.Config
 	Controller
 }
 
 //Загрузка каталога продуктов
-func (p *ControllerLoader) CatalogFromGoogle() error {
+func (p *ControllerUpdater) CatalogFromGoogle() error {
 	var err error
 
-	var collections []loader.SheetCollection
-	err = loader.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCollectionsName)
+	var collections []updater.SheetCollection
+	err = updater.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCollectionsName)
 	if err != nil {
 		return err
 	}
 
-	var products []loader.SheetProduct
-	err = loader.UnmarshalSpreadsheet(&products, p.Config.SpreadSheetID, RangeProductsName)
+	var products []updater.SheetProduct
+	err = updater.UnmarshalSpreadsheet(&products, p.Config.SpreadSheetID, RangeProductsName)
 	if err != nil {
 		return err
 	}
 
-	var notations []loader.SheetNotation
-	err = loader.UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
+	var notations []updater.SheetNotation
+	err = updater.UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
 	if err != nil {
 		return err
 	}
 
-	var media []loader.SheetProductMedia
-	err = loader.UnmarshalSpreadsheet(&media, p.Config.SpreadSheetID, RangeMediaName)
+	var media []updater.SheetProductMedia
+	err = updater.UnmarshalSpreadsheet(&media, p.Config.SpreadSheetID, RangeMediaName)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (p *ControllerLoader) CatalogFromGoogle() error {
 
 	// Категории
 	for _, sheetData := range collections {
-		collection := loader.CreateCollection(sheetData)
+		collection := updater.CreateCollection(sheetData)
 		err = tx.Save(&collection)
 		if err != nil {
 			return err
@@ -95,7 +95,7 @@ func (p *ControllerLoader) CatalogFromGoogle() error {
 			}
 		}
 
-		product := loader.CreateProduct(sheetData)
+		product := updater.CreateProduct(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
 			return err
@@ -104,7 +104,7 @@ func (p *ControllerLoader) CatalogFromGoogle() error {
 
 	// Описания
 	for _, sheetData := range notations {
-		product := loader.CreateNotation(sheetData)
+		product := updater.CreateNotation(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
 			return err
@@ -116,10 +116,10 @@ func (p *ControllerLoader) CatalogFromGoogle() error {
 }
 
 //Загрузка рекламных баннеров
-func (p *ControllerLoader) AdsFromGoogle() error {
+func (p *ControllerUpdater) AdsFromGoogle() error {
 	var err error
-	var banners []loader.SheetBanner
-	err = loader.UnmarshalSpreadsheet(&banners, p.Config.SpreadSheetID, RangeBannersName)
+	var banners []updater.SheetBanner
+	err = updater.UnmarshalSpreadsheet(&banners, p.Config.SpreadSheetID, RangeBannersName)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func (p *ControllerLoader) AdsFromGoogle() error {
 	settings := Settings {}
 	for _, sheetData := range banners {
 		if sheetData.Active {
-			settings.Banners = append(settings.Banners, loader.CreateBanner(sheetData))
+			settings.Banners = append(settings.Banners, updater.CreateBanner(sheetData))
 		}
 	}
 	db := p.GetStore().From(NodeNamedSettings)

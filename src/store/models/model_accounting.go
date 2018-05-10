@@ -18,7 +18,6 @@ type (
 	PositionReport struct {
 		// Количество
 		Amount int `json:"amount"`
-
 		// Индентификатор
 		ProductSKU string `json:"productSKU"`
 	}
@@ -27,16 +26,12 @@ type (
 	AccountReport struct {
 		// Индентификатор
 		ID int `storm:"id,increment" json:"id"`
-
 		//Тип
 		Type ReportType `storm:"index" json:"type"`
-
 		//Позиции
 		Positions []PositionReport `json:"positions"`
-
 		//Оператор
 		Operator int `storm:"index" json:"operator"`
-
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
 	}
@@ -45,10 +40,8 @@ type (
 	StockStatusReport struct {
 		// Количество
 		Amount int `json:"amount"`
-
 		// Индентификатор
 		ProductSKU string `storm:"id" json:"productSKU"`
-
 		// Время создания
 		UpdatedAt time.Time `json:"updatedAt"`
 	}

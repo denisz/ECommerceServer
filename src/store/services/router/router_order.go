@@ -19,11 +19,6 @@ func (p *Router) OrderDetailPOST(c *gin.Context) {
 
 	order, err := p.API.Order.GetOrderByInvoice(invoice)
 
-	if err != nil {
-		p.AbortWithError(c, http.StatusNotFound, err)
-		return
-	}
-
 	if err == storm.ErrNotFound {
 		p.AbortWithError(c, http.StatusNotFound, err)
 		return
@@ -41,6 +36,11 @@ func (p *Router) OrderDetailPOST(c *gin.Context) {
 func (p *Router) OrderListPOST(c *gin.Context) {
 	pagination := p.GetPagination(c)
 	orders, err := p.API.Order.GetAllOrders(pagination)
+
+	if err == storm.ErrNotFound {
+		p.AbortWithError(c, http.StatusNotFound, err)
+		return
+	}
 
 	if err != nil {
 		p.AbortWithError(c, http.StatusInternalServerError, err)
@@ -102,40 +102,28 @@ func (p *Router) OrderUpdatePOST(c *gin.Context) {
 	}
 }
 
-//Удаляем просроченные заказы
-func (p *Router) OrderClearExpired(c *gin.Context) {
+//удаляем просроченные заказы
+func (p *Router) OrderClearExpiredPOST(c *gin.Context) {
 	err := p.API.Order.ClearExpiredOrders()
 	if err != nil && err != storm.ErrNotFound {
-		p.AbortWithError(c, http.StatusBadRequest, err)
+		p.AbortWithError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	p.JSON(c, http.StatusOK, gin.H{})
 }
 
-func (p *Router) OrderResetDeclined(c *gin.Context) {
-	id := c.Param("id")
+//создание партии
+func (p *Router) CreateBatchPOST(c *gin.Context) {
+	var update BatchRequest
 
-	if len(id) == 0 {
-		p.AbortWithError(c, http.StatusBadRequest, nil)
-		return
-	}
-
-	orderID, err := strconv.Atoi(id)
-	if err != nil {
+	if err := c.ShouldBindJSON(&update); err == nil {
+		err := p.API.Order.CreateBatch(update.OrderIDs)
+		if err != nil {
+			p.AbortWithError(c, http.StatusInternalServerError, err)
+			return
+		}
+	} else {
 		p.AbortWithError(c, http.StatusBadRequest, err)
-		return
 	}
-
-	//загружаем заказ по id
-	order, err := p.API.Order.GetOrderByID(orderID)
-
-	err = p.API.Order.ResetDeclined(order)
-
-	if err != nil {
-		p.AbortWithError(c, http.StatusBadRequest, err)
-		return
-	}
-
-	p.JSON(c, http.StatusOK, &order)
 }

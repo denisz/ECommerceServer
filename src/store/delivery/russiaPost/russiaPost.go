@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin/json"
+	"encoding/json"
 	"github.com/moul/http2curl"
 	"encoding/base64"
 	"io"
 	"github.com/pkg/errors"
 	"strings"
+	"time"
 )
 
 const (
@@ -47,14 +48,31 @@ func NewClient(Login string, Password string, AccessToken string, Debug bool) *R
 	}
 }
 
+func (p *RussiaPost) createUrl(path string) string {
+	return fmt.Sprintf("%s/%s/%s", HostName, Version, path)
+}
+
+func (p *RussiaPost) createRequest(method, path string, body io.Reader) (*http.Request, error) {
+	url := p.createUrl(path)
+	if method == "GET" {
+		return http.NewRequest(method, url, nil)
+	}
+	return http.NewRequest(method, url, body)
+}
+
 func (p *RussiaPost) doRequest(method, path string, body interface{}) (*http.Response, error) {
-	jsonStr, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
+	var bodyReader *bytes.Buffer = nil
+
+	if body != nil {
+		jsonStr, err := json.Marshal(body)
+		if err != nil {
+			return nil, err
+		}
+
+		bodyReader = bytes.NewBuffer(jsonStr)
 	}
 
-	url := fmt.Sprintf("%s/%s/%s", HostName, Version, path)
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonStr))
+	req, err := p.createRequest(method, path, bodyReader)
 
 	if err != nil {
 		return nil, err
@@ -75,15 +93,123 @@ func (p *RussiaPost) doRequest(method, path string, body interface{}) (*http.Res
 	return client.Do(req)
 }
 
-func(p *RussiaPost) Backlog(request OrderRequest) (*OrderResponse, error) {
+func(p *RussiaPost) CreateBacklog(request OrderRequest) (int, error) {
 	resp, err := p.doRequest("PUT", "user/backlog", []OrderRequest{request})
+
+	if err != nil {
+		return 0, err
+	}
+
+	defer resp.Body.Close()
+	var response CreateEntityResponse
+
+	dec := json.NewDecoder(resp.Body)
+
+	for {
+		if err := dec.Decode(&response); err == io.EOF {
+			break
+		} else if err != nil {
+			return 0, err
+		}
+	}
+
+	if p.Debug {
+		strJson, _ := json.Marshal(response)
+		fmt.Printf("Response: %v %v", string(strJson), resp.StatusCode)
+	}
+
+	if len(response.Errors) > 0 {
+		errDescription := strings.Builder{}
+		codes := response.Errors[0].Codes
+		for _, code := range codes {
+			errDescription.WriteString(code.Details)
+		}
+		return 0, errors.New(errDescription.String())
+	}
+
+	return response.Ids[0], nil
+}
+
+func (p *RussiaPost) DeleteBacklog(id string) (*CreateEntityResponse, error) {
+	resp, err := p.doRequest("DELETE", "user/backlog", []string{id})
 
 	if err != nil {
 		return nil, err
 	}
 
 	defer resp.Body.Close()
-	var response OrderResponse
+	var response CreateEntityResponse
+
+	dec := json.NewDecoder(resp.Body)
+
+	for {
+		if err := dec.Decode(&response); err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+	}
+
+	if p.Debug {
+		strJson, _ := json.Marshal(response)
+		fmt.Printf("Response: %v %v", string(strJson), resp.StatusCode)
+	}
+
+	if len(response.Errors) > 0 {
+		errDescription := strings.Builder{}
+		codes := response.Errors[0].Codes
+		for _, code := range codes {
+			errDescription.WriteString(code.Details)
+		}
+		return nil, errors.New(errDescription.String())
+	}
+
+	return &response, nil
+}
+
+func (p *RussiaPost) GetOrder(id int) (*Order, error) {
+	path := fmt.Sprintf("backlog/%d", id)
+	resp, err := p.doRequest("GET", path, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("Not found")
+	}
+
+	var response Order
+	dec := json.NewDecoder(resp.Body)
+
+	for {
+		if err := dec.Decode(&response); err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+	}
+
+	if p.Debug {
+		strJson, _ := json.Marshal(response)
+		fmt.Printf("Response: %v %v", string(strJson), resp.StatusCode)
+	}
+
+	return &response, nil
+}
+
+func (p *RussiaPost) Shipment(ids []string, date time.Time) (*BatchesResponse, error) {
+	path := fmt.Sprintf("user/shipment?sending-date=%s", date.Format("2006-01-02"))
+	resp, err := p.doRequest("POST", path, ids)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	var response BatchesResponse
 
 	dec := json.NewDecoder(resp.Body)
 

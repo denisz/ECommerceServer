@@ -3,7 +3,6 @@ package api
 import (
 	. "store/models"
 	"store/delivery/russiaPost"
-	"fmt"
 )
 
 func AppendIfNeeded(positions []Position, productSKU string) []Position {
@@ -85,24 +84,24 @@ func CheckValidAddress(address *Address) error {
 	return nil
 }
 
-func CreateOrderInToRussiaPost(order *Order) error {
+func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 	if order.Delivery.Provider != DeliveryProviderRussiaPost {
-		return ErrNotSupportedMethod
+		return nil, ErrNotSupportedMethod
 	}
 
-	normalizeAddress, err := NormalizeAddressForRussiaPost(order.Address)
+	address, err := NormalizeAddressForRussiaPost(order.Address)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	normalizePhone, err := NormalizePhoneForRussiaPost(order.Address)
+	phone, err := NormalizePhoneForRussiaPost(order.Address)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	normalizePhysical, err := NormalizePhysicalForRussiaPost(order.Address)
+	physical, err := NormalizePhysicalForRussiaPost(order.Address)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	request := russiaPost.OrderRequest{
@@ -123,15 +122,14 @@ func CreateOrderInToRussiaPost(order *Order) error {
 		request.MailType = russiaPost.MailTypeONLINE_PARCEL
 	}
 
-	russiaPost.UpdateOrderRequestWithPhone(&request, normalizePhone)
-	russiaPost.UpdateOrderRequestWithAddress(&request, normalizeAddress)
-	russiaPost.UpdateOrderRequestWithPhysical(&request, normalizePhysical)
+	russiaPost.UpdateOrderRequestWithPhone(&request, phone)
+	russiaPost.UpdateOrderRequestWithAddress(&request, address)
+	russiaPost.UpdateOrderRequestWithPhysical(&request, physical)
 
-	resp, err := russiaPost.DefaultClient.Backlog(request)
+	orderID, err := russiaPost.DefaultClient.CreateBacklog(request)
 	if err != nil {
-		return err
+		return nil,err
 	}
 
-	fmt.Printf("%v \n", resp)
-	return nil
+	return russiaPost.DefaultClient.GetOrder(orderID)
 }

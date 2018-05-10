@@ -61,6 +61,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 		case DeliveryMethodRapid:
 			mailType = russiaPost.MailTypeBUSINESS_COURIER
 		case DeliveryMethodStandard:
+			mailType = russiaPost.MailTypeONLINE_PARCEL
 			return 0, nil //бесплатная доставка
 		}
 
@@ -89,7 +90,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 			return 0, err
 		}
 
-		return PriceFloor(Price(res.TotalRate) + Price(res.TotalVat)), nil
+		return PriceFloor(Price(res.TotalRate + res.TotalVat)), nil
 	case DeliveryProviderBoxberry:
 		return 0, nil
 	case DeliveryProviderBaikal:
@@ -262,7 +263,6 @@ func (p *ControllerCart) SetDelivery(cart *Cart, delivery Delivery) (*Cart, erro
 	err = db.Save(cart)
 	//невозможно сохранить
 	if err != nil {
-		//ошибка
 		return nil, err
 	}
 

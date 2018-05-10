@@ -1,4 +1,4 @@
-package loader
+package updater
 
 type Config struct {
 	SpreadSheetID string

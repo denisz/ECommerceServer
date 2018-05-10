@@ -9,6 +9,7 @@ type QualityCode string
 type QualityPhysicalCode string
 type QualityPhoneCode string
 type ValidationCode string
+type BatchStatusCode string
 
 const (
 	//Стандартный (улица, дом, квартира)
@@ -226,9 +227,25 @@ const (
 
 	//Телефон не может быть распознан
 	QualityPhoneCodeINCORRECT_DATA QualityPhoneCode = "INCORRECT_DATA"
+
+	//Партия создана
+	BatchStatusCodeCREATED BatchStatusCode = "CREATED"
+
+	//Партия в процессе приема, редактирование запрещено
+	BatchStatusCodeFROZEN BatchStatusCode = "FROZEN"
+
+	//Партия принята в отделении связи
+	BatchStatusCodeACCEPTED BatchStatusCode = "ACCEPTED"
+
+	//По заказам в партии существуют данные в сервисе трекинга
+	BatchStatusCodeSENT BatchStatusCode = "SENT"
+
+	//Партия находится в архиве
+	BatchStatusCodeARCHIVED BatchStatusCode = "ARCHIVED"
 )
 
 type (
+	//Размеры
 	Dimension struct {
 		//Линейная ширина (сантиметры)
 		Width int `json:"width"`
@@ -238,6 +255,15 @@ type (
 		Length int `json:"length"`
 	}
 
+	//Время доставки
+	DeliveryTime struct {
+		//Максимальное время доставки (дни)
+		MaxDays int `json:"max-days"`
+		//Минимальное время доставки (дни)
+		MinDays int `json:"min-days"`
+	}
+
+	//Запрос создания заказа
 	OrderRequest struct {
 		//Тип адреса
 		AddressType AddressType `json:"address-type-to,omitempty"`
@@ -321,23 +347,148 @@ type (
 		WoMailRank bool `json:"wo-mail-rank,omitempty"`
 	}
 
-	OrderError struct {
-		//Список кодов ошибок
-		Codes []struct {
-			Code    string `json:"code"`
-			Details string `json:"description"`
-		} `json:"error-codes"`
-		//Индекс в исходном массиве
-		Position int `json:"position"`
+	//Заказ
+	Order struct {
+		ID int `json:"id"`
+		//Тип адреса
+		AddressType AddressType `json:"address-type-to,omitempty"`
+		//Район
+		Area string `json:"area-to,omitempty"`
+		//Отправитель на посылке/название брэнда
+		BrandName string `json:"-"`
+		//Часть здания: Строение
+		Building string `json:"building-to,omitempty"`
+		//Комментарий:Номер заказа. Внешний идентификатор заказа, который формируется отправителем
+		Comment string `json:"comment,omitempty"`
+		//Часть здания: Корпус
+		Corpus string `json:"corpus-to,omitempty"`
+		//Отметка 'Курьер'
+		Courier bool `json:"courier,omitempty"`
+		//Линейные размеры
+		Dimension Dimension `json:"dimension,omitempty"`
+		//Тип конверта - ГОСТ Р 51506-99.
+		EnvelopeType EnvelopeType `json:"envelope-type,omitempty"`
+		//Установлена ли отметка 'Осторожно/Хрупкое'?
+		Fragile bool `json:"fragile,omitempty"`
+		//Имя получателя
+		GivenName string `json:"given-name,omitempty"`
+		//Отчество получателя
+		MiddleName string `json:"middle-name,omitempty"`
+		//Фамилия получателя
+		Surname string `json:"surname,omitempty"`
+		//Название гостиницы
+		Hotel string `json:"hotel-to,omitempty"`
+		//Часть адреса: Номер здания
+		House string `json:"house-to,omitempty"`
+		//Почтовый индекс
+		Index int `json:"index-to,omitempty"`
+		//Сумма объявленной ценности (копейки)
+		InsrValue int `json:"insr-value,omitempty"`
+		//Часть здания: Литера
+		Letter string `json:"letter-to,omitempty"`
+		//Микрорайон
+		Location string `json:"location-to,omitempty"`
+		//Категория РПО
+		MailCategory MailCategory `json:"mail-category,omitempty"`
+		//Код страны Россия: 643
+		MailDirect int `json:"mail-direct,omitempty"`
+		//Вид РПО
+		MailType MailType `json:"mail-type,omitempty"`
+		//Отметка 'Ручной ввод адреса'
+		ManualAddressInput bool `json:"manual-address-input,omitempty"`
+		//Вес РПО (в граммах)
+		Mass int `json:"mass,omitempty"`
+		//Номер для а/я, войсковая часть, войсковая часть ЮЯ, полевая почта
+		NumAddressTypeTo string `json:"num-address-type-to,omitempty"`
+		//Номер заказа. Внешний идентификатор заказа, который формируется отправителем
+		OrderNum string `json:"order-num,omitempty"`
+		//Сумма наложенного платежа (копейки)
+		Payment int `json:"payment,omitempty"`
+		//Способ оплаты.
+		PaymentMethod PaymentMethod `json:"payment-method,omitempty"`
+		//Населенный пункт
+		Place string `json:"place-to,omitempty"`
+		//Индекс места приема
+		PostOfficeCode string `json:"postoffice-code,omitempty"`
+		//Наименование получателя одной строкой (ФИО, наименование организации)
+		RecipientName string `json:"recipient-name,omitempty"`
+		//Область, регион
+		Region string `json:"region-to,omitempty"`
+		//Часть здания: Номер помещения
+		Room string `json:"room-to,omitempty"`
+		//Часть здания: Дробь
+		Slash string `json:"slash-to,omitempty"`
+		//Признак услуги SMS уведомления
+		SMSNoticeRecipient int `json:"sms-notice-recipient,omitempty"`
+		//Часть адреса: Улица
+		Street string `json:"street-to,omitempty"`
+		//Телефон получателя (может быть обязательным для некоторых типов отправлений)
+		TelAddress int `json:"tel-address,omitempty"`
+		//Отметка 'С заказным уведомлением'
+		WithOrderOfNotice bool `json:"with-order-of-notice,omitempty"`
+		//Отметка 'С простым уведомлением'
+		WithSimpleNotice bool `json:"with-simple-notice,omitempty"`
+		//Отметка 'Без разряда'
+		WoMailRank bool `json:"wo-mail-rank,omitempty"`
+		//Время доставки
+		DeliveryTime DeliveryTime `json:"delivery-time"`
+		//ШПИ
+		Barcode string `json:"barcode"`
+		//Заказ удален?
+		IsDelete bool `json:"is-deleted"`
+		//Плата всего (коп)
+		TotalRate int `json:"total-rate-wo-vat"`
+		//Всего НДС (коп)
+		TotalVat int `json:"total-vat"`
+		//Версия заказа
+		Version int `json:"version"`
 	}
 
-	OrderResponse struct {
+	//Партия
+	Batch struct {
+		BatchName string `json:"batch-name,omitempty"`
+		BatchStatus BatchStatusCode `json:"batch-status,omitempty"`
+		BatchStatusDate string `json:"batch-status-date,omitempty"`
+		DeliveryNoticePaymentMethod PaymentMethod `json:"delivery-notice-payment-method,omitempty"`
+		ListNumber int `json:"list-number,omitempty"`
+		ListNumberDate string `json:"list-number-date,omitempty"`
+		MailCategory MailCategory `json:"mail-category,omitempty"`
+		MailCategoryText string `json:"mail-category-text,omitempty"`
+		MailRank string `json:"mail-rank,omitempty"`
+		MailType MailType `json:"mail-type,omitempty"`
+		MailTypeText string `json:"mail-type-text,omitempty"`
+		PaymentMethod PaymentMethod `json:"payment-method,omitempty"`
+		Postmarks []string `json:"postmarks,omitempty"`
+		PostOfficeAddress string `json:"postoffice-address,omitempty"`
+		PostOfficeCode string `json:"postoffice-code,omitempty"`
+		PostOfficeName string `json:"postoffice-name,omitempty"`
+		ShipmentAviaRate int `json:"shipment-avia-rate-sum,omitempty"`
+		ShipmentAviaRateVat int `json:"shipment-avia-rate-vat-sum,omitempty"`
+		ShipmentCount int `json:"shipment-count,omitempty"`
+		ShipmentGroundRate int `json:"shipment-ground-rate-sum,omitempty"`
+		ShipmentGroundRateVat int `json:"shipment-ground-rate-vat-sum,omitempty"`
+		ShipmentInsureRate int `json:"shipment-insure-rate-sum,omitempty"`
+		ShipmentInsureRateVat int `json:"shipment-insure-rate-vat-sum,omitempty"`
+		ShipmentMass int `json:"shipment-mass,omitempty"`
+		ShipmentMassRate int `json:"shipment-mass-rate-sum,omitempty"`
+		ShipmentMassRateVat int `json:"shipment-mass-rate-vat-sum,omitempty"`
+		ShipmentNoticeRate int `json:"shipment-notice-rate-sum,omitempty"`
+		ShipmentNoticeRateVat int `json:"shipment-notice-rate-vat-sum,omitempty"`
+		ShipmentSmsNoticeRate int `json:"shipment-sms-notice-rate-sum,omitempty"`
+		ShipmentSmsNoticeRateVar int `json:"shipment-sms-notice-rate-vat-sum,omitempty"`
+		ShippingNoticeType string `json:"shipping-notice-type,omitempty"`
+		TransportType string `json:"transport-type,omitempty"`
+	}
+
+	BatchesResponse struct {
+		Batches []Batch `json:"batches"`
 		//Список ошибок
-		Errors []OrderError `json:"errors"`
+		Errors []CreateEntityError `json:"errors"`
 		//Список идентификаторов успешно обработанных сущностей
 		Ids []int `json:"result-ids"`
 	}
 
+	//
 	DestinationRequest struct {
 		//Отметка 'Курьер'
 		Courier bool `json:"courier"`
@@ -365,18 +516,28 @@ type (
 		WithSimpleNotice bool `json:"with-simple-notice"`
 	}
 
+	CreateEntityError struct {
+		//Список кодов ошибок
+		Codes []struct {
+			Code    string `json:"code"`
+			Details string `json:"description"`
+		} `json:"error-codes"`
+		//Индекс в исходном массиве
+		Position int `json:"position"`
+	}
+
+	CreateEntityResponse struct {
+		//Список ошибок
+		Errors []CreateEntityError `json:"errors"`
+		//Список идентификаторов успешно обработанных сущностей
+		Ids []int `json:"result-ids"`
+	}
+
 	DestinationRate struct {
 		//Тариф без НДС (коп)
 		Rate int `json:"rate"`
 		//НДС (коп)
 		Vat int `json:"vat"`
-	}
-
-	DeliveryTime struct {
-		//Максимальное время доставки (дни)
-		MaxDays int `json:"max-days"`
-		//Минимальное время доставки (дни)
-		MinDays int `json:"min-days"`
 	}
 
 	DestinationError struct {

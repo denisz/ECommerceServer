@@ -2,6 +2,10 @@ package models
 
 
 type Pagination struct {
-	Limit int `json:"limit"`
-	Offset int `json:"offset"`
+	// Лимит
+	Limit int `form:"limit" json:"limit"`
+	// Смещение
+	Offset int `form:"offset" json:"offset"`
+	// Страница
+	Page int `form:"page" json:"page"`
 }

@@ -14,7 +14,9 @@ type ControllerCatalog struct {
 // Коллекция
 func (p *ControllerCatalog) GetCollectionBySKU(sku string) (*Collection, error){
 	var collection Collection
-	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &collection)
+	err := p.GetStore().
+		From(NodeNamedCatalog).
+		One("SKU", sku, &collection)
 
 	if err == storm.ErrNotFound {
 		return nil, err
@@ -26,7 +28,10 @@ func (p *ControllerCatalog) GetCollectionBySKU(sku string) (*Collection, error){
 // Список коллекции
 func (p *ControllerCatalog) GetAllCollections() (*PageCollections, error) {
 	var collections []Collection
-	err := p.GetStore().From(NodeNamedCatalog).All(&collections)
+	err := p.GetStore().
+		From(NodeNamedCatalog).
+		All(&collections)
+
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +49,16 @@ func (p *ControllerCatalog) GetAllCollections() (*PageCollections, error) {
 // Список товаров
 func (p *ControllerCatalog) GetProductsByCollectionSKU(sku string, pagination Pagination) (*PageProducts, error) {
 	var products []Product
-	err := p.GetStore().From(NodeNamedCatalog).
+	err := p.GetStore().
+		From(NodeNamedCatalog).
 		Find("CollectionSKU", sku, &products, storm.Limit(pagination.Limit), storm.Skip(pagination.Offset))
 
 	if err != nil && err != storm.ErrNotFound {
 		return nil, err
 	}
 
-	total, err := p.GetStore().From(NodeNamedCatalog).
+	total, err := p.GetStore().
+		From(NodeNamedCatalog).
 		Select(q.Eq("CollectionSKU", sku)).
 		Count(new(Product))
 	if err != nil {
@@ -89,7 +96,8 @@ func (p *ControllerCatalog) SearchProductsWithFilter(filter FilterCatalog, pagin
 	}
 
 	var products []Product
-	err := p.GetStore().From(NodeNamedCatalog).
+	err := p.GetStore().
+		From(NodeNamedCatalog).
 		Select(matcher).
 		Limit(pagination.Limit).
 		Skip(pagination.Offset).
@@ -99,7 +107,8 @@ func (p *ControllerCatalog) SearchProductsWithFilter(filter FilterCatalog, pagin
 		return nil, err
 	}
 
-	total, err := p.GetStore().From(NodeNamedCatalog).
+	total, err := p.GetStore().
+		From(NodeNamedCatalog).
 		Select(matcher).
 		Count(new(Product))
 
@@ -124,9 +133,11 @@ func (p *ControllerCatalog) SearchProductsWithFilter(filter FilterCatalog, pagin
 //Продукт
 func (p *ControllerCatalog) GetProductBySKU(sku string) (*Product, error) {
 	var product Product
-	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &product)
+	err := p.GetStore().
+		From(NodeNamedCatalog).
+		One("SKU", sku, &product)
 
-	if err == storm.ErrNotFound {
+	if err != nil {
 		return nil, err
 	}
 
@@ -137,9 +148,11 @@ func (p *ControllerCatalog) GetProductBySKU(sku string) (*Product, error) {
 //Описания продукта
 func (p *ControllerCatalog) GetNotationBySKU(sku string) (*Notation, error) {
 	var notation Notation
-	err := p.GetStore().From(NodeNamedCatalog).One("SKU", sku, &notation)
+	err := p.GetStore().
+		From(NodeNamedCatalog).
+		One("SKU", sku, &notation)
 
-	if err == storm.ErrNotFound {
+	if err != nil {
 		return nil, err
 	}
 

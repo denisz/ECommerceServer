@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"strconv"
 	. "store/models"
 	"store/services/api"
 )
@@ -12,22 +11,12 @@ type Router struct {
 }
 
 func (p *Router) GetPagination(c *gin.Context) Pagination {
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if err != nil {
-		limit = 10
-	}
-
-	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
-	if err != nil {
-		offset = 0
-	}
-
-	return Pagination{ Limit: limit, Offset: offset}
+	pagination := Pagination{ Limit: 10, Offset: 0 }
+	c.BindQuery(&pagination)
+	return pagination
 }
 
 func (p *Router) AbortWithError(c *gin.Context, code int, err error) {
-	//c.AbortWithError(code, err)
-	//panic
 	c.JSON(code, gin.H{
 		"message": err.Error(),
 		"code": code,

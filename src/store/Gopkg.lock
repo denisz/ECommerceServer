@@ -32,12 +32,6 @@
   version = "v2.3.1"
 
 [[projects]]
-  name = "github.com/asaskevich/govalidator"
-  packages = ["."]
-  revision = "ccb8e960c48f04d6935e72476ae4a51028f9e22f"
-  version = "v9"
-
-[[projects]]
   name = "github.com/asdine/storm"
   packages = [
     ".",
@@ -443,6 +437,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f15868af8cdc4d71b0af8f97b747152f536f6c884e3a93c6ecfebaee49c89f1f"
+  inputs-digest = "dcdc959c71508ef3369686156d55f1711ff59ef2b9fceda55e0345b491d125b4"
   solver-name = "gps-cdcl"
   solver-version = 1

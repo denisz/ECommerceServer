@@ -49,6 +49,7 @@ type FilterOrderWhere string
 const (
 	FilterOrderWhereInvoice FilterOrderWhere = "invoice"
 	FilterOrderWhereDate FilterOrderWhere = "date"
+	FilterOrderWhereRangeDate FilterOrderWhere = "range_date"
 	FilterOrderWherePhone FilterOrderWhere = "phone"
 )
 
@@ -61,28 +62,26 @@ type (
 	Receipt struct {
 		// Индентификатор
 		ID int `storm:"id,increment"`
-
 		// Номер счета
 		Invoice string
-
 		// Ответ
 		Response string
-
 		// Поставщик услуг
 		Provider string
-
 		// Пользовательская информация
 		Payload string
 	}
 
 	// Отправка товара
 	Shipment struct {
-		// Номер для отслеживания
-		Tracking string `json:"tracking"`
-
 		// Поставщик услуг
 		Provider string `json:"provider"`
-
+		// Номер для отслеживания
+		TrackingNumber string `json:"trackingNumber"`
+		//Внешний индентификатор
+		ExternalNumber string `json:"externalNumber"`
+		// Цена за доставку
+		Price Price `json:"price"`
 		// Meta данные
 		Meta string `json:"meta"`
 	}
@@ -91,64 +90,44 @@ type (
 	Order struct {
 		// Индентификатор
 		ID int `storm:"id,increment=1000" json:"id"`
-
 		// Позиции в заказе
 		Positions []Position `json:"positions"`
-
 		// Адрес доставки
 		Address *Address `json:"address"`
-
 		// Доставка
 		Delivery *Delivery `json:"delivery"`
-
 		// Квитанция об оплате
 		Receipt Receipt `json:"-"`
-
 		//Квитанция номер
 		ReceiptNumber string `json:"receiptNumber"`
-
 		// Информация о доставке
-		Shipment Shipment `json:"-"`
-
+		Shipment Shipment `json:"shipment"`
 		// Трек доставки
 		TrackingNumber string `json:"trackingNumber"`
-
 		// Скидка
 		Discount *Discount `json:"discount"`
-
 		// Статус заказа
 		Status OrderStatus `json:"status"`
-
 		// Владелец заказа
 		OwnerID int `json:"ownerID"`
-
 		// IP автора
 		ClientIP string `storm:"index" json:"-"`
-
 		// Номер телефона
 		ClientPhone string `storm:"index" json:"-"`
-
 		// Корзина
 		CartID int `json:"cartID"`
-
 		// Счёт на оплату
 		Invoice string `storm:"unique" json:"invoice"`
-
 		// Цена на товары
 		Subtotal Price `json:"subtotal"`
-
 		//Цена товаров
 		ProductPrice Price `json:"productPrice"`
-
 		// Цена доставки
 		DeliveryPrice Price `json:"deliveryPrice"`
-
 		// Общая цена
 		Total Price `json:"total"`
-
 		// Комментарий заказа
 		Comment string `json:"comment"`
-
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
 	}
@@ -157,19 +136,14 @@ type (
 	History struct {
 		// Инфентификатор
 		ID int `storm:"id,increment"`
-
 		// Номер заказа
 		OrderID int `storm:"index" json:"orderID"`
-
 		// Индентифкатор оператора
 		OperatorID int `json:"operatorID"`
-
 		// Комментарий оператора
 		Comment string `json:"comment"`
-
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
-
 		// Статус
 		Status OrderStatus `json:"status"`
 	}
@@ -178,32 +152,39 @@ type (
 	OrderUpdateRequest struct {
 		// Изменение статуса
 		Status OrderStatus `json:"status"`
-
 		// Трек
 		TrackingNumber string `json:"trackingNumber"`
-
 		// Квитанция об оплате
 		ReceiptNumber string `json:"receiptNumber"`
-
-		//оповещение пользователя
+		// Ооповещение пользователя
 		NoticeRecipient bool `json:"noticeRecipient"`
-
 		//Комеентарий
 		Comment string `json:"comment"`
 	}
 
+	//Создание партии
+	BatchRequest struct {
+		// Набор id заказов
+		OrderIDs []int `json:"ids"`
+	}
+
 	// Фильтр поиска
 	FilterOrder struct {
+		// Где искать?
 		Where FilterOrderWhere `json:"where"`
+		// Запрос
 		Query string `json:"query"`
-		Date time.Time `json:"date"`
+		// Начальная дата
+		StartDate time.Time `json:"start_date"`
+		// Конечная дата
+		EndDate time.Time `json:"end_date"`
+		// Статус
 		Status OrderStatus `json:"status"`
 	}
 
 	// Страницы заказов
 	PageOrders struct {
 		Content []Order `json:"content"`
-
 		// Курсор
 		Cursor
 	}
@@ -211,10 +192,7 @@ type (
 	// Страницы заказов
 	PageHistory struct {
 		Content []History `json:"content"`
-
 		// Курсор
 		Cursor
 	}
-
-
 )
