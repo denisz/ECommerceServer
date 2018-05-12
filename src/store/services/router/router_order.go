@@ -123,6 +123,7 @@ func (p *Router) CreateBatchPOST(c *gin.Context) {
 			p.AbortWithError(c, http.StatusInternalServerError, err)
 			return
 		}
+		p.JSON(c, http.StatusOK, gin.H{})
 	} else {
 		p.AbortWithError(c, http.StatusBadRequest, err)
 	}

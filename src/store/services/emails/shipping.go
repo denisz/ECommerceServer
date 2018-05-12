@@ -57,11 +57,11 @@ func (p Shipping) Email() hermes.Email {
 			},
 			Actions: []hermes.Action{
 				{
-					Instructions: "Отслеживать информацию о вашей посылке вы можете на",
+					Instructions: "Отслеживать информацию о вашей посылке вы можете на сайте",
 					Button: hermes.Button{
 						Color: "#22BC66", // Optional action button color
 						Text:  "Отследить посылку",
-						Link:  "http://95.213.236.60",
+						Link:  fmt.Sprintf("https://www.pochta.ru/tracking#%s", p.Order.TrackingNumber),
 					},
 				},
 			},

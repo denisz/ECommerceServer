@@ -13,13 +13,13 @@ import (
 )
 
 var (
-	ErrNotSupportedMethod  = errors.New("не поддерживается метод доставки")
-	ErrEmptyDeliveryMethod = errors.New("пустой метод")
-	ErrCheckoutBan         = errors.New("превышен лимит создания заказа")
-	ErrEmptyCart           = errors.New("корзина не указана")
-	ErrEmptyDelivery       = errors.New("доставка не указана")
-	ErrEmptyAddress        = errors.New("адрес не указан")
-	ErrNotEnoughQuantity   = errors.New("недостаточно количество продукта")
+	ErrNotSupportedProvider = errors.New("не поддерживается метод доставки")
+	ErrEmptyDeliveryMethod  = errors.New("пустой метод")
+	ErrCheckoutBan          = errors.New("превышен лимит создания заказа")
+	ErrEmptyCart            = errors.New("корзина не указана")
+	ErrEmptyDelivery        = errors.New("доставка не указана")
+	ErrEmptyAddress         = errors.New("адрес не указан")
+	ErrNotEnoughQuantity    = errors.New("недостаточно количество продукта")
 )
 
 type ControllerCart struct {
@@ -53,7 +53,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 
 	switch cart.Delivery.Provider {
 	case DeliveryProviderRussiaPost:
-		mailType := russiaPost.MailTypeONLINE_PARCEL
+		mailType := russiaPost.MailTypePOSTAL_PARCEL
 
 		switch cart.Delivery.Method {
 		case DeliveryMethodEMC:
@@ -61,7 +61,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 		case DeliveryMethodRapid:
 			mailType = russiaPost.MailTypeBUSINESS_COURIER
 		case DeliveryMethodStandard:
-			mailType = russiaPost.MailTypeONLINE_PARCEL
+			mailType = russiaPost.MailTypePOSTAL_PARCEL
 			return 0, nil //бесплатная доставка
 		}
 
@@ -100,7 +100,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 	case DeliveryProviderNRG:
 		return 0, nil
 	default:
-		return 0, ErrNotSupportedMethod
+		return 0, ErrNotSupportedProvider
 	}
 }
 

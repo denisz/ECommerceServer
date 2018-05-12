@@ -135,7 +135,7 @@ func (dt *Default) HTMLTemplate() string {
                               <tr>
                                 <td align="center" style="padding: 10px 5px;color: #000;font-size: 15px;line-height: 18px;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
                                   <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;">
-                                    <a href="{{ $action.Button.Link }}" class="button" style="background-color: {{ $action.Button.Color }};color: #ffffff;display: inline-block;width: 100%;font-size: 15px;line-height: 45px;text-align: center;text-decoration: none;-webkit-text-size-adjust: none;mso-hide: all;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;" target="_blank">
+                                    <a href="{{ $action.Button.Link }}" class="button" style="padding: 10px 5px;background-color: {{ $action.Button.Color }};color: #ffffff;display: block;width: 100%;font-size: 15px;line-height: 45px;text-align: center;text-decoration: none;-webkit-text-size-adjust: none;mso-hide: all;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;-webkit-box-sizing: border-box;box-sizing: border-box;" target="_blank">
                                       {{ $action.Button.Text }}
                                     </a>
                                   </div>

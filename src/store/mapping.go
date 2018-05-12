@@ -103,6 +103,7 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 		//v1.POST("/order/")
 		v1.POST("/account/me", I("/account/me"), h.AccountMePOST)
 		v1.POST("/order/:id", I("/order/:id"), h.OrderUpdatePOST)
+		v1.POST("/forms/order/:id", I("/forms/order/:id"), h.FormsOrderPOST)
 		v1.POST("/orders/list", I("/orders/list"), h.OrderListPOST)
 		v1.POST("/orders/clear", I("/orders/clear"), h.OrderClearExpiredPOST)
 		v1.POST("/orders/search", I("/orders/search"), h.SearchOrdersPOST)

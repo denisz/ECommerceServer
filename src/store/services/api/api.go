@@ -11,6 +11,7 @@ type API struct {
 	Cart     ControllerCart
 	Settings ControllerSettings
 	Order    ControllerOrder
+	Form     ControllerForms
 	Account  ControllerAccount
 	Catalog  ControllerCatalog
 	Sales    ControllerSales
@@ -32,6 +33,9 @@ func NewAPI(config *Config) *API {
 			Controller: Controller{DB: db},
 		},
 		Order: ControllerOrder{
+			Controller: Controller{DB: db},
+		},
+		Form: ControllerForms{
 			Controller: Controller{DB: db},
 		},
 		Account: ControllerAccount{

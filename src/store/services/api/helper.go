@@ -56,6 +56,10 @@ func CheckValidAddress(address *Address) error {
 		return err
 	}
 
+	if nAddress.Index != address.PostalCode {
+		return ErrILLEGAL_INDEX_TO
+	}
+
 	err = russiaPost.CheckValidateAddress(nAddress)
 	if err != nil {
 		return err
@@ -86,7 +90,7 @@ func CheckValidAddress(address *Address) error {
 
 func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 	if order.Delivery.Provider != DeliveryProviderRussiaPost {
-		return nil, ErrNotSupportedMethod
+		return nil, ErrNotSupportedProvider
 	}
 
 	address, err := NormalizeAddressForRussiaPost(order.Address)
@@ -119,7 +123,7 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 	case DeliveryMethodRapid:
 		request.MailType = russiaPost.MailTypeBUSINESS_COURIER
 	case DeliveryMethodStandard:
-		request.MailType = russiaPost.MailTypeONLINE_PARCEL
+		request.MailType = russiaPost.MailTypePOSTAL_PARCEL
 	}
 
 	russiaPost.UpdateOrderRequestWithPhone(&request, phone)
@@ -131,5 +135,5 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 		return nil,err
 	}
 
-	return russiaPost.DefaultClient.GetOrder(orderID)
+	return russiaPost.DefaultClient.GetBacklog(orderID)
 }

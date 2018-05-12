@@ -47,10 +47,10 @@ const (
 type FilterOrderWhere string
 
 const (
-	FilterOrderWhereInvoice FilterOrderWhere = "invoice"
-	FilterOrderWhereDate FilterOrderWhere = "date"
+	FilterOrderWhereInvoice   FilterOrderWhere = "invoice"
+	FilterOrderWhereDate      FilterOrderWhere = "date"
 	FilterOrderWhereRangeDate FilterOrderWhere = "range_date"
-	FilterOrderWherePhone FilterOrderWhere = "phone"
+	FilterOrderWherePhone     FilterOrderWhere = "phone"
 )
 
 func (p OrderStatus) String() string {
@@ -75,7 +75,11 @@ type (
 	// Отправка товара
 	Shipment struct {
 		// Поставщик услуг
-		Provider string `json:"provider"`
+		Provider DeliveryProvider `json:"provider"`
+		// Способ доставки
+		Method DeliveryMethod `json:"method"`
+		// Время отправки
+		Date time.Time `json:"date"`
 		// Номер для отслеживания
 		TrackingNumber string `json:"trackingNumber"`
 		//Внешний индентификатор
@@ -130,6 +134,8 @@ type (
 		Comment string `json:"comment"`
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
+		// Время обновления
+		UpdatedAt time.Time `json:"updatedAt"`
 	}
 
 	// История измения статуса заказа

@@ -190,12 +190,19 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 				if err != nil {
 					return err
 				}
-				order.Shipment.Price = PriceFloor(Price(providerEntity.TotalRate + providerEntity.TotalVat))
+				order.Shipment.Date = time.Now()
+				order.Shipment.Provider = order.Delivery.Provider
+				order.Shipment.Method = order.Delivery.Method
 				order.Shipment.TrackingNumber = providerEntity.Barcode
 				order.Shipment.ExternalNumber = fmt.Sprintf("%d", providerEntity.ID)
+				order.Shipment.Price = Price(providerEntity.TotalRate + providerEntity.TotalVat)
+				order.TrackingNumber = providerEntity.Barcode
 			}
 		}
 	}
+
+	// Записываем время изменения
+	order.UpdatedAt = time.Now()
 
 	// Сохраняем заказ
 	err = orders.Save(&order)
@@ -286,19 +293,17 @@ func (p *ControllerOrder) CreateBatch(orderIDs []int) error {
 	orders := tx.From(NodeNamedOrders)
 	batches := tx.From(NodeNamedBatches)
 
-	var jobs []Order
 	var externalNumbersIDs []string
 
 	for _, orderID := range orderIDs {
 		var order Order
 		err := orders.One("ID", orderID, &order)
-
 		if err != nil {
 			return err
 		}
 
 		if order.Delivery.Provider != DeliveryProviderRussiaPost {
-			continue
+			return fmt.Errorf("does not match russiapost provider")
 		}
 
 		if len(order.Shipment.ExternalNumber) == 0 {
@@ -306,8 +311,12 @@ func (p *ControllerOrder) CreateBatch(orderIDs []int) error {
 		}
 
 		order.Status = OrderStatusAwaitingShipment
+		err = orders.Save(&order)
+		if err != nil {
+			return err
+		}
+
 		externalNumbersIDs = append(externalNumbersIDs, order.Shipment.ExternalNumber)
-		jobs = append(jobs, order)
 	}
 
 	shipment, err := russiaPost.DefaultClient.Shipment(externalNumbersIDs, time.Now())
@@ -315,19 +324,25 @@ func (p *ControllerOrder) CreateBatch(orderIDs []int) error {
 		return err
 	}
 
-	for _, item := range shipment.Batches {
-		batch := Batch{
-			Provider:          DeliveryProviderRussiaPost,
-			PayloadRussiaPost: item,
-			CreatedAt:         time.Now(),
-		}
+	//defer func() {
+	//	russiaPost.DefaultClient.RestoreBacklog(externalNumbersIDs)
+	//}()
 
-		err := batches.Save(&batch)
-		if err != nil {
-			return err
-		}
+	batch := Batch{
+		Provider:          DeliveryProviderRussiaPost,
+		IDs: orderIDs,
+		PayloadRussiaPost: shipment.Ids,
+		CreatedAt:         time.Now(),
+	}
+
+	err = batches.Save(&batch)
+	if err != nil {
+		return err
 	}
 	//  собрать документы
+
+	// Завершаем транзакцию
+	tx.Commit()
 
 	return nil
 }
