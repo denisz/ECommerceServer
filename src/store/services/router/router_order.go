@@ -118,12 +118,12 @@ func (p *Router) CreateBatchPOST(c *gin.Context) {
 	var update BatchRequest
 
 	if err := c.ShouldBindJSON(&update); err == nil {
-		err := p.API.Order.CreateBatch(update.OrderIDs)
+		batch, err := p.API.Order.CreateBatch(update.OrderIDs)
 		if err != nil {
 			p.AbortWithError(c, http.StatusInternalServerError, err)
 			return
 		}
-		p.JSON(c, http.StatusOK, gin.H{})
+		p.JSON(c, http.StatusOK, batch)
 	} else {
 		p.AbortWithError(c, http.StatusBadRequest, err)
 	}

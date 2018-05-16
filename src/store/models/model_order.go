@@ -22,16 +22,16 @@ type OrderStatus string
 	Partially Refunded — seller has partially refunded the order.
  */
 const (
-	// Ожидании оплаты
+	// Ожидании оплаты (Ждем оплаты)
 	OrderStatusAwaitingPayment OrderStatus = "awaitingPayment"
 
-	// Оплаченный заказ, ждем результатов
+	// Оплаченный заказ, ждем результатов (Ждем отправки)
 	OrderStatusAwaitingFulfillment OrderStatus = "awaitingFulfillment"
 
-	//Заказ упакован, ждем отправки
+	//Заказ упакован, ждем отправки (Сформирован)
 	OrderStatusAwaitingPickup OrderStatus = "awaitingPickup"
 
-	// Отправлен
+	// Отправлен (Отправлен)
 	OrderStatusAwaitingShipment OrderStatus = "awaitingShipment"
 
 	// Доставлен

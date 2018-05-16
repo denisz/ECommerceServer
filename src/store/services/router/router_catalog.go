@@ -7,7 +7,7 @@ import (
 	. "store/models"
 )
 
-// Коллекция
+// коллекция
 func (p *Router) CatalogCollectionDetailPOST(c *gin.Context) {
 	sku := c.Param("sku")
 
@@ -31,7 +31,7 @@ func (p *Router) CatalogCollectionDetailPOST(c *gin.Context) {
 	p.JSON(c, http.StatusOK, collection)
 }
 
-// Список коллекции
+// список коллекции
 func (p *Router) CatalogCollectionsPOST(c *gin.Context) {
 	collections, err := p.API.Catalog.GetAllCollections()
 	if err != nil {
@@ -42,7 +42,7 @@ func (p *Router) CatalogCollectionsPOST(c *gin.Context) {
 	p.JSON(c, http.StatusOK, collections)
 }
 
-// Список товаров
+// список товаров
 func (p *Router) CatalogProductsPOST(c *gin.Context) {
 	sku := c.Param("sku")
 
@@ -62,7 +62,7 @@ func (p *Router) CatalogProductsPOST(c *gin.Context) {
 	p.JSON(c, http.StatusOK, products)
 }
 
-//Поиск по наименованию товара
+// поиск по наименованию товара
 func (p *Router) CatalogSearchProductsPOST(c *gin.Context) {
 	var filter FilterCatalog
 
@@ -81,7 +81,7 @@ func (p *Router) CatalogSearchProductsPOST(c *gin.Context) {
 	}
 }
 
-//Продукт
+// продукт
 func (p *Router) CatalogProductDetailPOST(c *gin.Context) {
 	sku := c.Param("sku")
 
@@ -104,7 +104,7 @@ func (p *Router) CatalogProductDetailPOST(c *gin.Context) {
 	p.JSON(c, http.StatusOK, product)
 }
 
-//Описания продукта
+// описания продукта
 func (p *Router) CatalogNotationPOST(c *gin.Context) {
 	sku := c.Param("sku")
 

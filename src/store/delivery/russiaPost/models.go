@@ -446,37 +446,69 @@ type (
 
 	//Партия
 	Batch struct {
+		//Номер партии
 		BatchName string `json:"batch-name,omitempty"`
+		//Статус партии
 		BatchStatus BatchStatusCode `json:"batch-status,omitempty"`
+		//Дата обновления статуса
 		BatchStatusDate string `json:"batch-status-date,omitempty"`
+		//Способ оплаты уведомления о вручении РПО. См. Способ оплаты
 		DeliveryNoticePaymentMethod PaymentMethod `json:"delivery-notice-payment-method,omitempty"`
+		//Номер документа для сдачи партии
 		ListNumber int `json:"list-number,omitempty"`
+		//Дата документа для сдачи партии
 		ListNumberDate string `json:"list-number-date,omitempty"`
+		//Категория РПО. См. Категория РПО
 		MailCategory MailCategory `json:"mail-category,omitempty"`
+		//Категория РПО (текст)
 		MailCategoryText string `json:"mail-category-text,omitempty"`
+		//Код разряда почтового отправления
 		MailRank string `json:"mail-rank,omitempty"`
+		//Вид РПО. См. Вид РПО
 		MailType MailType `json:"mail-type,omitempty"`
+		//Вид РПО (текст)
 		MailTypeText string `json:"mail-type-text,omitempty"`
+		//Способ оплаты. См. Способ оплаты
 		PaymentMethod PaymentMethod `json:"payment-method,omitempty"`
+		//Отметки внутренних и международных отправлений
 		Postmarks []string `json:"postmarks,omitempty"`
+		//Адрес места приема
 		PostOfficeAddress string `json:"postoffice-address,omitempty"`
+		//Индекс места приема
 		PostOfficeCode string `json:"postoffice-code,omitempty"`
+		//Наименование места приема
 		PostOfficeName string `json:"postoffice-name,omitempty"`
+		//Сумма платы за авиа пересылку в копейках, без НДС
 		ShipmentAviaRate int `json:"shipment-avia-rate-sum,omitempty"`
+		//НДС от суммы платы за авиа пересылку в копейках
 		ShipmentAviaRateVat int `json:"shipment-avia-rate-vat-sum,omitempty"`
+		//Количество заказов в партии
 		ShipmentCount int `json:"shipment-count,omitempty"`
+		//Сумма платы за наземную пересылку в копейках, без НДС
 		ShipmentGroundRate int `json:"shipment-ground-rate-sum,omitempty"`
+		//НДС от суммы платы за наземную пересылку в копейках
 		ShipmentGroundRateVat int `json:"shipment-ground-rate-vat-sum,omitempty"`
+		//Сумма платы за объявленную ценность в копейках, без НДС
 		ShipmentInsureRate int `json:"shipment-insure-rate-sum,omitempty"`
+		//НДС от суммы платы за объявленную ценность в копейках
 		ShipmentInsureRateVat int `json:"shipment-insure-rate-vat-sum,omitempty"`
+		//Общий вес в граммах
 		ShipmentMass int `json:"shipment-mass,omitempty"`
+		//Сумма платы за пересылку в копейках, без НДС
 		ShipmentMassRate int `json:"shipment-mass-rate-sum,omitempty"`
+		//НДС от суммы платы за пересылку в копейках
 		ShipmentMassRateVat int `json:"shipment-mass-rate-vat-sum,omitempty"`
+		//Сумма надбавки за уведомление о вручении в копейках
 		ShipmentNoticeRate int `json:"shipment-notice-rate-sum,omitempty"`
+		//НДС от суммы платы за смс нотификацию в копейках
 		ShipmentNoticeRateVat int `json:"shipment-notice-rate-vat-sum,omitempty"`
+		//Сумма платы за смс нотификацию в копейках, без НДС
 		ShipmentSmsNoticeRate int `json:"shipment-sms-notice-rate-sum,omitempty"`
+		//НДС от суммы платы за смс нотификацию в копейках
 		ShipmentSmsNoticeRateVar int `json:"shipment-sms-notice-rate-vat-sum,omitempty"`
+		//Категория уведомления о вручении РПО. См. Категория уведомления о вручении РПО.
 		ShippingNoticeType string `json:"shipping-notice-type,omitempty"`
+		//Вид транспортировки.
 		TransportType string `json:"transport-type,omitempty"`
 	}
 
@@ -568,6 +600,13 @@ type (
 		TotalRate int `json:"total-rate"`
 		//Всего НДС (коп)
 		TotalVat int `json:"total-vat"`
+	}
+
+	CheckInResponse struct {
+		//Код ошибки
+		ErrorCode string `json:"error-code"`
+		//Отослана ли электронная версия ф103/ф103п в ОПС?
+		Sent bool `json:"f103-sent"`
 	}
 
 	NormalizeAddressRequest struct {

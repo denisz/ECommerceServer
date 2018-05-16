@@ -58,6 +58,11 @@ func (p *RussiaPost) createRequest(method, path string, body io.Reader) (*http.R
 	if method == "GET" {
 		return http.NewRequest(method, url, nil)
 	}
+
+	if method == "POST_EMPTY" {
+		return http.NewRequest("POST", url, nil)
+	}
+
 	return http.NewRequest(method, url, body)
 }
 
@@ -211,7 +216,7 @@ func (p *RussiaPost) RestoreBacklog(ids []string) (*CreateEntityResponse, error)
 
 // Генерирует и возвращает pdf файл, который содержит форму Е-1
 // (EMS, EMS-оптимальное, Бизнес курьер, Бизнес курьер экспресс) для указанного заказа
-func (p *RussiaPost) FormsE1(id string, date time.Time) ([]byte, error) {
+func (p *RussiaPost) FormsEMS(id string, date time.Time) ([]byte, error) {
 	path := fmt.Sprintf("forms/backlog/%s/forms?sending-date=%s", id, date.Format("2006-01-02"))
 	resp, err := p.doRequest("GET", path, nil)
 	if err != nil {
@@ -253,6 +258,7 @@ func (p *RussiaPost) FormsF103(name string) ([]byte, error) {
 }
 
 /** Генерирует и возвращает zip архив с 4-мя файлами:
+	//forms/{name}/zip-all
 	Export.xls , Export.csv - список с основными данными по заявкам в составе партии
 	F103.pdf - форма ф103 по заявкам в составе партии
 	В зависимости от типа и категории отправлений, формируется комбинация из
@@ -295,7 +301,37 @@ func (p *RussiaPost) GetBacklog(id int) (*Order, error) {
 
 	if p.Debug {
 		strJson, _ := json.Marshal(response)
-		fmt.Printf("Response: %v %v", string(strJson), resp.StatusCode)
+		fmt.Printf("Response: %v %v \n", string(strJson), resp.StatusCode)
+	}
+
+	return &response, nil
+}
+
+//Отправляем данные в ОПС
+func (p *RussiaPost) CheckIn(name string) (*CheckInResponse, error) {
+	path := fmt.Sprintf("batch/%s/checkin", name)
+	resp, err := p.doRequest("POST_EMPTY", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("Not found")
+	}
+
+	var response CheckInResponse
+	dec := json.NewDecoder(resp.Body)
+	for {
+		if err := dec.Decode(&response); err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+	}
+
+	if p.Debug {
+		strJson, _ := json.Marshal(response)
+		fmt.Printf("Response: %v %v \n", string(strJson), resp.StatusCode)
 	}
 
 	return &response, nil
@@ -326,7 +362,7 @@ func (p *RussiaPost) Shipment(ids []string, date time.Time) (*BatchesResponse, e
 
 	if p.Debug {
 		strJson, _ := json.Marshal(response)
-		fmt.Printf("Response: %v %v", string(strJson), resp.StatusCode)
+		fmt.Printf("Response: %v %v \n", string(strJson), resp.StatusCode)
 	}
 
 	if len(response.Errors) > 0 {

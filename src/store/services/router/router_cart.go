@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// корзина
 func (p *Router) CartIndexPOST(c *gin.Context) {
 	//тек. сессия
 	session := ReadSessionFromRequest(c)
@@ -16,6 +17,7 @@ func (p *Router) CartIndexPOST(c *gin.Context) {
 	p.JSON(c, http.StatusOK, cart)
 }
 
+// детальная информация корзины
 func (p *Router) CartDetailPOST(c *gin.Context) {
 	//тек. сессия
 	session := ReadSessionFromRequest(c)
@@ -25,6 +27,21 @@ func (p *Router) CartDetailPOST(c *gin.Context) {
 	p.JSON(c, http.StatusOK, cart)
 }
 
+//  очищаем корзину
+func (p *Router) CartClearDELETE(c *gin.Context) {
+	//тек. сессия
+	session := ReadSessionFromRequest(c)
+	//корзина
+	cart := p.API.Cart.GetOrCreateCart(0)
+	//Сохраняем корзину в сессии
+	session.CartID = cart.ID
+	//отправляем сессию
+	WriteSessionToResponse(c, session)
+	//отправляем корзину
+	p.JSON(c, http.StatusOK, cart)
+}
+
+// обновление корзины
 func (p *Router) CartUpdatePOST(c *gin.Context) {
 	var update CartUpdateRequest
 
@@ -51,6 +68,7 @@ func (p *Router) CartUpdatePOST(c *gin.Context) {
 	}
 }
 
+// обновление адреса
 func (p *Router) CartUpdateAddressPOST(c *gin.Context) {
 	var address Address
 	//адрес из запроса
@@ -76,6 +94,7 @@ func (p *Router) CartUpdateAddressPOST(c *gin.Context) {
 	}
 }
 
+// обновление доставки
 func (p *Router) CartUpdateDeliveryPOST(c *gin.Context) {
 	var delivery Delivery
 	//доставка из запроса
@@ -101,6 +120,7 @@ func (p *Router) CartUpdateDeliveryPOST(c *gin.Context) {
 	}
 }
 
+// формируем заказ
 func (p *Router) CartCheckoutPOST(c *gin.Context) {
 	//тек. сессия
 	session := ReadSessionFromRequest(c)

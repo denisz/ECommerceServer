@@ -98,17 +98,18 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 
 	v1.Use(authMiddleware.MiddlewareFunc())
 	{
-		//v1.GET("/admin", )
-		//v1.POST("/order/cancel/:invoice", I("/order/cancel/:invoice"))
-		//v1.POST("/order/")
 		v1.POST("/account/me", I("/account/me"), h.AccountMePOST)
 		v1.POST("/order/:id", I("/order/:id"), h.OrderUpdatePOST)
 		v1.POST("/forms/order/:id", I("/forms/order/:id"), h.FormsOrderPOST)
+		v1.POST("/forms/batch/:id", I("/forms/order/:id"), h.FormsBatchPOST)
 		v1.POST("/orders/list", I("/orders/list"), h.OrderListPOST)
 		v1.POST("/orders/clear", I("/orders/clear"), h.OrderClearExpiredPOST)
 		v1.POST("/orders/search", I("/orders/search"), h.SearchOrdersPOST)
 		v1.POST("/orders/batch", I("/orders/batch"), h.CreateBatchPOST)
 		v1.POST("/batches/search", I("/batches/search"), h.SearchBatchesPOST)
+		v1.GET("/batches/:id/checkin", I("/batches/:id/checkin"), h.CheckInBatchGET)
+		v1.DELETE("/batch/:id", I("/batch/:id"), h.BreakBatchDELETE)
+		v1.GET("/batch/:id", I("/batch/:id"), h.BatchDetailGET)
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

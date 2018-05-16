@@ -15,7 +15,7 @@ type API struct {
 	Account  ControllerAccount
 	Catalog  ControllerCatalog
 	Sales    ControllerSales
-	Batches  ControllerBatches
+	Batch    ControllerBatch
 	Loader   ControllerUpdater
 }
 
@@ -47,7 +47,7 @@ func NewAPI(config *Config) *API {
 		Sales: ControllerSales{
 			Controller: Controller{DB: db},
 		},
-		Batches: ControllerBatches{
+		Batch: ControllerBatch{
 			Controller: Controller{DB: db},
 		},
 		Loader: ControllerUpdater{

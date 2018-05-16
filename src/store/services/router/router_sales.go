@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// распродажа
 func(p *Router) SalesIndexPOST(c *gin.Context) {
 	pagination := p.GetPagination(c)
 	products, err := p.API.Sales.GetProducts(pagination)

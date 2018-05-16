@@ -15,7 +15,7 @@ type ControllerOrder struct {
 	Controller
 }
 
-//получить информацию о заказе
+// получить информацию о заказе
 func (p *ControllerOrder) GetOrderByInvoice(invoice string) (*Order, error) {
 	var order Order
 	err := p.GetStore().
@@ -29,7 +29,7 @@ func (p *ControllerOrder) GetOrderByInvoice(invoice string) (*Order, error) {
 	return &order, nil
 }
 
-//список заказов
+// список заказов
 func (p *ControllerOrder) GetAllOrders(pagination Pagination) (*PageOrders, error) {
 	var orders []Order
 	err := p.GetStore().From(NodeNamedOrders).
@@ -53,7 +53,7 @@ func (p *ControllerOrder) GetAllOrders(pagination Pagination) (*PageOrders, erro
 	}, nil
 }
 
-//поиск заказов
+// поиск заказов
 func (p *ControllerOrder) SearchOrdersWithFilter(filter FilterOrder, pagination Pagination) (*PageOrders, error) {
 	matcher := q.True()
 
@@ -109,7 +109,7 @@ func (p *ControllerOrder) SearchOrdersWithFilter(filter FilterOrder, pagination 
 	}, nil
 }
 
-//Заказ
+// заказ
 func (p *ControllerOrder) GetOrderByID(id int) (Order, error) {
 	var order Order
 	err := p.GetStore().
@@ -123,7 +123,7 @@ func (p *ControllerOrder) GetOrderByID(id int) (Order, error) {
 	return order, nil
 }
 
-//обновить заказ
+// обновить заказ
 func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 	//расформированные заказ
 	if order.Status == OrderStatusDeclined {
@@ -234,6 +234,7 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 	return nil
 }
 
+// уведомление покупателя
 func (p *ControllerOrder) NoticeRecipient(order Order) error {
 	switch order.Status {
 	case OrderStatusAwaitingFulfillment:
@@ -254,6 +255,7 @@ func (p *ControllerOrder) NoticeRecipient(order Order) error {
 	return nil
 }
 
+//  очищаем устаревшие заказы
 func (p *ControllerOrder) ClearExpiredOrders() error {
 	threshold := time.Now().AddDate(0, 0, -1)
 	matcher := q.And(q.Eq("Status", OrderStatusAwaitingPayment), q.Lte("CreatedAt", threshold))
@@ -280,69 +282,83 @@ func (p *ControllerOrder) ClearExpiredOrders() error {
 }
 
 // создание партии и перевод заказов в статсу отправлены
-func (p *ControllerOrder) CreateBatch(orderIDs []int) error {
+func (p *ControllerOrder) CreateBatch(orderIDs []int) (*Batch, error) {
 	//магазин
 	store := p.GetStore()
 	//открыть транзакцию
 	tx, err := store.Begin(true)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer tx.Rollback()
 
 	orders := tx.From(NodeNamedOrders)
 	batches := tx.From(NodeNamedBatches)
 
-	var externalNumbersIDs []string
+	var batchOrders []BatchOrder
+	var externalIDs []string
 
 	for _, orderID := range orderIDs {
 		var order Order
 		err := orders.One("ID", orderID, &order)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if order.Delivery.Provider != DeliveryProviderRussiaPost {
-			return fmt.Errorf("does not match russiapost provider")
+			return nil, fmt.Errorf("does not match russiapost provider")
 		}
 
 		if len(order.Shipment.ExternalNumber) == 0 {
-			return fmt.Errorf("not found russiaPostOrder")
+			return nil, fmt.Errorf("not found russiaPostOrder")
 		}
 
 		order.Status = OrderStatusAwaitingShipment
 		err = orders.Save(&order)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		externalNumbersIDs = append(externalNumbersIDs, order.Shipment.ExternalNumber)
+		p.NoticeRecipient(order)
+
+		externalIDs = append(externalIDs, order.Shipment.ExternalNumber)
+		batchOrders = append(batchOrders, BatchOrder{
+			ID:            order.ID,
+			Total:         order.Total,
+			Weight:        order.WeightCalculate(),
+			Invoice:       order.Invoice,
+			RecipientName: order.Address.Name,
+		})
 	}
 
-	shipment, err := russiaPost.DefaultClient.Shipment(externalNumbersIDs, time.Now())
+	shipment, err := russiaPost.DefaultClient.Shipment(externalIDs, time.Now())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	//defer func() {
 	//	russiaPost.DefaultClient.RestoreBacklog(externalNumbersIDs)
 	//}()
 
+	var batchNames []string
+
+	for _, batch := range shipment.Batches {
+		batchNames = append(batchNames, batch.BatchName)
+	}
+
 	batch := Batch{
 		Provider:          DeliveryProviderRussiaPost,
-		IDs: orderIDs,
-		PayloadRussiaPost: shipment.Ids,
+		Orders:            batchOrders,
+		PayloadRussiaPost: batchNames,
 		CreatedAt:         time.Now(),
 	}
 
 	err = batches.Save(&batch)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	//  собрать документы
-
 	// Завершаем транзакцию
 	tx.Commit()
 
-	return nil
+	return &batch, nil
 }

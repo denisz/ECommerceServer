@@ -120,6 +120,16 @@
   version = "0.2"
 
 [[projects]]
+  name = "github.com/hhrutter/pdfcpu"
+  packages = [
+    ".",
+    "filter",
+    "log"
+  ]
+  revision = "79d17e2ad9f7970af8d7654052fd08059a588ec4"
+  version = "v0.1.11"
+
+[[projects]]
   name = "github.com/huandu/xstrings"
   packages = ["."]
   revision = "2bf18b218c51864a87384c06996e40ff9dcff8e1"
@@ -437,6 +447,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dcdc959c71508ef3369686156d55f1711ff59ef2b9fceda55e0345b491d125b4"
+  inputs-digest = "9d22e378bae28e24a3abbcee369724001e5a1cb711ce17ece485eaa30a9f50c6"
   solver-name = "gps-cdcl"
   solver-version = 1

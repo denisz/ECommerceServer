@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-//Загрузка каталога продуктов
+// загрузка каталога продуктов
 func (p *Router) LoaderCatalogFromGoogle(c *gin.Context) {
 	err := p.API.Loader.CatalogFromGoogle()
 	if err != nil {
@@ -16,7 +16,7 @@ func (p *Router) LoaderCatalogFromGoogle(c *gin.Context) {
 	p.JSON(c, http.StatusOK, gin.H{})
 }
 
-//Загрузка рекламных баннеров
+// загрузка рекламных баннеров
 func (p *Router) LoaderAdsFromGoogle(c *gin.Context) {
 	err := p.API.Loader.AdsFromGoogle()
 	if err != nil {
