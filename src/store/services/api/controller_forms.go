@@ -6,6 +6,7 @@ import (
 	. "store/models"
 	"fmt"
 	"strings"
+	//"github.com/tealeg/xlsx"
 )
 
 type ControllerForms struct {
@@ -68,3 +69,27 @@ func(p *ControllerForms) FormsBatch(id int) ([]byte, error) {
 	return nil, ErrNotSupportedProvider
 }
 
+
+func (p *ControllerForms) ReportBatch(id int) ([]byte, error) {
+	var batch Batch
+	err := p.GetStore().
+		From(NodeNamedBatches).
+		One("ID", id, &batch)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if batch.Provider == DeliveryProviderRussiaPost {
+		if len(batch.PayloadRussiaPost) > 0 {
+			if len(batch.PayloadRussiaPost) > 1 {
+				fmt.Printf("russia post has several batch %s", strings.Join(batch.PayloadRussiaPost, ","))
+			}
+
+			batchName := batch.PayloadRussiaPost[0]
+			return russiaPost.DefaultClient.FormsF103(batchName)
+		}
+	}
+
+	return nil, ErrNotSupportedProvider
+}

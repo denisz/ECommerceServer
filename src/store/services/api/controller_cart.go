@@ -104,7 +104,8 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 	}
 }
 
-func (p *ControllerCart) BlockCheckout(clientIP string) error {
+//проверка на блокировку
+func (p *ControllerCart) blockCheckout(clientIP string) error {
 	//поиск заказов от этого
 	matcher := q.And(q.Eq("ClientIP", clientIP), q.Eq("Status", OrderStatusAwaitingPayment))
 	//количество заказов которые ждут оплаты
@@ -123,6 +124,7 @@ func (p *ControllerCart) BlockCheckout(clientIP string) error {
 	}
 }
 
+//обновление корзины
 func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, error) {
 	var positions []Position
 	//позиции
@@ -173,10 +175,7 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 	//проверить вес
 
 	//указываем возможные способы доставки
-	cart.DeliveryProviders = []DeliveryProvider{
-		DeliveryProviderRussiaPost,
-		DeliveryProviderBoxberry,
-	}
+	cart.DeliveryProviders = []DeliveryProvider{ DeliveryProviderRussiaPost }
 	//устанавливаем стандартный способ доставки
 	cart.Delivery = &Delivery{
 		Provider: DeliveryProviderRussiaPost,
@@ -199,6 +198,7 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 	return cart, nil
 }
 
+//установка адреса
 func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error)  {
 	//проверка валидность адреса
 	err := CheckValidAddress(&address)
@@ -209,10 +209,7 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 	//устанавливаем адрес
 	cart.Address = &address
 	//указываем возможные способы доставки
-	cart.DeliveryProviders = []DeliveryProvider{
-		DeliveryProviderRussiaPost,
-		DeliveryProviderBoxberry,
-	}
+	cart.DeliveryProviders = []DeliveryProvider{ DeliveryProviderRussiaPost }
 	//устанавливаем стандартный способ доставки
 	cart.Delivery = &Delivery{
 		Provider: DeliveryProviderRussiaPost,
@@ -235,6 +232,7 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 	return cart, nil
 }
 
+// устанавливаем способ доставки
 func (p *ControllerCart) SetDelivery(cart *Cart, delivery Delivery) (*Cart, error) {
 	//сброс доставки
 	cart.Delivery = nil
@@ -269,6 +267,7 @@ func (p *ControllerCart) SetDelivery(cart *Cart, delivery Delivery) (*Cart, erro
 	return cart, nil
 }
 
+//создание заказа
 func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 	//нету корзины
 	if cart.ID == 0 {
@@ -283,7 +282,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 		return nil, ErrEmptyDelivery
 	}
 	//блокировка
-	err := p.BlockCheckout(session.ClientIP)
+	err := p.blockCheckout(session.ClientIP)
 	if err != nil {
 		//отправляем письмо с блокировкой
 		go utils.SendEmail(utils.CreateBrand(), emails.Ban{

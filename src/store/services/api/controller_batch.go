@@ -106,6 +106,7 @@ func (p *ControllerBatch) BreakBatch(id int) (*Batch, error) {
 		return nil, err
 	}
 
+	//набор внешних заказов
 	var externalIDs []string
 
 	//переводим все заказаы в статус сформированные (OrderStatusAwaitingPickup)
@@ -141,7 +142,7 @@ func (p *ControllerBatch) BreakBatch(id int) (*Batch, error) {
 	return &batch, nil
 }
 
-//Отправляем данные в ОПС
+// отправляем данные в ОПС
 func (p *ControllerBatch) CheckInBatch(id int) (*Batch, error) {
 	var batch Batch
 	err := p.GetStore().
@@ -159,6 +160,7 @@ func (p *ControllerBatch) CheckInBatch(id int) (*Batch, error) {
 			}
 
 			batchName := batch.PayloadRussiaPost[0]
+			//Отправляет по e-mail электронную форму Ф103 в ОПС для регистрации.
 			_, err := russiaPost.DefaultClient.CheckIn(batchName)
 			if err != nil {
 				return nil, err

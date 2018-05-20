@@ -8,6 +8,7 @@ import (
 
 var (
 	RangeMediaName = "Media"
+	RangePricesName = "Prices"
 	RangeBannersName = "Banners"
 	RangeProductsName = "Products"
 	RangeNotationsName = "Notations"
@@ -144,5 +145,49 @@ func (p *ControllerUpdater) AdsFromGoogle() error {
 	}
 
 	tx.Commit()
+	return nil
+}
+
+//Обновление цен из таблиц
+func (p *ControllerUpdater) PriceFromGoogle() error {
+	var err error
+
+	var prices []updater.SheetPrice
+	err = updater.UnmarshalSpreadsheet(&prices, p.Config.SpreadSheetID, RangePricesName)
+	if err != nil {
+		return err
+	}
+
+	//магазин
+	store := p.GetStore()
+	tx, err := store.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	//каталог
+	catalog := tx.From(NodeNamedCatalog)
+
+	//все продукты
+	var products []Product
+	catalog.AllByIndex("ID", &products)
+
+	//обновляем цены на всех товарах
+	for _, product := range products {
+		for _, price := range prices {
+			if price.SKU == product.SKU {
+				product.Price = Price(price.Price * 100)
+				err := catalog.Save(&product)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	//фиксируем транзакцию
+	tx.Commit()
+
 	return nil
 }

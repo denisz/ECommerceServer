@@ -26,3 +26,14 @@ func (p *Router) LoaderAdsFromGoogle(c *gin.Context) {
 
 	p.JSON(c, http.StatusOK, gin.H{})
 }
+
+// загрузка цен
+func (p *Router) LoaderPricesFromGoogle(c *gin.Context) {
+	err := p.API.Loader.PriceFromGoogle()
+	if err != nil {
+		p.AbortWithError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	p.JSON(c, http.StatusOK, gin.H{})
+}

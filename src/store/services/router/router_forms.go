@@ -22,13 +22,13 @@ func(p *Router) FormsOrderPOST(c *gin.Context) {
 	}
 
 
-	bytes, err := p.API.Form.FormsOrder(orderID)
+	data, err := p.API.Form.FormsOrder(orderID)
 	if err != nil {
 		p.AbortWithError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	c.Data(http.StatusOK, "application/pdf", bytes)
+	p.PDF(c, data)
 }
 
 
@@ -47,11 +47,11 @@ func (p *Router) FormsBatchPOST(c *gin.Context) {
 		return
 	}
 
-	bytes, err := p.API.Form.FormsBatch(batchID)
+	data, err := p.API.Form.FormsBatch(batchID)
 	if err != nil {
 		p.AbortWithError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	c.Data(http.StatusOK, "application/pdf", bytes)
+	p.PDF(c, data)
 }

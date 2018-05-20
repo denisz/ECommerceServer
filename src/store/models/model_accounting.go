@@ -23,7 +23,7 @@ type (
 	}
 
 	//Накладная
-	AccountReport struct {
+	AccountingReport struct {
 		// Индентификатор
 		ID int `storm:"id,increment" json:"id"`
 		//Тип
@@ -31,10 +31,12 @@ type (
 		//Позиции
 		Positions []PositionReport `json:"positions"`
 		//Оператор
-		Operator int `storm:"index" json:"operator"`
+		OperatorID int `storm:"index" json:"operatorId"`
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
 	}
+
+	//
 
 	//Ведомость наличия на складе
 	StockStatusReport struct {

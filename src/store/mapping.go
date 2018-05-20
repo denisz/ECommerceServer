@@ -92,8 +92,6 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 		v1.POST("/orders/check/:invoice", I("/orders/check/:invoice"), h.OrderDetailPOST)
 
 		v1.POST("/account/login", authMiddleware.LoginHandler)
-		v1.GET("/load/catalog", I("/load/catalog"), h.LoaderCatalogFromGoogle)
-		v1.GET("/load/ads", I("/load/ads"), h.LoaderAdsFromGoogle)
 	}
 
 	v1.Use(authMiddleware.MiddlewareFunc())
@@ -110,6 +108,11 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 		v1.GET("/batches/:id/checkin", I("/batches/:id/checkin"), h.CheckInBatchGET)
 		v1.DELETE("/batch/:id", I("/batch/:id"), h.BreakBatchDELETE)
 		v1.GET("/batch/:id", I("/batch/:id"), h.BatchDetailGET)
+		v1.GET("/report/batch/:id", I("/report/batch/:id"), h.ReportBatchGET)
+		v1.GET("/load/catalog", I("/load/catalog"), h.LoaderCatalogFromGoogle)
+		v1.GET("/load/ads", I("/load/ads"), h.LoaderAdsFromGoogle)
+		v1.GET("/load/prices", I("/load/prices"), h.LoaderPricesFromGoogle)
+
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}
 

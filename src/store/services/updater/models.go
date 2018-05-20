@@ -50,6 +50,11 @@ type (
 		Href   string `sheet:"Переход"`
 		Type   string `sheet:"Тип"`
 	}
+
+	SheetPrice struct {
+		SKU   string `sheet:"Артикул"`
+		Price int    `sheet:"Цена"`
+	}
 )
 
 func parseBannerType(label string) BannerType {
@@ -116,8 +121,8 @@ func CreateDimension(token string) Dimension {
 	}
 
 	return Dimension{
-		Width: width,
-		Height:height,
+		Width:  width,
+		Height: height,
 		Length: length,
 	}
 }
@@ -134,7 +139,7 @@ func CreateProduct(sheetData SheetProduct) Product {
 		CollectionSKU: sheetData.CollectionSKU,
 		Price:         Price(sheetData.Price * 100), // 100 копеек
 		Pictures:      []string{},
-		Dimension:		CreateDimension(sheetData.Dimension),
+		Dimension:     CreateDimension(sheetData.Dimension),
 	}
 
 	for _, p := range sheetData.Pictures {
