@@ -119,9 +119,9 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 
 	switch order.Delivery.Method {
 	case DeliveryMethodEMC:
-		request.MailType = russiaPost.MailTypePARCEL_CLASS_1
-	case DeliveryMethodRapid:
 		request.MailType = russiaPost.MailTypeBUSINESS_COURIER
+	case DeliveryMethodRapid:
+		request.MailType = russiaPost.MailTypePARCEL_CLASS_1
 	case DeliveryMethodStandard:
 		request.MailType = russiaPost.MailTypePOSTAL_PARCEL
 	}
