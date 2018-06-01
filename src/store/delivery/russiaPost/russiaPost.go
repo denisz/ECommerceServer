@@ -33,7 +33,7 @@ var (
 )
 
 const (
-	token = "MmmDeJqGxRlL2MXX4oZiknt25K5mUFEg"
+	token = "fu0oEfS3tIib5on8_EC2bGbDO12ak2nt"
 	login = "denisxy12@hotmail.com"
 	password = "2Q2sminvc"
 )
