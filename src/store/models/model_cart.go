@@ -60,9 +60,11 @@ type (
 		Delivery *Delivery `json:"delivery"`
 		// Доступные провайдеры доставки
 		DeliveryProviders []DeliveryProvider `json:"deliveryProviders"`
+		// Доступные методы доставки
+		DeliveryMethods []DeliveryMethod `json:"deliveryMethods"`
 		// Позиции
 		Positions []Position `json:"positions"`
-		//Последний заказ
+		// Последний заказ
 		Invoice string `json:"invoice"`
 	}
 

@@ -56,9 +56,9 @@ type (
 		Price Price `json:"price"`
 		// Скидка
 		Discount *Discount `json:"discount"`
-		//Минимальное количество в корзине
+		// Минимальное количество в корзине
 		MinQtyAllowed int `json:"-"`
-		//Максимальное количество в корзине
+		// Максимальное количество в корзине
 		MaxQtyAllowed int `json:"-"`
 		// Категория
 		CollectionSKU string `storm:"index" json:"collectionSKU"`
@@ -90,8 +90,11 @@ type (
 
 	// Фильтр поиска
 	FilterCatalog struct {
+		// Запрос
 		Query string `json:"query"`
+		// Коллекция
 		CollectionSKU string `json:"collectionSKU"`
+		// Производитель
 		Producer string `json:"producer"`
 	}
 

@@ -43,7 +43,7 @@ type (
 		StartDate time.Time `json:"start_date"`
 		// Конечная дата
 		EndDate time.Time `json:"end_date"`
-		//провайдер
+		// Провайдер
 		Provider DeliveryProvider `json:"provider"`
 	}
 

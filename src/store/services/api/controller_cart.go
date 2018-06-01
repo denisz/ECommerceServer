@@ -105,7 +105,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 }
 
 //проверка на блокировку
-func (p *ControllerCart) blockCheckout(clientIP string) error {
+func (p *ControllerCart) validateCheckout(clientIP string) error {
 	//поиск заказов от этого
 	matcher := q.And(q.Eq("ClientIP", clientIP), q.Eq("Status", OrderStatusAwaitingPayment))
 	//количество заказов которые ждут оплаты
@@ -176,6 +176,8 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 
 	//указываем возможные способы доставки
 	cart.DeliveryProviders = []DeliveryProvider{ DeliveryProviderRussiaPost }
+	//указываем возможные методы доставки
+	cart.DeliveryMethods = []DeliveryMethod{ DeliveryMethodStandard, DeliveryMethodRapid, DeliveryMethodEMC }
 	//устанавливаем стандартный способ доставки
 	cart.Delivery = &Delivery{
 		Provider: DeliveryProviderRussiaPost,
@@ -210,6 +212,8 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 	cart.Address = &address
 	//указываем возможные способы доставки
 	cart.DeliveryProviders = []DeliveryProvider{ DeliveryProviderRussiaPost }
+	//указываем возможные методы доставки
+	cart.DeliveryMethods = []DeliveryMethod{ DeliveryMethodStandard, DeliveryMethodRapid, DeliveryMethodEMC }
 	//устанавливаем стандартный способ доставки
 	cart.Delivery = &Delivery{
 		Provider: DeliveryProviderRussiaPost,
@@ -282,7 +286,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 		return nil, ErrEmptyDelivery
 	}
 	//блокировка
-	err := p.blockCheckout(session.ClientIP)
+	err := p.validateCheckout(session.ClientIP)
 	if err != nil {
 		//отправляем письмо с блокировкой
 		go utils.SendEmail(utils.CreateBrand(), emails.Ban{

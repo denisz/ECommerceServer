@@ -5,13 +5,13 @@ import "time"
 type ReportType int
 
 const (
-	//Корректирующий отчет
+	// Корректирующий отчет
 	ReportTypeFix ReportType = 0
 
-	//Расходная накладная
+	// Расходная накладная
 	ReportTypeDelivery ReportType = 1
 
-	//Приходная накладная
+	// Приходная накладная
 	ReportTypeReceiving ReportType = 2
 )
 type (
@@ -22,23 +22,21 @@ type (
 		ProductSKU string `json:"productSKU"`
 	}
 
-	//Накладная
+	// Накладная
 	AccountingReport struct {
 		// Индентификатор
 		ID int `storm:"id,increment" json:"id"`
-		//Тип
+		// Тип
 		Type ReportType `storm:"index" json:"type"`
-		//Позиции
+		// Позиции
 		Positions []PositionReport `json:"positions"`
-		//Оператор
+		// Оператор
 		OperatorID int `storm:"index" json:"operatorId"`
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
 	}
 
-	//
-
-	//Ведомость наличия на складе
+	// Ведомость наличия на складе
 	StockStatusReport struct {
 		// Количество
 		Amount int `json:"amount"`

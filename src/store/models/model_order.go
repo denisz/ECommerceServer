@@ -102,7 +102,7 @@ type (
 		Delivery *Delivery `json:"delivery"`
 		// Квитанция об оплате
 		Receipt Receipt `json:"-"`
-		//Квитанция номер
+		// Квитанция номер
 		ReceiptNumber string `json:"receiptNumber"`
 		// Информация о доставке
 		Shipment Shipment `json:"shipment"`
@@ -164,11 +164,11 @@ type (
 		ReceiptNumber string `json:"receiptNumber"`
 		// Ооповещение пользователя
 		NoticeRecipient bool `json:"noticeRecipient"`
-		//Комеентарий
+		// Комеентарий
 		Comment string `json:"comment"`
 	}
 
-	//Создание партии
+	// Создание партии
 	BatchRequest struct {
 		// Набор id заказов
 		OrderIDs []int `json:"ids"`
