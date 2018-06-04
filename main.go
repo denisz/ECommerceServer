@@ -43,7 +43,7 @@ func main() {
 	store, err := store.NewStore(&store.Config{
 		MainServerURL: urls[0],
 		ExtraURLs:     urls[1:],
-		DBFile: "store.db",
+		DBFile: "db/store.db",
 		HR: []string{
 			"denisxy12@gmail.com",
 			"kosmo_polit@rambler.ru",
