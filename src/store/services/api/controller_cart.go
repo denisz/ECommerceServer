@@ -57,7 +57,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 
 		switch cart.Delivery.Method {
 		case DeliveryMethodEMC:
-			mailType = russiaPost.MailTypeEMS
+			mailType = russiaPost.MailTypeBUSINESS_COURIER
 		case DeliveryMethodRapid:
 			mailType = russiaPost.MailTypePARCEL_CLASS_1
 		case DeliveryMethodStandard:
