@@ -50,7 +50,7 @@ func CreateMockOrder(t *testing.T) Order {
 		Total: 6200 * 100,
 		Delivery: &Delivery{
 			Provider: DeliveryProviderRussiaPost,
-			Method: DeliveryMethodRapid,
+			Method:   DeliveryMethodRussiaPostRapid,
 		},
 		Discount: &Discount{
 			Type: DiscountTypePercentage,

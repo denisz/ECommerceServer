@@ -118,11 +118,11 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 	}
 
 	switch order.Delivery.Method {
-	case DeliveryMethodEMC:
+	case DeliveryMethodRussiaPostEMC:
 		request.MailType = russiaPost.MailTypeBUSINESS_COURIER
-	case DeliveryMethodRapid:
+	case DeliveryMethodRussiaPostRapid:
 		request.MailType = russiaPost.MailTypePARCEL_CLASS_1
-	case DeliveryMethodStandard:
+	case DeliveryMethodRussiaPostStandard:
 		request.MailType = russiaPost.MailTypePOSTAL_PARCEL
 	}
 
@@ -136,4 +136,16 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 	}
 
 	return russiaPost.DefaultClient.GetBacklog(orderID)
+}
+
+
+func DefaultMethodDeliveryForProvider(provider DeliveryProvider) DeliveryMethod {
+	switch provider {
+	case DeliveryProviderRussiaPost:
+		return DeliveryMethodRussiaPostStandard
+	case DeliveryProviderCDEK:
+		return DeliveryMethodCDEKStandard
+	default:
+		return DeliveryMethodUnknown
+	}
 }

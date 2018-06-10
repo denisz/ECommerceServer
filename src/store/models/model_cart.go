@@ -6,6 +6,8 @@ import (
 
 type Operation string
 
+type DeliveryMethods map[DeliveryProvider][]DeliveryMethod
+
 const (
 	// Добавить товар
 	OperationInsert Operation = "insert"
@@ -61,7 +63,7 @@ type (
 		// Доступные провайдеры доставки
 		DeliveryProviders []DeliveryProvider `json:"deliveryProviders"`
 		// Доступные методы доставки
-		DeliveryMethods []DeliveryMethod `json:"deliveryMethods"`
+		DeliveryMethods DeliveryMethods `json:"deliveryMethods"`
 		// Позиции
 		Positions []Position `json:"positions"`
 		// Последний заказ

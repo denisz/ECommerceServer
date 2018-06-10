@@ -10,6 +10,9 @@ const (
 	// Boxberry
 	DeliveryProviderBoxberry DeliveryProvider = "boxberry"
 
+	// CDEK
+	DeliveryProviderCDEK DeliveryProvider = "cdek"
+
 	// Байкал
 	DeliveryProviderBaikal DeliveryProvider = "baikal"
 
@@ -19,14 +22,26 @@ const (
 	// Энергия
 	DeliveryProviderNRG DeliveryProvider = "nrg"
 
-	// Курьерский способ доставки
-	DeliveryMethodEMC DeliveryMethod = "emc"
+	// Неизвестный способ доставки
+	DeliveryMethodUnknown DeliveryMethod = ""
 
-	// Ускоренный способ доставки
-	DeliveryMethodRapid DeliveryMethod = "rapid"
+	// Курьерский способ доставки для почты россии
+	DeliveryMethodRussiaPostEMC DeliveryMethod = "pochta_emc"
 
-	// Обычный способ доставки
-	DeliveryMethodStandard DeliveryMethod = "standard"
+	// Ускоренный способ доставки для почты россии
+	DeliveryMethodRussiaPostRapid DeliveryMethod = "pochta_rapid"
+
+	// Обычный способ доставки для почты россии
+	DeliveryMethodRussiaPostStandard DeliveryMethod = "pochta_standard"
+
+	// Курьерский способ доставки для cdek
+	DeliveryMethodCDEKEMC DeliveryMethod = "cdek_emc"
+
+	// Ускоренный способ доставки для cdek
+	DeliveryMethodCDEKRapid DeliveryMethod = "cdek_rapid"
+
+	// Обычный способ доставки для cdek
+	DeliveryMethodCDEKStandard DeliveryMethod = "cdek_standard"
 )
 
 type (

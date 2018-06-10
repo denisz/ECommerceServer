@@ -26,11 +26,11 @@ func (p *ControllerForms) FormsOrder(id int) ([]byte, error) {
 
 	if order.Shipment.Provider == DeliveryProviderRussiaPost {
 		switch order.Shipment.Method {
-		case DeliveryMethodEMC:
+		case DeliveryMethodRussiaPostEMC:
 			return russiaPost.DefaultClient.FormsEMS(order.Shipment.ExternalNumber, time.Now())
-		case DeliveryMethodRapid:
+		case DeliveryMethodRussiaPostRapid:
 			return russiaPost.DefaultClient.FormsF7(order.Shipment.ExternalNumber, time.Now())
-		case DeliveryMethodStandard:
+		case DeliveryMethodRussiaPostStandard:
 			return russiaPost.DefaultClient.FormsF7(order.Shipment.ExternalNumber, time.Now())
 		}
 

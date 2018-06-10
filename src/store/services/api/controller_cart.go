@@ -56,11 +56,11 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 		mailType := russiaPost.MailTypePOSTAL_PARCEL
 
 		switch cart.Delivery.Method {
-		case DeliveryMethodEMC:
+		case DeliveryMethodRussiaPostEMC:
 			mailType = russiaPost.MailTypeBUSINESS_COURIER
-		case DeliveryMethodRapid:
+		case DeliveryMethodRussiaPostRapid:
 			mailType = russiaPost.MailTypePARCEL_CLASS_1
-		case DeliveryMethodStandard:
+		case DeliveryMethodRussiaPostStandard:
 			mailType = russiaPost.MailTypePOSTAL_PARCEL
 			return 0, nil //бесплатная доставка
 		}
@@ -99,6 +99,8 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 		return 0, nil
 	case DeliveryProviderNRG:
 		return 0, nil
+	case DeliveryProviderCDEK:
+		return 0, nil
 	default:
 		return 0, ErrNotSupportedProvider
 	}
@@ -127,7 +129,7 @@ func (p *ControllerCart) validateCheckout(clientIP string) error {
 //обновление корзины
 func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, error) {
 	var positions []Position
-	//позиции
+	// позиции
 	cart.Positions = AppendIfNeeded(cart.Positions, update.ProductSKU)
 
 	for _, v := range cart.Positions {
@@ -172,64 +174,92 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 		//добавляем позицию
 		positions = append(positions, v)
 	}
-	//проверить вес
+	// проверить вес
 
-	//указываем возможные способы доставки
-	cart.DeliveryProviders = []DeliveryProvider{ DeliveryProviderRussiaPost }
-	//указываем возможные методы доставки
-	cart.DeliveryMethods = []DeliveryMethod{ DeliveryMethodStandard, DeliveryMethodRapid, DeliveryMethodEMC }
-	//устанавливаем стандартный способ доставки
+	// указываем возможные способы доставки
+	cart.DeliveryProviders = []DeliveryProvider{
+		DeliveryProviderRussiaPost,
+		DeliveryProviderCDEK,
+	}
+	// указываем возможные методы доставки
+	cart.DeliveryMethods = DeliveryMethods{
+		DeliveryProviderRussiaPost: []DeliveryMethod{
+			DeliveryMethodRussiaPostStandard,
+			DeliveryMethodRussiaPostRapid,
+			DeliveryMethodRussiaPostEMC,
+		},
+		DeliveryProviderCDEK: []DeliveryMethod{
+			DeliveryMethodCDEKStandard,
+			DeliveryMethodCDEKRapid,
+			DeliveryMethodCDEKEMC,
+		},
+	}
+	// устанавливаем стандартный способ доставки
 	cart.Delivery = &Delivery{
 		Provider: DeliveryProviderRussiaPost,
-		Method:   DeliveryMethodStandard,
+		Method:   DefaultMethodDeliveryForProvider(DeliveryProviderRussiaPost),
 	}
-	//цена за стандартную доставку
+	// цена за стандартную доставку
 	cart.DeliveryPrice = 0
-	//фиксируем позиции
+	// фиксируем позиции
 	cart.Positions = positions
-	//обновить цену
+	// обновить цену
 	cart.PriceCalculate()
-	//получаем магазин
+	// получаем магазин
 	db := p.GetStore().From(NodeNamedCarts)
-	//сохранить корзину
+	// сохранить корзину
 	err := db.Save(cart)
-	//невозможно сохранить
+	// невозможно сохранить
 	if err != nil {
 		return nil, err
 	}
 	return cart, nil
 }
 
-//установка адреса
-func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error)  {
-	//проверка валидность адреса
+// установка адреса
+func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) {
+	// проверка валидность адреса
 	err := CheckValidAddress(&address)
 	if err != nil {
 		return nil, err
 	}
 
-	//устанавливаем адрес
+	// устанавливаем адрес
 	cart.Address = &address
-	//указываем возможные способы доставки
-	cart.DeliveryProviders = []DeliveryProvider{ DeliveryProviderRussiaPost }
-	//указываем возможные методы доставки
-	cart.DeliveryMethods = []DeliveryMethod{ DeliveryMethodStandard, DeliveryMethodRapid, DeliveryMethodEMC }
-	//устанавливаем стандартный способ доставки
+	// указываем возможные способы доставки
+	cart.DeliveryProviders = []DeliveryProvider{
+		DeliveryProviderRussiaPost,
+		DeliveryProviderCDEK,
+	}
+	// указываем возможные методы доставки
+	cart.DeliveryMethods = DeliveryMethods{
+		DeliveryProviderRussiaPost: []DeliveryMethod{
+			DeliveryMethodRussiaPostStandard,
+			DeliveryMethodRussiaPostRapid,
+			DeliveryMethodRussiaPostEMC,
+		},
+		DeliveryProviderCDEK: []DeliveryMethod{
+			DeliveryMethodCDEKStandard,
+			DeliveryMethodCDEKRapid,
+			DeliveryMethodCDEKEMC,
+		},
+	}
+	// устанавливаем стандартный способ доставки
 	cart.Delivery = &Delivery{
 		Provider: DeliveryProviderRussiaPost,
-		Method:   DeliveryMethodStandard,
+		Method:   DefaultMethodDeliveryForProvider(DeliveryProviderRussiaPost),
 	}
-	//цена за стандартную доставку
+	// цена за стандартную доставку
 	cart.DeliveryPrice = 0
-	//обновить цену
+	// обновить цену
 	cart.PriceCalculate()
-	//получаем магазин
+	// получаем магазин
 	db := p.GetStore().From(NodeNamedCarts)
-	//сохранить корзину
+	// сохранить корзину
 	err = db.Save(cart)
-	//невозможно сохранить
+	// невозможно сохранить
 	if err != nil {
-		//отрпавляем ошибку
+		// отрпавляем ошибку
 		return nil, err
 	}
 
@@ -238,32 +268,32 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 
 // устанавливаем способ доставки
 func (p *ControllerCart) SetDelivery(cart *Cart, delivery Delivery) (*Cart, error) {
-	//сброс доставки
+	// сброс доставки
 	cart.Delivery = nil
-	//поиск в доступных провайдерах
+	// поиск в доступных провайдерах
 	for _, provider := range cart.DeliveryProviders {
 		if provider == delivery.Provider {
-			//установить доставку
+			// установить доставку
 			cart.Delivery = &delivery
-			if cart.Delivery.Provider == DeliveryProviderRussiaPost && cart.Delivery.Method == "" {
-				cart.Delivery.Method = DeliveryMethodStandard
+			if cart.Delivery.Method == "" {
+				cart.Delivery.Method = DefaultMethodDeliveryForProvider(cart.Delivery.Provider)
 			}
 		}
 	}
-	//расчет доставки
+	// расчет доставки
 	deliveryPrice, err := p.GetDeliveryPrice(cart)
 	if err != nil {
 		return nil, err
 	}
-	//цена за доставку
+	// цена за доставку
 	cart.DeliveryPrice = deliveryPrice
-	//обновить цену
+	// обновить цену
 	cart.PriceCalculate()
-	//получаем магазин
+	// получаем магазин
 	db := p.GetStore().From(NodeNamedCarts)
-	//сохранить корзину
+	// сохранить корзину
 	err = db.Save(cart)
-	//невозможно сохранить
+	// невозможно сохранить
 	if err != nil {
 		return nil, err
 	}
@@ -271,13 +301,13 @@ func (p *ControllerCart) SetDelivery(cart *Cart, delivery Delivery) (*Cart, erro
 	return cart, nil
 }
 
-//создание заказа
+// создание заказа
 func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
-	//нету корзины
+	// нету корзины
 	if cart.ID == 0 {
 		return nil, ErrEmptyCart
 	}
-	//нету адреса
+	// нету адреса
 	if cart.Address == nil {
 		return nil, ErrEmptyAddress
 	}

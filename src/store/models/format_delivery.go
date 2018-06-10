@@ -11,13 +11,13 @@ func (p *Delivery) Format() string {
 	case DeliveryProviderRussiaPost:
 		buffer.WriteString("Почта России")
 		switch p.Method {
-		case DeliveryMethodStandard:
+		case DeliveryMethodRussiaPostStandard:
 			buffer.WriteString(" - Стандарт")
 
-		case DeliveryMethodEMC:
+		case DeliveryMethodRussiaPostEMC:
 			buffer.WriteString(" - Курьерская служба")
 
-		case DeliveryMethodRapid:
+		case DeliveryMethodRussiaPostRapid:
 			buffer.WriteString(" - Ускоренная")
 		}
 
