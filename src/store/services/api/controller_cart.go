@@ -112,6 +112,11 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 	case DeliveryProviderNRG:
 		return 0, nil
 	case DeliveryProviderCDEK:
+		switch cart.Delivery.Method {
+		case DeliveryMethodCDEKStandard:
+			return 0, nil //бесплатная доставка
+		}
+
 		dimension := cart.DimensionCalculate()
 
 		r := cdek.DestinationRequest{
