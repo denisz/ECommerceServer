@@ -55,6 +55,13 @@ type (
 		SKU   string `sheet:"Артикул"`
 		Price int    `sheet:"Цена"`
 	}
+
+	SheetCDEKCity struct {
+		Code         int      `sheet:"ID"`
+		Name         string   `sheet:"CityName"`
+		District     string   `sheet:"OblName"`
+		PostCodeList []string `sheet:"PostCodeList"`
+	}
 )
 
 func parseBannerType(label string) BannerType {
@@ -73,6 +80,15 @@ func CreateBanner(sheetData SheetBanner) Banner {
 		Href:   sheetData.Href,
 		Active: sheetData.Active,
 		Type:   parseBannerType(sheetData.Type),
+	}
+}
+
+func CreateCDEKCity(sheetData SheetCDEKCity, postCode string) CDEKCity {
+	return CDEKCity{
+		Code:     sheetData.Code,
+		Name:     sheetData.Name,
+		District: sheetData.District,
+		PostCode: postCode,
 	}
 }
 

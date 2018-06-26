@@ -28,9 +28,9 @@ func TestTariff(t *testing.T) {
 	token := "9a9mk3FmmR1E84cn7FHMlz9Kjm5NHAC6"
 	login := "viktor@otdeldostavok.ru"
 	password := "123456qQ"
-	pochta := NewClient(login, password, token, true)
+	client := NewClient(login, password, token, true)
 
-	r := &DestinationRequest{
+	r := DestinationRequest{
 		Mass: 2000,
 		IndexFrom: "200961",
 		IndexTo: "430030",
@@ -48,7 +48,7 @@ func TestTariff(t *testing.T) {
 		WithOrderOfNotice: false,
 	}
 
-	res, err := pochta.Tariff(r)
+	res, err := client.Tariff(r)
 	if err != nil {
 		t.Fatal(err)
 	}

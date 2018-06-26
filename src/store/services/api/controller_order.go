@@ -325,7 +325,7 @@ func (p *ControllerOrder) CreateBatch(orderIDs []int) (*Batch, error) {
 		batchOrders = append(batchOrders, BatchOrder{
 			ID:            order.ID,
 			Total:         order.Total,
-			Weight:        order.WeightCalculate(),
+			Weight:        order.WeightCalculate().Gram(),
 			Invoice:       order.Invoice,
 			RecipientName: order.Address.Name,
 		})

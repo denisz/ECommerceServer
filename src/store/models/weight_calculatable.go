@@ -1,24 +1,24 @@
 package models
 
 
-func (p *Cart) WeightCalculate() int {
+func (p *Cart) WeightCalculate() Weight {
 	var weight = 0
 	for _, position := range p.Positions {
-		weight = weight + position.WeightCalculate()
+		weight = weight + (position.Product.Weight * position.Amount)
 	}
 
-	return weight
+	return Weight(weight)
 }
 
-func (p *Order) WeightCalculate() int {
+func (p *Order) WeightCalculate() Weight {
 	var weight = 0
 	for _, position := range p.Positions {
-		weight = weight + position.WeightCalculate()
+		weight = weight + (position.Product.Weight * position.Amount)
 	}
 
-	return weight
+	return Weight(weight)
 }
 
-func (p *Position) WeightCalculate() int {
-	return p.Product.Weight * p.Amount
+func (p *Position) WeightCalculate() Weight {
+	return Weight(p.Product.Weight * p.Amount)
 }

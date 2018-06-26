@@ -54,6 +54,10 @@ type (
 		ProductPrice Price `json:"productPrice"`
 		// Цена доставки
 		DeliveryPrice Price `json:"deliveryPrice"`
+		// Минимальное время доставки в днях
+		DeliveryPeriodMin int `json:"deliveryPeriodMin "`
+		// Максимальное время доставки в днях
+		DeliveryPeriodMax int `json:"deliveryPeriodMax "`
 		// Окончательная цена
 		Total Price `json:"total"`
 		// Адрес

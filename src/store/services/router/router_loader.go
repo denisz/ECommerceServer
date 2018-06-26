@@ -37,3 +37,14 @@ func (p *Router) LoaderPricesFromGoogle(c *gin.Context) {
 
 	p.JSON(c, http.StatusOK, gin.H{})
 }
+
+// загрузка городов для сдек
+func (p *Router) LoaderCDEKCityFromGoogle(c *gin.Context) {
+	err := p.API.Loader.CDEKCityFromGoogle()
+	if err != nil {
+		p.AbortWithError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	p.JSON(c, http.StatusOK, gin.H{})
+}

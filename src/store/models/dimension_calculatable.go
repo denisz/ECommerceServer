@@ -3,7 +3,6 @@ package models
 //список контейнеров
 //расчет размеров корзины
 func (p *Cart) DimensionCalculate() Dimension {
-	
 	return Dimension{
 		Width:  10,
 		Height: 10,
@@ -13,7 +12,6 @@ func (p *Cart) DimensionCalculate() Dimension {
 
 //расчет размеров корзины
 func (p *Order) DimensionCalculate() Dimension {
-
 	return Dimension{
 		Width:  10,
 		Height: 10,

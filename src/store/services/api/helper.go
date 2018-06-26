@@ -114,7 +114,7 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 		BrandName:    "DarkWaters",
 		MailDirect:   643,
 		MailCategory: russiaPost.MailCategoryORDINARY,
-		Mass:         order.WeightCalculate(),
+		Mass:         order.WeightCalculate().Gram(),
 	}
 
 	switch order.Delivery.Method {

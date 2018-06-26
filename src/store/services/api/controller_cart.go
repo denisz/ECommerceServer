@@ -10,6 +10,7 @@ import (
 	"github.com/teris-io/shortid"
 	"errors"
 	"github.com/asdine/storm/q"
+	"store/delivery/cdek"
 )
 
 var (
@@ -45,6 +46,17 @@ func (p *ControllerCart) GetOrCreateCart(cartID int) *Cart {
 	return &cart
 }
 
+func (p *ControllerCart) FindCDEKCityCodeByPostCode(postcode string) (int, error) {
+	var city CDEKCity
+	err := p.DB.From(NodeNamedCDEKCity).One("PostCode", postcode, &city)
+
+	if err != nil {
+		return 0, ErrNOT_FOUND
+	}
+
+	return city.Code, nil
+}
+
 //расчет стоимости доставки корзины
 func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 	if cart.Delivery == nil {
@@ -68,7 +80,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 		dimension := cart.DimensionCalculate()
 
 		r := russiaPost.DestinationRequest{
-			Mass:          cart.WeightCalculate(),
+			Mass:          cart.WeightCalculate().Gram(),
 			IndexFrom:     "430005",
 			IndexTo:       cart.Address.PostalCode,
 			MailType:      mailType,
@@ -100,7 +112,28 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 	case DeliveryProviderNRG:
 		return 0, nil
 	case DeliveryProviderCDEK:
-		return 0, nil
+		dimension := cart.DimensionCalculate()
+
+		r := cdek.DestinationRequest{
+			SenderCityPostCode:   "430005",
+			ReceiverCityPostCode: cart.Address.PostalCode,
+			TariffID:             137,
+			ModeID:               cdek.ModeDeliveryWarehouseDoor,
+			Goods: []cdek.Dimension{
+				{
+					Weight: cart.WeightCalculate().Kilos(),
+					Length: dimension.Length,
+					Width:  dimension.Width,
+					Height: dimension.Height,
+				},
+			},
+		}
+
+		res, err := cdek.DebugClient.Tariff(r)
+		if err != nil {
+			return 0, err
+		}
+		return PriceFloor(Price(res.PriceByCurrency * 100)), nil
 	default:
 		return 0, ErrNotSupportedProvider
 	}

@@ -12,6 +12,7 @@ const (
 	NodeNamedHistory = "History"
 	NodeNamedCatalog = "Catalog"
 	NodeNamedSettings = "Settings"
+	NodeNamedCDEKCity = "CDEKCity"
 )
 
 // Controller handle all base methods
