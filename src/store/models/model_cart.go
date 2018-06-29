@@ -42,6 +42,14 @@ type (
 		Product *Product `json:"product"`
 	}
 
+	//Время доставки
+	DeliveryPeriod struct {
+		//минимальное время доставки в днях
+		Min int `json:"min "`
+		//максимальное время доставки в днях
+		Max int `json:"max "`
+	}
+
 	// Корзина
 	Cart struct {
 		// Индентификатор
@@ -54,10 +62,8 @@ type (
 		ProductPrice Price `json:"productPrice"`
 		// Цена доставки
 		DeliveryPrice Price `json:"deliveryPrice"`
-		// Минимальное время доставки в днях
-		DeliveryPeriodMin int `json:"deliveryPeriodMin "`
-		// Максимальное время доставки в днях
-		DeliveryPeriodMax int `json:"deliveryPeriodMax "`
+		//Время доставки
+		DeliveryPeriod DeliveryPeriod `json:"deliveryPeriod"`
 		// Окончательная цена
 		Total Price `json:"total"`
 		// Адрес
@@ -83,4 +89,6 @@ type (
 		// Операци
 		Operation Operation `json:"operation"`
 	}
+
+
 )

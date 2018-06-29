@@ -36,4 +36,6 @@ type Address struct {
 	UserInvalidIndex bool `json:"userInvalidIndex"`
 	// Координаты
 	GeoPoint []float64 `json:"geopoint"`
+	//Валидация адреса
+	Valid bool `json:"valid"`
 }

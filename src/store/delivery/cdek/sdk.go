@@ -30,13 +30,13 @@ func (p *SDK) createSignature() string {
 	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
-func(p *SDK) CreateBacklog(request OrderRequest) (int, error) {
+func(p *SDK) CreateBacklog(request OrderCreateRequest) (int, error) {
 //new_orders.php;
 
 	return 0, nil
 }
 
-func(p *SDK) DeleteBacklog(request OrderRequest) (int, error) {
+func(p *SDK) DeleteBacklog(request OrderCreateRequest) (int, error) {
 //delete_orders.php.
 	return 0, nil
 }

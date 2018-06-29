@@ -58,9 +58,11 @@ func (p *ControllerCart) FindCDEKCityCodeByPostCode(postcode string) (int, error
 }
 
 //расчет стоимости доставки корзины
-func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
+func (p *ControllerCart) GetDeliveryPriceAndTime(cart *Cart) (Price, DeliveryPeriod, error) {
+	deliveryPeriod := DeliveryPeriod{}
+
 	if cart.Delivery == nil {
-		return 0, ErrEmptyDeliveryMethod
+		return 0, deliveryPeriod, ErrEmptyDeliveryMethod
 	}
 
 	switch cart.Delivery.Provider {
@@ -74,7 +76,7 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 			mailType = russiaPost.MailTypePARCEL_CLASS_1
 		case DeliveryMethodRussiaPostStandard:
 			mailType = russiaPost.MailTypePOSTAL_PARCEL
-			return 0, nil //бесплатная доставка
+			return 0, deliveryPeriod, nil //бесплатная доставка
 		}
 
 		dimension := cart.DimensionCalculate()
@@ -99,22 +101,33 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 
 		res, err := russiaPost.DefaultClient.Tariff(r)
 		if err != nil {
-			return 0, err
+			return 0, deliveryPeriod, err
 		}
 
-		return PriceFloor(Price(res.TotalRate + res.TotalVat)), nil
+		return PriceFloor(Price(res.TotalRate + res.TotalVat)), deliveryPeriod, nil
 	case DeliveryProviderBoxberry:
-		return 0, nil
+		return 0, deliveryPeriod, nil
 	case DeliveryProviderBaikal:
-		return 0, nil
+		return 0, deliveryPeriod, nil
 	case DeliveryProviderPEC:
-		return 0, nil
+		return 0, deliveryPeriod, nil
 	case DeliveryProviderNRG:
-		return 0, nil
+		return 0, deliveryPeriod, nil
 	case DeliveryProviderCDEK:
+		var modeID = cdek.DeliveryModeWarehouseDoor
+		var tariffID = cdek.TariffIDWarehouseDoor
+
 		switch cart.Delivery.Method {
+		case DeliveryMethodCDEKRapid:
+			//ускоренная
+			modeID = cdek.DeliveryModeWarehouseWarehouse
+			tariffID = cdek.TariffIDWarehouseWarehouse
+		case DeliveryMethodCDEKEMC:
+			//курьерская
+			modeID = cdek.DeliveryModeWarehouseDoor
+			tariffID = cdek.TariffIDWarehouseDoor
 		case DeliveryMethodCDEKStandard:
-			return 0, nil //бесплатная доставка
+			return 0, deliveryPeriod, nil //бесплатная доставка
 		}
 
 		dimension := cart.DimensionCalculate()
@@ -122,8 +135,8 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 		r := cdek.DestinationRequest{
 			SenderCityPostCode:   "430005",
 			ReceiverCityPostCode: cart.Address.PostalCode,
-			TariffID:             137,
-			ModeID:               cdek.ModeDeliveryWarehouseDoor,
+			TariffID:             tariffID,
+			ModeID:               modeID,
 			Goods: []cdek.Dimension{
 				{
 					Weight: cart.WeightCalculate().Kilos(),
@@ -136,11 +149,13 @@ func (p *ControllerCart) GetDeliveryPrice(cart *Cart) (Price, error) {
 
 		res, err := cdek.DebugClient.Tariff(r)
 		if err != nil {
-			return 0, err
+			return 0, deliveryPeriod, err
 		}
-		return PriceFloor(Price(res.PriceByCurrency * 100)), nil
+		deliveryPeriod.Max = res.DeliveryPeriodMax
+		deliveryPeriod.Min = res.DeliveryPeriodMin
+		return PriceFloor(Price(res.PriceByCurrency * 100)), deliveryPeriod, nil
 	default:
-		return 0, ErrNotSupportedProvider
+		return 0, deliveryPeriod, ErrNotSupportedProvider
 	}
 }
 
@@ -222,12 +237,12 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 	// указываем возможные методы доставки
 	cart.DeliveryMethods = DeliveryMethods{
 		DeliveryProviderRussiaPost: []DeliveryMethod{
-			DeliveryMethodRussiaPostStandard,
+			//DeliveryMethodRussiaPostStandard,
 			DeliveryMethodRussiaPostRapid,
 			DeliveryMethodRussiaPostEMC,
 		},
 		DeliveryProviderCDEK: []DeliveryMethod{
-			DeliveryMethodCDEKStandard,
+			//DeliveryMethodCDEKStandard,
 			DeliveryMethodCDEKRapid,
 			DeliveryMethodCDEKEMC,
 		},
@@ -258,9 +273,14 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) {
 	// проверка валидность адреса
 	err := CheckValidAddress(&address)
-	if err != nil {
-		return nil, err
-	}
+	//если есть ошибка от почты России устанавливаем адрес непроверенным
+	//и надо будет в ручную произвести валидацию
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	// валидация адреса
+	address.Valid = err == nil
 
 	// устанавливаем адрес
 	cart.Address = &address
@@ -272,12 +292,12 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 	// указываем возможные методы доставки
 	cart.DeliveryMethods = DeliveryMethods{
 		DeliveryProviderRussiaPost: []DeliveryMethod{
-			DeliveryMethodRussiaPostStandard,
+			//DeliveryMethodRussiaPostStandard,
 			DeliveryMethodRussiaPostRapid,
 			DeliveryMethodRussiaPostEMC,
 		},
 		DeliveryProviderCDEK: []DeliveryMethod{
-			DeliveryMethodCDEKStandard,
+			//DeliveryMethodCDEKStandard,
 			DeliveryMethodCDEKRapid,
 			DeliveryMethodCDEKEMC,
 		},
@@ -319,10 +339,12 @@ func (p *ControllerCart) SetDelivery(cart *Cart, delivery Delivery) (*Cart, erro
 		}
 	}
 	// расчет доставки
-	deliveryPrice, err := p.GetDeliveryPrice(cart)
+	deliveryPrice, deliveryPeriod, err := p.GetDeliveryPriceAndTime(cart)
 	if err != nil {
 		return nil, err
 	}
+	// время доставки
+	cart.DeliveryPeriod = deliveryPeriod
 	// цена за доставку
 	cart.DeliveryPrice = deliveryPrice
 	// обновить цену
@@ -419,10 +441,12 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 		return nil, err
 	}
 	//расчет доставки
-	deliveryPrice, err := p.GetDeliveryPrice(cart)
+	deliveryPrice, deliveryPeriod, err := p.GetDeliveryPriceAndTime(cart)
 	if err != nil {
 		return nil, err
 	}
+	// время доставки
+	cart.DeliveryPeriod = deliveryPeriod
 	//цена за доставку
 	cart.DeliveryPrice = deliveryPrice
 	//обновить цену
