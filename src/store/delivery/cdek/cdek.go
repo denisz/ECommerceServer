@@ -14,7 +14,6 @@ import (
 
 const (
 	HostName = "https://api.cdek.ru"
-	HostNameIntegration = "https://integration.cdek.ru/"
 	Version = "1.0"
 )
 

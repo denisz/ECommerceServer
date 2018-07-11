@@ -44,7 +44,7 @@ func TestCDEK_Tariff(t *testing.T) {
 		SenderCityID:   417,
 		ReceiverCityID: 16197,
 		TariffID:       137,
-		ModeID:         ModeDeliveryDoorDoor,
+		ModeID:         DeliveryModeDoorDoor,
 		Goods: []Dimension{
 			{
 				Weight: 0.3,

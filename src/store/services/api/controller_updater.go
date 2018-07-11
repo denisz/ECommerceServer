@@ -7,13 +7,14 @@ import (
 )
 
 var (
-	RangeMediaName = "Media"
-	RangePricesName = "Prices"
-	RangeBannersName = "Banners"
-	RangeProductsName = "Products"
-	RangeCDEKCityName = "CDEKCity"
-	RangeNotationsName = "Notations"
-	RangeCollectionsName = "Collections"
+	RangeMediaName        = "Media"
+	RangePricesName       = "Prices"
+	RangeBannersName      = "Banners"
+	RangeProductsName     = "Products"
+	RangeCDEKCityName     = "CDEKCity"
+	RangeNotationsName    = "Notations"
+	RangeRussiaPostPeriod = "RussiaPost"
+	RangeCollectionsName  = "Collections"
 )
 
 type ControllerUpdater struct {
@@ -89,7 +90,9 @@ func (p *ControllerUpdater) CatalogFromGoogle() error {
 
 	// Продукты
 	for _, sheetData := range products {
-		if sheetData.Disabled { continue }
+		if sheetData.Disabled {
+			continue
+		}
 
 		for _, m := range media {
 			if m.SKU == sheetData.SKU {
@@ -126,7 +129,7 @@ func (p *ControllerUpdater) AdsFromGoogle() error {
 		return err
 	}
 
-	settings := Settings {}
+	settings := Settings{}
 	for _, sheetData := range banners {
 		if sheetData.Active {
 			settings.Banners = append(settings.Banners, updater.CreateBanner(sheetData))
@@ -223,6 +226,45 @@ func (p *ControllerUpdater) CDEKCityFromGoogle() error {
 		for _, postcode := range sheetData.PostCodeList {
 			city := updater.CreateCDEKCity(sheetData, postcode)
 			err = tx.Save(&city)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	tx.Commit()
+	return nil
+}
+
+//Обновления списка городов
+func (p *ControllerUpdater) RussiaPostFromGoogle() error {
+	var err error
+
+	var collections []updater.SheetRussiaPost
+	err = updater.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeRussiaPostPeriod)
+	if err != nil {
+		return err
+	}
+
+	catalog := p.DB.From(NodeNamedRussiaPost)
+	tx, err := catalog.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	//remove all RussiaPostDeliveryPeriod
+	err = tx.Drop(&RussiaPostDeliveryPeriod{})
+	if err != nil {
+		fmt.Printf("Drop error: %v \n", err)
+	}
+
+	tx.ReIndex(RussiaPostDeliveryPeriod{})
+
+	for _, sheetData := range collections {
+		if len(sheetData.DeliveryTimeRapid) > 0 && len(sheetData.DeliveryTimeEMC) > 0 {
+			time := updater.CreateRussiaPostDeliveryPeriod(sheetData)
+			err = tx.Save(&time)
 			if err != nil {
 				return err
 			}

@@ -199,6 +199,8 @@ func (p *ControllerOrder) Update(order Order, update OrderUpdateRequest) error {
 				order.TrackingNumber = providerEntity.Barcode
 			}
 		}
+
+
 	}
 
 	// Записываем время изменения

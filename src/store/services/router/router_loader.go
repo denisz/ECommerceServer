@@ -48,3 +48,14 @@ func (p *Router) LoaderCDEKCityFromGoogle(c *gin.Context) {
 
 	p.JSON(c, http.StatusOK, gin.H{})
 }
+
+// загрузка городов для поты России
+func (p *Router) LoaderRussiaPostTimeFromGoogle(c *gin.Context) {
+	err := p.API.Loader.RussiaPostFromGoogle()
+	if err != nil {
+		p.AbortWithError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	p.JSON(c, http.StatusOK, gin.H{})
+}

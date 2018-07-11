@@ -62,6 +62,14 @@ type (
 		District     string   `sheet:"OblName"`
 		PostCodeList []string `sheet:"PostCodeList"`
 	}
+
+	SheetRussiaPost struct {
+		PostCode string `sheet:""`
+		Region string `sheet:"Регион"`
+		Capital string `sheet:"Столица"`
+		DeliveryTimeRapid string `sheet:"Время ускоренное"`
+		DeliveryTimeEMC string `sheet:"Время курьерское"`
+	}
 )
 
 func parseBannerType(label string) BannerType {
@@ -140,6 +148,15 @@ func CreateDimension(token string) Dimension {
 		Width:  width,
 		Height: height,
 		Length: length,
+	}
+}
+
+func CreateRussiaPostDeliveryPeriod(sheetData SheetRussiaPost) RussiaPostDeliveryPeriod {
+	return RussiaPostDeliveryPeriod {
+		Region: sheetData.Region,
+		Capital: sheetData.Capital,
+		EMC: tokenToDeliveryPeriod(sheetData.DeliveryTimeEMC),
+		Rapid: tokenToDeliveryPeriod(sheetData.DeliveryTimeRapid),
 	}
 }
 

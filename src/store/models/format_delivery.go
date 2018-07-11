@@ -21,6 +21,19 @@ func (p *Delivery) Format() string {
 			buffer.WriteString(" - Ускоренная")
 		}
 
+	case DeliveryProviderCDEK:
+		buffer.WriteString("CDEK")
+		switch p.Method {
+		case DeliveryMethodCDEKStandard:
+			buffer.WriteString(" - Стандарт")
+
+		case DeliveryMethodCDEKEMC:
+			buffer.WriteString(" - Курьерская служба")
+
+		case DeliveryMethodCDEKRapid:
+			buffer.WriteString(" - Ускоренная")
+		}
+
 	case DeliveryProviderBoxberry:
 		buffer.WriteString("Boxberry")
 

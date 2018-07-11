@@ -45,9 +45,9 @@ type (
 	//Время доставки
 	DeliveryPeriod struct {
 		//минимальное время доставки в днях
-		Min int `json:"min "`
+		Min int `json:"Min "`
 		//максимальное время доставки в днях
-		Max int `json:"max "`
+		Max int `json:"Max"`
 	}
 
 	// Корзина

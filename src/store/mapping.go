@@ -113,6 +113,7 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 		v1.GET("/load/ads", I("/load/ads"), h.LoaderAdsFromGoogle)
 		v1.GET("/load/prices", I("/load/prices"), h.LoaderPricesFromGoogle)
 		v1.GET("/load/cdek", I("/load/cdek"), h.LoaderCDEKCityFromGoogle)
+		v1.GET("/load/russiapost", I("/load/russiaPost"), h.LoaderRussiaPostTimeFromGoogle)
 
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}

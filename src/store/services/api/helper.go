@@ -138,13 +138,18 @@ func CreateOrderInToRussiaPost(order *Order) (*russiaPost.Order, error) {
 	return russiaPost.DefaultClient.GetBacklog(orderID)
 }
 
+//func CreateOrderInCDEKProvider(order *Order) (*cdek.OrderCreateRequest, error) {
+//
+//}
 
 func DefaultMethodDeliveryForProvider(provider DeliveryProvider) DeliveryMethod {
 	switch provider {
 	case DeliveryProviderRussiaPost:
-		return DeliveryMethodRussiaPostStandard
+		return DeliveryMethodRussiaPostRapid
+		//return DeliveryMethodRussiaPostStandard
 	case DeliveryProviderCDEK:
-		return DeliveryMethodCDEKStandard
+		return DeliveryMethodCDEKRapid
+		//return DeliveryMethodCDEKStandard
 	default:
 		return DeliveryMethodUnknown
 	}

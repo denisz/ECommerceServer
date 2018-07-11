@@ -4,6 +4,7 @@ import (
 	"store/spreadsheet"
 	"regexp"
 	"strconv"
+	"store/models"
 )
 
 func UnmarshalSpreadsheet(out interface{}, spreadsheetId string, readRange string) (err error) {
@@ -42,4 +43,20 @@ func percent(token string) (float64, bool, bool) {
 	}
 
 	return 0, false, false
+}
+
+func tokenToDeliveryPeriod(token string) models.DeliveryPeriod {
+	r, _ := regexp.Compile(`^([0-9]+) - ([0-9]+)`)
+	t := r.FindStringSubmatch(token)
+
+	if len(t) == 3 {
+		min, _ := strconv.Atoi(t[1])
+		max, _ := strconv.Atoi(t[2])
+		return models.DeliveryPeriod{
+			Min: min,
+			Max: max,
+		}
+	}
+
+	return models.DeliveryPeriod{}
 }

@@ -25,14 +25,13 @@ const (
 )
 
 type (
-
 	AuthRequest struct {
 		//Дата запроса
-		Date	string
+		Date string
 		//Идентификатор ИМ, передаваемый СДЭКом.
-		Account	string
+		Account string
 		//Ключ (см. Протокол обмена)
-		Secure	string
+		Secure string
 	}
 
 	//Размеры
@@ -167,43 +166,43 @@ type (
 	//Отправление (заказ)
 	OrderCreateRequest struct {
 		//Номер отправления клиента (должен быть уникален в пределах акта приема-передачи)
-		Number string `xml:"number,attr"`
+		Number string `xml:"number,attr,omitempty"`
 		//Дата инвойса
-		DateInvoice string `xml:"dateInvoice,attr"`
+		DateInvoice string `xml:"dateInvoice,attr,omitempty"`
 		//Код города отправителя из базы СДЭК
-		SendCityCode int `xml:"sendCityCode,attr"`
+		SendCityCode int `xml:"sendCityCode,attr,omitempty"`
 		//Код города получателя из базы СДЭК
-		RecCityCode int `xml:"recCityCode,attr"`
+		RecCityCode int `xml:"recCityCode,attr,omitempty"`
 		//Почтовый индекс города отправителя
-		SendCityPostCode string `xml:"sendCityPostCode,attr"`
+		SendCityPostCode string `xml:"sendCityPostCode,attr,omitempty"`
 		//Почтовый индекс города получателя
-		RecCityPostCode string `xml:"recCityPostCode,attr"`
+		RecCityPostCode string `xml:"recCityPostCode,attr,omitempty"`
 		//Получатель (ФИО)
-		RecipientName string `xml:"recipientName,attr"`
+		RecipientName string `xml:"recipientName,attr,omitempty"`
 		//Email получателя для рассылки уведомлений о движении заказа, для связи в случае недозвона.
-		RecipientEmail string `xml:"recipientEmail,attr"`
+		RecipientEmail string `xml:"recipientEmail,attr,omitempty"`
 		//Телефон получателя
-		Phone string `xml:"phone,attr"`
+		Phone string `xml:"phone,attr,omitempty"`
 		//Код типа тарифа (см. Приложение, таблица 1)
-		TariffTypeCode int `xml:"tariffTypeCode,attr"`
+		TariffTypeCode int `xml:"tariffTypeCode,attr,omitempty"`
 		//Комментарий по заказу
-		Comment string `xml:"comment,attr"`
+		Comment string `xml:"comment,attr,omitempty"`
 		//Истинный продавец. Используется при печати инвойсов для отображения настоящего продавца товара, либо торгового названия
-		SellerName string `xml:"sellerName,attr"`
+		SellerName string `xml:"sellerName,attr,omitempty"`
 		//Адрес истинного продавца. Используется при печати инвойсов для отображения адреса настоящего продавца товара, либо торгового названия
-		SellerAddress string `xml:"sellerAddress,attr"`
+		SellerAddress string `xml:"sellerAddress,attr,omitempty"`
 		//Грузоотправитель. Используется при печати накладной.
-		ShipperName string `xml:"shipperName,attr"`
+		ShipperName string `xml:"shipperName,attr,omitempty"`
 		//Адрес грузоотправителя. Используется при печати накладной.
-		ShipperAddress string `xml:"shipperAddress,attr"`
+		ShipperAddress string `xml:"shipperAddress,attr,omitempty"`
 		//Код валюты наложенного платежа - сумма которую надо взять с получателя (см. Приложение, таблица 6). Если параметр не указан, то считается по значению параметра Currency.
-		RecipientCurrency string `xml:"recipientCurrency,attr"`
+		RecipientCurrency Currency `xml:"recipientCurrency,attr,omitempty"`
 		//Код валюты объявленной стоимости заказа (всех вложений) (см. Приложение, таблица 6). Если параметр не указан, то считается по значению параметра Currency.
-		ItemsCurrency string `xml:"itemsCurrency,attr"`
-		//Упаковка
-		Package PackageRequest `xml:"package"`
+		ItemsCurrency Currency `xml:"itemsCurrency,attr,omitempty"`
 		//Адрес
 		Address AddressRequest `xml:"address"`
+		//Упаковка
+		Package PackageRequest `xml:"package"`
 	}
 
 	//Адрес доставки. В зависимости от режима доставки необходимо указывать либо атрибуты (Street, House, Flat), либо PvzCode
@@ -221,17 +220,17 @@ type (
 	//Упаковка (все упаковки передаются в разных тэгах Package)
 	PackageRequest struct {
 		//Номер упаковки (можно использовать порядковый номер упаковки заказа), уникален в пределах заказа
-		Number string `xml:"number,attr"`
+		Number string `xml:"number,attr,omitempty"`
 		//Штрих-код упаковки (если есть, иначе передавать значение номера упаковки Packege.Number. Параметр используется для оперирования грузом на складах СДЭК), уникален в пределах заказа
-		BarCode string `xml:"barCode,attr"`
+		BarCode string `xml:"barCode,attr,omitempty"`
 		//Общий вес (в граммах)
-		Weight int `xml:"weight,attr"`
+		Weight int `xml:"weight,attr,omitempty"`
 		//Габариты упаковки. Длина (в сантиметрах)
-		Length int `xml:"sizeA,attr"`
+		Length int `xml:"sizeA,attr,omitempty"`
 		//Габариты упаковки. Ширина (в сантиметрах)
-		Width int `xml:"sizeB,attr"`
+		Width int `xml:"sizeB,attr,omitempty"`
 		//Габариты упаковки. Высота (в сантиметрах)
-		Height int `xml:"sizeC,attr"`
+		Height int `xml:"sizeC,attr,omitempty"`
 		//Вложения
 		Items []ItemRequest `xml:"item"`
 	}
@@ -253,15 +252,14 @@ type (
 		//Вес брутто (за единицу товара, в граммах)
 		WeightBrutto int `xml:"weightBrutto,attr"`
 		//Количество единиц товара (в штуках)
-		Amount       int `xml:"amount,attr"`
+		Amount int `xml:"amount,attr"`
 		//Наименование товара  на английском (может также содержать описание товара: размер, цвет)
-		CommentEx string `xml:"commentEx,attr"`
+		CommentEx string `xml:"commentEx,attr,omitempty"`
 		//Наименование товара на русском (может также содержать описание товара: размер, цвет)
-		Comment string `xml:"comment,attr"`
+		Comment string `xml:"comment,attr,omitempty"`
 		//Ссылка на сайт интернет-магазина с описанием товара
-		Link string `xml:"link,attr"`
+		Link string `xml:"link,attr,omitempty"`
 	}
-
 
 	DeleteRequest struct {
 		//Номер акта приема-передачи
@@ -269,18 +267,18 @@ type (
 		//Дата документа (дата заказа)
 		Date string `xml:"date,attr"`
 		//Идентификатор ИМ, передаваемый СДЭКом.
-		Account	string `xml:"account,attr"`
+		Account string `xml:"account,attr"`
 		//Ключ (см. Протокол обмена)
-		Secure	string `xml:"secure,attr"`
+		Secure string `xml:"secure,attr"`
 		//Общее количество заказов для удаления в документе
-		OrderCount	int `xml:"orderCount,attr"`
+		OrderCount int `xml:"orderCount,attr"`
 		//Заказы
 		Orders []OrderDeleteRequest `xml:"Order"`
 	}
 
 	OrderDeleteRequest struct {
 		//Номер отправления клиента
-		Number string `xml:"number, attr"`
+		Number string `xml:"number,attr"`
 	}
 
 	//Статус заказа
@@ -288,15 +286,15 @@ type (
 		//Дата документа (дата заказа)
 		Date string `xml:"date,attr"`
 		//Идентификатор ИМ, передаваемый СДЭКом.
-		Account	string `xml:"account,attr"`
+		Account string `xml:"account,attr"`
 		//Ключ (см. Протокол обмена)
-		Secure	string `xml:"secure,attr"`
+		Secure string `xml:"secure,attr"`
 		//Атрибут, указывающий на необходимость загружать историю заказов (1-да, 0-нет)
-		ShowHistory	int `xml:"showHistory, attr"`
+		ShowHistory int `xml:"showHistory,attr"`
 		//Атрибут, указывающий на необходимость загружать список возвратных заказов (1-да, 0-нет)
-		ShowReturnOrder 	int `xml:"showReturnOrder, attr"`
+		ShowReturnOrder int `xml:"showReturnOrder,attr"`
 		//Атрибут, указывающий на необходимость загружать историю возвратных заказов (1-да, 0-нет)
-		ShowReturnOrderHistory 	int `xml:"showReturnOrderHistory, attr"`
+		ShowReturnOrderHistory int `xml:"showReturnOrderHistory,attr"`
 		//Период, за который произошло изменение  статуса заказа.
 		ChangePeriod StatusReportChangePeriod `xml:"ChangePeriod"`
 		//Заказ
@@ -306,18 +304,18 @@ type (
 	//Период
 	StatusReportChangePeriod struct {
 		//Дата начала запрашиваемого периода
-		DateFirst	string `xml:"dateFirst, attr"`
+		DateFirst string `xml:"dateFirst,attr"`
 		//Дата окончания запрашиваемого периода
-		DateLast	string `xml:"dateLast, attr"`
+		DateLast string `xml:"dateLast,attr"`
 	}
 
 	StatusReportOrder struct {
 		//Номер отправления СДЭК(присваивается при импорте заказов)
-		DispatchNumber int `xml:"dispatchNumber, attr"`
+		DispatchNumber int `xml:"dispatchNumber,attr"`
 		//Номер отправления клиента
-		Number	string `xml:"number, attr"`
+		Number string `xml:"number,attr"`
 		//Дата акта приема-передачи, в котором был передан заказ (2006-01-02)
-		Date string `xml:"date, attr"`
+		Date string `xml:"date,attr"`
 	}
 
 	//Запрос
@@ -325,9 +323,9 @@ type (
 		//Дата документа (дата заказа)
 		Date string `xml:"date,attr"`
 		//Идентификатор ИМ, передаваемый СДЭКом.
-		Account	string `xml:"account,attr"`
+		Account string `xml:"account,attr"`
 		//Ключ (см. Протокол обмена)
-		Secure	string `xml:"secure,attr"`
+		Secure string `xml:"secure,attr"`
 		//Отправление (заказ)
 		Order InfoRequestOrder `xml:"Order"`
 		//Период, за который произошло изменение стоимости услуги доставки
@@ -337,19 +335,19 @@ type (
 	//Период
 	InfoRequestChangePeriod struct {
 		//Дата начала запрашиваемого периода
-		DateBeg	string `xml:"dateBeg, attr"`
+		DateBeg string `xml:"dateBeg,attr"`
 		//Дата окончания запрашиваемого периода
-		DateEnd	string `xml:"dateEnd, attr"`
+		DateEnd string `xml:"dateEnd,attr"`
 	}
 
 	//Заказ отчета
 	InfoRequestOrder struct {
 		//Номер отправления СДЭК(присваивается при импорте заказов)
-		DispatchNumber int `xml:"dispatchNumber, attr"`
+		DispatchNumber int `xml:"dispatchNumber,attr"`
 		//Номер отправления клиента
-		Number	string `xml:"number, attr"`
+		Number string `xml:"number,attr"`
 		//Дата акта приема-передачи, в котором был передан заказ (2006-01-02)
-		Date string `xml:"date, attr"`
+		Date string `xml:"date,attr"`
 	}
 
 	//Отчет
@@ -367,67 +365,69 @@ type (
 	//Отправление (Заказ)
 	InfoReportOrder struct {
 		//	Номер отправления клиента
-		Number string `xml:"number, attr"`
+		Number string `xml:"number,attr"`
 		//Дата, в которую был передан заказ в базу СДЭК (2006-01-02)
-		Date string `xml:"date, attr"`
+		Date string `xml:"date,attr"`
 		//Номер отправления СДЭК(присваивается при импорте заказов)
-		DispatchNumber int `xml:"dispatchNumber, attr"`
+		DispatchNumber int `xml:"dispatchNumber,attr"`
 		//Код типа тарифа (см. Приложение, таблица 1)
-		TariffTypeCode	int `xml:"tariffTypeCode, attr"`
+		TariffTypeCode int `xml:"tariffTypeCode,attr"`
 		//Расчетный вес (в граммах)
-		Weight	float64 `xml:"tariffTypeCode, attr"`
+		Weight float64 `xml:"tariffTypeCode,attr"`
 		//Стоимость услуги доставки, руб
-		DeliverySum	float64 `xml:"deliverySum, attr"`
+		DeliverySum float64 `xml:"deliverySum,attr"`
 		//Дата последнего изменения суммы по услуге доставки
-		DateLastChange	string `xml:"dateLastChange, attr"`
+		DateLastChange string `xml:"dateLastChange,attr"`
 		//Режим доставки (1: Д-Д, 2: Д-С, 3: С-Д, 4: С-С)
-		DeliveryMode DeliveryMode `xml:"deliveryMode, attr"`
+		DeliveryMode DeliveryMode `xml:"deliveryMode,attr"`
 		//Код ПВЗ (см. «Список пунктов выдачи заказов (ПВЗ)»).
-		PvzCode	string `xml:"pvzCode, attr"`
+		PvzCode string `xml:"pvzCode,attr"`
 		//Вариант доставки (COURIER - курьером, PVZCDEK - ПВЗ СДЭК, PVZCLIENT - ПВЗ клиента (того кто отправил запрос)
-		DeliveryVariant	DeliveryVariant `xml:"deliveryVariant, attr"`
+		DeliveryVariant DeliveryVariant `xml:"deliveryVariant,attr"`
 	}
 
 	InfoReportCity struct {
 		//Код города
-		Code int `xml:"code, attr"`
+		Code int `xml:"code,attr"`
 		//Почтовый индекс города
-		PostCode string `xml:"postCode, attr"`
+		PostCode string `xml:"postCode,attr"`
 		//Название города
-		Name string `xml:"name, attr"`
+		Name string `xml:"name,attr"`
 	}
 
 	InfoReportAddedService struct {
 		//Тип дополнительной услуги (см. Приложение, таблица 5)
-		ServiceCode int `xml:"serviceCode, attr"`
+		ServiceCode int `xml:"serviceCode,attr"`
 		//Сумма услуги, руб
-		Sum	float64 `xml:"sum, attr"`
+		Sum float64 `xml:"sum,attr"`
 	}
 
 	//Форма заказа
 	OrdersPrint struct {
 		//	Дата документа (2006-01-02)
-		Date string `xml:"date, attr"`
+		Date string `xml:"date,attr"`
 		//Идентификатор ИМ, передаваемый СДЭКом.
-		Account	string `xml:"account, attr"`
+		Account string `xml:"account,attr"`
 		//Ключ (см. Протокол обмена)
-		Secure	string `xml:"secure, attr"`
+		Secure string `xml:"secure,attr"`
 		//Общее количество передаваемых в документе заказов
-		OrderCount	int `xml:"orderCount, attr"`
+		OrderCount int `xml:"orderCount,attr"`
 		//Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя.
-		CopyCount	int `xml:"copyCount, attr"`
+		CopyCount int `xml:"copyCount,attr"`
 		//Заказы
 		Orders []OrderPrint `xml:"Order"`
 	}
 
-
 	//Order	Отправление (заказ)
 	OrderPrint struct {
 		//Номер отправления СДЭК(присваивается при импорте заказов)
-		DispatchNumber int `xml:"dispatchNumber, attr"`
+		DispatchNumber int `xml:"dispatchNumber,attr"`
 		//Номер отправления клиента
-		Number	string `xml:"number, attr"`
+		Number string `xml:"number,attr"`
 		//Дата акта приема-передачи, в котором был передан заказ (2006-01-02)
-		Date string `xml:"date, attr"`
+		Date string `xml:"date,attr"`
+	}
+
+	Response struct {
 	}
 )

@@ -11,6 +11,7 @@ import (
 	"errors"
 	"github.com/asdine/storm/q"
 	"store/delivery/cdek"
+	"fmt"
 )
 
 var (
@@ -57,6 +58,37 @@ func (p *ControllerCart) FindCDEKCityCodeByPostCode(postcode string) (int, error
 	return city.Code, nil
 }
 
+func (p *ControllerCart) GetDeliveryPeriodForRussiaPost(cart *Cart) DeliveryPeriod {
+	matcher := q.True()
+	matcher = q.And(matcher, q.Eq("Region", cart.Address.Region))
+
+	var periods []RussiaPostDeliveryPeriod
+
+	err := p.DB.
+		From(NodeNamedRussiaPost).
+		Select(matcher).
+		Find(&periods)
+
+	if err != nil || len(periods) == 0 {
+		return DeliveryPeriod{}
+	}
+
+	fmt.Printf("Periods: %v", periods)
+
+	relevantPeriod := periods[0]
+
+	switch cart.Delivery.Method {
+	case DeliveryMethodRussiaPostEMC:
+		return relevantPeriod.EMC
+	case DeliveryMethodRussiaPostRapid:
+		return relevantPeriod.Rapid
+	case DeliveryMethodRussiaPostStandard:
+		return DeliveryPeriod{}
+	default:
+		return DeliveryPeriod{}
+	}
+}
+
 //расчет стоимости доставки корзины
 func (p *ControllerCart) GetDeliveryPriceAndTime(cart *Cart) (Price, DeliveryPeriod, error) {
 	deliveryPeriod := DeliveryPeriod{}
@@ -67,6 +99,7 @@ func (p *ControllerCart) GetDeliveryPriceAndTime(cart *Cart) (Price, DeliveryPer
 
 	switch cart.Delivery.Provider {
 	case DeliveryProviderRussiaPost:
+		deliveryPeriod = p.GetDeliveryPeriodForRussiaPost(cart)
 		mailType := russiaPost.MailTypePOSTAL_PARCEL
 
 		switch cart.Delivery.Method {
@@ -254,6 +287,8 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 	}
 	// цена за стандартную доставку
 	cart.DeliveryPrice = 0
+	// время доставки
+	cart.DeliveryPeriod = DeliveryPeriod{}
 	// фиксируем позиции
 	cart.Positions = positions
 	// обновить цену
@@ -307,8 +342,12 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 		Provider: DeliveryProviderRussiaPost,
 		Method:   DefaultMethodDeliveryForProvider(DeliveryProviderRussiaPost),
 	}
-	// цена за стандартную доставку
-	cart.DeliveryPrice = 0
+	// расчет доставки
+	deliveryPrice, deliveryPeriod, err := p.GetDeliveryPriceAndTime(cart)
+	// время доставки
+	cart.DeliveryPeriod = deliveryPeriod
+	// цена за доставку
+	cart.DeliveryPrice = deliveryPrice
 	// обновить цену
 	cart.PriceCalculate()
 	// получаем магазин
