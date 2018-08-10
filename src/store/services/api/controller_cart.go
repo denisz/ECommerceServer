@@ -265,7 +265,7 @@ func (p *ControllerCart) Update(cart *Cart, update CartUpdateRequest) (*Cart, er
 	// указываем возможные способы доставки
 	cart.DeliveryProviders = []DeliveryProvider{
 		DeliveryProviderRussiaPost,
-		DeliveryProviderCDEK,
+		//DeliveryProviderCDEK,
 	}
 	// указываем возможные методы доставки
 	cart.DeliveryMethods = DeliveryMethods{
@@ -322,7 +322,7 @@ func (p *ControllerCart) SetAddress(cart *Cart, address Address) (*Cart, error) 
 	// указываем возможные способы доставки
 	cart.DeliveryProviders = []DeliveryProvider{
 		DeliveryProviderRussiaPost,
-		DeliveryProviderCDEK,
+		//DeliveryProviderCDEK,
 	}
 	// указываем возможные методы доставки
 	cart.DeliveryMethods = DeliveryMethods{
