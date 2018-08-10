@@ -124,6 +124,31 @@ func saveToken(file string, token *oauth2.Token) error {
 	return nil
 }
 
+func RequestToken() error {
+	ctx := context.Background()
+
+	b, err := ioutil.ReadFile("client_secret.json")
+	if err != nil {
+		fmt.Printf("Unable to read client secret file: %v", err)
+		return ErrParseClientSecretFile
+	}
+
+	// If modifying these scopes, delete your previously saved credentials
+	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
+	config, err := google.ConfigFromJSON(b, Scopes...)
+	if err != nil {
+		fmt.Printf("Unable to parse client secret file to config: %v", err)
+		return ErrParseClientSecretFile
+	}
+
+	_, err = getClient(ctx, config)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ReadSpreadsheet(spreadsheetId string, readRange string) ([][]interface{}, error) {
 	ctx := context.Background()
 
