@@ -2,7 +2,7 @@ package api
 
 import (
 	. "store/models"
-	"store/services/updater"
+	"store/services/gdrv"
 	"fmt"
 )
 
@@ -18,7 +18,7 @@ var (
 )
 
 type ControllerUpdater struct {
-	Config *updater.Config
+	SpreadSheetID string
 	Controller
 }
 
@@ -26,26 +26,26 @@ type ControllerUpdater struct {
 func (p *ControllerUpdater) CatalogFromGoogle() error {
 	var err error
 
-	var collections []updater.SheetCollection
-	err = updater.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCollectionsName)
+	var collections []SheetCollection
+	err = gdrv.UnmarshalSpreadsheet(&collections, p.SpreadSheetID, RangeCollectionsName)
 	if err != nil {
 		return err
 	}
 
-	var products []updater.SheetProduct
-	err = updater.UnmarshalSpreadsheet(&products, p.Config.SpreadSheetID, RangeProductsName)
+	var products []SheetProduct
+	err = gdrv.UnmarshalSpreadsheet(&products, p.SpreadSheetID, RangeProductsName)
 	if err != nil {
 		return err
 	}
 
-	var notations []updater.SheetNotation
-	err = updater.UnmarshalSpreadsheet(&notations, p.Config.SpreadSheetID, RangeNotationsName)
+	var notations []SheetNotation
+	err = gdrv.UnmarshalSpreadsheet(&notations, p.SpreadSheetID, RangeNotationsName)
 	if err != nil {
 		return err
 	}
 
-	var media []updater.SheetProductMedia
-	err = updater.UnmarshalSpreadsheet(&media, p.Config.SpreadSheetID, RangeMediaName)
+	var media []SheetProductMedia
+	err = gdrv.UnmarshalSpreadsheet(&media, p.SpreadSheetID, RangeMediaName)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (p *ControllerUpdater) CatalogFromGoogle() error {
 
 	// Категории
 	for _, sheetData := range collections {
-		collection := updater.CreateCollection(sheetData)
+		collection := CreateCollection(sheetData)
 		err = tx.Save(&collection)
 		if err != nil {
 			return err
@@ -100,7 +100,7 @@ func (p *ControllerUpdater) CatalogFromGoogle() error {
 			}
 		}
 
-		product := updater.CreateProduct(sheetData)
+		product := CreateProduct(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
 			return err
@@ -109,7 +109,7 @@ func (p *ControllerUpdater) CatalogFromGoogle() error {
 
 	// Описания
 	for _, sheetData := range notations {
-		product := updater.CreateNotation(sheetData)
+		product := CreateNotation(sheetData)
 		err = tx.Save(&product)
 		if err != nil {
 			return err
@@ -123,8 +123,8 @@ func (p *ControllerUpdater) CatalogFromGoogle() error {
 //Загрузка рекламных баннеров
 func (p *ControllerUpdater) AdsFromGoogle() error {
 	var err error
-	var banners []updater.SheetBanner
-	err = updater.UnmarshalSpreadsheet(&banners, p.Config.SpreadSheetID, RangeBannersName)
+	var banners []SheetBanner
+	err = gdrv.UnmarshalSpreadsheet(&banners, p.SpreadSheetID, RangeBannersName)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (p *ControllerUpdater) AdsFromGoogle() error {
 	settings := Settings{}
 	for _, sheetData := range banners {
 		if sheetData.Active {
-			settings.Banners = append(settings.Banners, updater.CreateBanner(sheetData))
+			settings.Banners = append(settings.Banners, CreateBanner(sheetData))
 		}
 	}
 	db := p.GetStore().From(NodeNamedSettings)
@@ -156,8 +156,8 @@ func (p *ControllerUpdater) AdsFromGoogle() error {
 func (p *ControllerUpdater) PriceFromGoogle() error {
 	var err error
 
-	var prices []updater.SheetPrice
-	err = updater.UnmarshalSpreadsheet(&prices, p.Config.SpreadSheetID, RangePricesName)
+	var prices []SheetPrice
+	err = gdrv.UnmarshalSpreadsheet(&prices, p.SpreadSheetID, RangePricesName)
 	if err != nil {
 		return err
 	}
@@ -200,8 +200,8 @@ func (p *ControllerUpdater) PriceFromGoogle() error {
 func (p *ControllerUpdater) CDEKCityFromGoogle() error {
 	var err error
 
-	var collections []updater.SheetCDEKCity
-	err = updater.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeCDEKCityName)
+	var collections []SheetCDEKCity
+	err = gdrv.UnmarshalSpreadsheet(&collections, p.SpreadSheetID, RangeCDEKCityName)
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func (p *ControllerUpdater) CDEKCityFromGoogle() error {
 	// Описания
 	for _, sheetData := range collections {
 		for _, postcode := range sheetData.PostCodeList {
-			city := updater.CreateCDEKCity(sheetData, postcode)
+			city := CreateCDEKCity(sheetData, postcode)
 			err = tx.Save(&city)
 			if err != nil {
 				return err
@@ -240,8 +240,8 @@ func (p *ControllerUpdater) CDEKCityFromGoogle() error {
 func (p *ControllerUpdater) RussiaPostFromGoogle() error {
 	var err error
 
-	var collections []updater.SheetRussiaPost
-	err = updater.UnmarshalSpreadsheet(&collections, p.Config.SpreadSheetID, RangeRussiaPostPeriod)
+	var collections []SheetRussiaPost
+	err = gdrv.UnmarshalSpreadsheet(&collections, p.SpreadSheetID, RangeRussiaPostPeriod)
 	if err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ func (p *ControllerUpdater) RussiaPostFromGoogle() error {
 
 	for _, sheetData := range collections {
 		if len(sheetData.DeliveryTimeRapid) > 0 && len(sheetData.DeliveryTimeEMC) > 0 {
-			time := updater.CreateRussiaPostDeliveryPeriod(sheetData)
+			time := CreateRussiaPostDeliveryPeriod(sheetData)
 			err = tx.Save(&time)
 			if err != nil {
 				return err

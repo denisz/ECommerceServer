@@ -1,7 +1,6 @@
-package updater
+package models
 
 import (
-	. "store/models"
 	"fmt"
 	"strings"
 	"strconv"
@@ -64,11 +63,17 @@ type (
 	}
 
 	SheetRussiaPost struct {
-		PostCode string `sheet:""`
-		Region string `sheet:"Регион"`
-		Capital string `sheet:"Столица"`
+		PostCode          string `sheet:""`
+		Region            string `sheet:"Регион"`
+		Capital           string `sheet:"Столица"`
 		DeliveryTimeRapid string `sheet:"Время ускоренное"`
-		DeliveryTimeEMC string `sheet:"Время курьерское"`
+		DeliveryTimeEMC   string `sheet:"Время курьерское"`
+	}
+
+	SheetAccounting struct {
+		ProductSKU string `sheet:"Артикул"`
+		Amount   int    `sheet:"Количество"`
+		Price      int    `sheet:"Цена"`
 	}
 )
 
@@ -80,6 +85,14 @@ func parseBannerType(label string) BannerType {
 		return BannerTypeBrand
 	}
 	return ""
+}
+
+func CreatePositionReport(sheetData SheetAccounting) PositionReport {
+	return PositionReport{
+		ProductSKU: sheetData.ProductSKU,
+		Amount: sheetData.Amount,
+		Price: Price(sheetData.Price * 100),
+	}
 }
 
 func CreateBanner(sheetData SheetBanner) Banner {
@@ -152,11 +165,11 @@ func CreateDimension(token string) Dimension {
 }
 
 func CreateRussiaPostDeliveryPeriod(sheetData SheetRussiaPost) RussiaPostDeliveryPeriod {
-	return RussiaPostDeliveryPeriod {
-		Region: sheetData.Region,
+	return RussiaPostDeliveryPeriod{
+		Region:  sheetData.Region,
 		Capital: sheetData.Capital,
-		EMC: tokenToDeliveryPeriod(sheetData.DeliveryTimeEMC),
-		Rapid: tokenToDeliveryPeriod(sheetData.DeliveryTimeRapid),
+		EMC:     tokenToDeliveryPeriod(sheetData.DeliveryTimeEMC),
+		Rapid:   tokenToDeliveryPeriod(sheetData.DeliveryTimeRapid),
 	}
 }
 

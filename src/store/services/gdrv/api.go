@@ -1,4 +1,4 @@
-package updater
+package gdrv
 
 import (
 	"encoding/json"
@@ -12,7 +12,9 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/sheets/v4"
+	"google.golang.org/api/drive/v3"
 	"github.com/pkg/errors"
+	"log"
 )
 
 var (
@@ -23,6 +25,10 @@ var (
 	ErrUnableRetrieveDataFromSheet = errors.New("Unable to retrieve data from sheet.")
 	ErrUnableCacheOaAuthToken = errors.New("Unable to cache oauth token.")
 	ErrUnableGetPathCredentialFile = errors.New("Unable to get path to cached credential file.")
+)
+
+var (
+	Scopes = []string { drive.DriveMetadataReadonlyScope, sheets.SpreadsheetsReadonlyScope }
 )
 
 // getClient uses a Context and Config to retrieve a Token
@@ -129,7 +135,7 @@ func ReadSpreadsheet(spreadsheetId string, readRange string) ([][]interface{}, e
 
 	// If modifying these scopes, delete your previously saved credentials
 	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets.readonly")
+	config, err := google.ConfigFromJSON(b, Scopes...)
 	if err != nil {
 		fmt.Printf("Unable to parse client secret file to config: %v", err)
 		return nil, ErrParseClientSecretFile
@@ -158,4 +164,98 @@ func ReadSpreadsheet(spreadsheetId string, readRange string) ([][]interface{}, e
 	}
 
 	return resp.Values, nil
+}
+
+func GetAllSheets(spreadsheetId string) ([]*sheets.Sheet, error) {
+	ctx := context.Background()
+
+	b, err := ioutil.ReadFile("client_secret.json")
+	if err != nil {
+		fmt.Printf("Unable to read client secret file: %v", err)
+		return nil, ErrParseClientSecretFile
+	}
+
+	// If modifying these scopes, delete your previously saved credentials
+	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
+	config, err := google.ConfigFromJSON(b, Scopes...)
+	if err != nil {
+		fmt.Printf("Unable to parse client secret file to config: %v", err)
+		return nil, ErrParseClientSecretFile
+	}
+
+	client, err := getClient(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
+	srv, err := sheets.New(client)
+	if err != nil {
+		fmt.Printf("Unable to retrieve Sheets Client %v", err)
+		return nil, ErrUnableRetrieveSheetsClient
+	}
+
+	// Prints the names and majors of students in a sample spreadsheet:
+	// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+	//spreadsheetId := "1hy6wW1B0PkAUBu9f8bhKizGnFOXm_UUA3mDLf39iIhk"
+	//readRange := "Лист1!A2:E"
+	resp, err := srv.Spreadsheets.Get(spreadsheetId).Do()
+
+	if err != nil {
+		fmt.Printf("Unable to retrieve data from sheet. %v", err)
+		return nil, ErrUnableRetrieveDataFromSheet
+	}
+
+	return resp.Sheets, nil
+}
+
+func Walk(fileId string) ([]*drive.File, error) {
+	ctx := context.Background()
+
+	b, err := ioutil.ReadFile("client_secret.json")
+	if err != nil {
+		fmt.Printf("Unable to read client secret file: %v", err)
+		return nil, ErrParseClientSecretFile
+	}
+
+	config, err := google.ConfigFromJSON(b, Scopes...)
+	if err != nil {
+		fmt.Printf("Unable to parse client secret file to config: %v", err)
+		return nil, ErrParseClientSecretFile
+	}
+
+	client, err := getClient(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
+	srv, err := drive.New(client)
+	if err != nil {
+		log.Fatalf("Unable to retrieve Drive client: %v", err)
+	}
+
+	pageToken := ""
+	var files []*drive.File
+
+	for {
+		r, err := srv.Files.List().
+			Q(fmt.Sprintf("'%s' in parents", fileId)).PageToken(pageToken).
+			PageSize(20).Fields("nextPageToken, files(id, name, mimeType, size)").Do()
+
+		if err != nil {
+			return nil, err
+		}
+
+		pageToken = r.NextPageToken
+		files = append(files, r.Files...)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(pageToken) == 0 {
+			break
+		}
+	}
+
+	return files, nil
 }

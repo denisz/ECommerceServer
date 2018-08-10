@@ -132,6 +132,8 @@ type (
 		Total Price `json:"total"`
 		// Комментарий заказа
 		Comment string `json:"comment"`
+		// Учет (номер в складском учете)
+		AccountingID int `json:"accounting"`
 		// Время создания
 		CreatedAt time.Time `json:"createdAt"`
 		// Время обновления

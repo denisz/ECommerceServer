@@ -6,10 +6,17 @@ import (
 )
 
 // загрузка каталога продуктов
+// обновить остатки
 func (p *Router) LoaderCatalogFromGoogle(c *gin.Context) {
 	err := p.API.Loader.CatalogFromGoogle()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = p.API.Accounting.UpdateQuantity()
+	if err != nil {
+		p.AbortWithError(c, http.StatusInternalServerError, err)
 		return
 	}
 

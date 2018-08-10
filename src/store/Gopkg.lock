@@ -378,6 +378,7 @@
   branch = "master"
   name = "google.golang.org/api"
   packages = [
+    "drive/v3",
     "gensupport",
     "googleapi",
     "googleapi/internal/uritemplates",
@@ -447,6 +448,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9d22e378bae28e24a3abbcee369724001e5a1cb711ce17ece485eaa30a9f50c6"
+  inputs-digest = "ca586c0ff0c2e70f5f771dd73155e4965db8e98db3871174135ea251ff59868f"
   solver-name = "gps-cdcl"
   solver-version = 1

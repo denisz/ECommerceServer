@@ -14,6 +14,7 @@ const (
 	NodeNamedSettings = "Settings"
 	NodeNamedCDEKCity = "CDEKCity"
 	NodeNamedRussiaPost = "RussiaPost"
+	NodeNamedAccounting = "Accounting"
 )
 
 // Controller handle all base methods

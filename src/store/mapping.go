@@ -76,14 +76,9 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 	v1 := r.Group("/api/v1/")
 	{
 		v1.POST("/settings", I("/settings"), h.SettingsIndex)
-		v1.POST("/catalog/collections", I("/catalog/collection"), h.CatalogCollectionsPOST)
-		v1.POST("/catalog/collection/:sku", I("/catalog/collection/:sku"), h.CatalogCollectionDetailPOST)
-		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), h.CatalogProductsPOST)
-		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), h.CatalogProductDetailPOST)
-		v1.POST("/catalog/notation/:sku", I("/catalog/notation/:sku"), h.CatalogNotationPOST)
-		v1.POST("/catalog/search", I("/catalog/search"), h.CatalogSearchProductsPOST)
-		v1.POST("/sales", I("/sales"), h.SalesIndexPOST)
+
 		v1.POST("/cart", I("/cart"), h.CartIndexPOST)
+		v1.POST("/sales", I("/sales"), h.SalesIndexPOST)
 		v1.POST("/cart/detail", I("/cart"), h.CartDetailPOST)
 		v1.POST("/cart/update", I("/cart/update"), h.CartUpdatePOST)
 		v1.POST("/cart/address", I("/cart/address"), h.CartUpdateAddressPOST)
@@ -91,29 +86,49 @@ func CreateMapping(api *api.API, allowOrigins []string) http.Handler {
 		v1.POST("/cart/checkout", I("/order/checkout"), h.CartCheckoutPOST)
 		v1.POST("/orders/check/:invoice", I("/orders/check/:invoice"), h.OrderDetailPOST)
 
+		v1.POST("/catalog/search", I("/catalog/search"), h.CatalogSearchProductsPOST)
+		v1.POST("/catalog/collections", I("/catalog/collection"), h.CatalogCollectionsPOST)
+		v1.POST("/catalog/products/:sku", I("/catalog/products/:sku"), h.CatalogProductsPOST)
+		v1.POST("/catalog/notation/:sku", I("/catalog/notation/:sku"), h.CatalogNotationPOST)
+		v1.POST("/catalog/product/:sku", I("/catalog/product/:sku"), h.CatalogProductDetailPOST)
+		v1.POST("/catalog/collection/:sku", I("/catalog/collection/:sku"), h.CatalogCollectionDetailPOST)
+
 		v1.POST("/account/login", authMiddleware.LoginHandler)
 	}
 
 	v1.Use(authMiddleware.MiddlewareFunc())
 	{
 		v1.POST("/account/me", I("/account/me"), h.AccountMePOST)
-		v1.POST("/order/:id", I("/order/:id"), h.OrderUpdatePOST)
+
 		v1.POST("/forms/order/:id", I("/forms/order/:id"), h.FormsOrderPOST)
 		v1.POST("/forms/batch/:id", I("/forms/order/:id"), h.FormsBatchPOST)
+
+		v1.POST("/order/:id", I("/order/:id"), h.OrderUpdatePOST)
 		v1.POST("/orders/list", I("/orders/list"), h.OrderListPOST)
 		v1.POST("/orders/clear", I("/orders/clear"), h.OrderClearExpiredPOST)
 		v1.POST("/orders/search", I("/orders/search"), h.SearchOrdersPOST)
 		v1.POST("/orders/batch", I("/orders/batch"), h.CreateBatchPOST)
+
+		v1.POST("/report/:id", I("/report/:id"), h.ReportDetailPOST)
+		v1.POST("/reports/list", I("/reports/list"), h.ReportListPOST)
+		v1.POST("/reports/search", I("/reports/search"), h.SearchReportsPOST)
+
 		v1.POST("/batches/search", I("/batches/search"), h.SearchBatchesPOST)
 		v1.GET("/batches/:id/checkin", I("/batches/:id/checkin"), h.CheckInBatchGET)
 		v1.DELETE("/batch/:id", I("/batch/:id"), h.BreakBatchDELETE)
 		v1.GET("/batch/:id", I("/batch/:id"), h.BatchDetailGET)
 		v1.GET("/report/batch/:id", I("/report/batch/:id"), h.ReportBatchGET)
+
 		v1.GET("/load/catalog", I("/load/catalog"), h.LoaderCatalogFromGoogle)
 		v1.GET("/load/ads", I("/load/ads"), h.LoaderAdsFromGoogle)
 		v1.GET("/load/prices", I("/load/prices"), h.LoaderPricesFromGoogle)
 		v1.GET("/load/cdek", I("/load/cdek"), h.LoaderCDEKCityFromGoogle)
 		v1.GET("/load/russiapost", I("/load/russiaPost"), h.LoaderRussiaPostTimeFromGoogle)
+		v1.GET("/load/gdrvReports", I("/load/gdrvReports"), h.CheckReportsInGoogleDrv)
+
+		v1.GET("/cmd/updateQuantity", I("/cmd/updateQuantity"), h.UpdateQuantity)
+		v1.GET("/cmd/clearReports", I("/cmd/clearReports"), h.ClearReports)
+		v1.GET("/cmd/deliveryReports", I("/cmd/deliveryReports"), h.SearchReceivedReports)
 
 		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	}

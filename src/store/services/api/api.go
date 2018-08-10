@@ -2,21 +2,21 @@ package api
 
 import (
 	. "store/models"
-	"store/services/updater"
 )
 
 type API struct {
-	Config   *Config
-	Admin    ControllerAdmin
-	Cart     ControllerCart
-	Settings ControllerSettings
-	Order    ControllerOrder
-	Form     ControllerForms
-	Account  ControllerAccount
-	Catalog  ControllerCatalog
-	Sales    ControllerSales
-	Batch    ControllerBatch
-	Loader   ControllerUpdater
+	Config     *Config
+	Admin      ControllerAdmin
+	Cart       ControllerCart
+	Settings   ControllerSettings
+	Order      ControllerOrder
+	Form       ControllerForms
+	Account    ControllerAccount
+	Catalog    ControllerCatalog
+	Sales      ControllerSales
+	Batch      ControllerBatch
+	Loader     ControllerUpdater
+	Accounting ControllerAccounting
 }
 
 func NewAPI(config *Config) *API {
@@ -51,10 +51,12 @@ func NewAPI(config *Config) *API {
 			Controller: Controller{DB: db},
 		},
 		Loader: ControllerUpdater{
+			Controller:    Controller{DB: db},
+			SpreadSheetID: "13Mr_bOjtMmJ8TivMz3Z5nniT0r92ujlk48m4tXFqSJE",
+		},
+		Accounting: ControllerAccounting{
 			Controller: Controller{DB: db},
-			Config: &updater.Config{
-				SpreadSheetID: "13Mr_bOjtMmJ8TivMz3Z5nniT0r92ujlk48m4tXFqSJE",
-			},
+			FileID:     "1br5HTFWzYWTrALqfBb3SYWbFZOzhe8lj",
 		},
 	}
 }

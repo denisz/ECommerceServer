@@ -435,9 +435,9 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 	defer tx.Rollback()
 
 	//бакеты
-	carts := tx.From(NodeNamedCarts)
-	orders := tx.From(NodeNamedOrders)
-	catalog := tx.From(NodeNamedCatalog)
+	cartsBucket := tx.From(NodeNamedCarts)
+	ordersBucket := tx.From(NodeNamedOrders)
+	catalogBucket := tx.From(NodeNamedCatalog)
 
 	var positions []Position
 
@@ -453,7 +453,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 		}
 		//загружаем продукт
 		var product Product
-		err := catalog.One("SKU", v.ProductSKU, &product)
+		err := catalogBucket.One("SKU", v.ProductSKU, &product)
 		//продукт недоступен
 		if err != nil {
 			return nil, err
@@ -465,7 +465,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 			return nil, ErrNotEnoughQuantity
 		}
 		//сохраняем продукт
-		err = catalog.Save(&product)
+		err = catalogBucket.Save(&product)
 		if err != nil {
 			return nil, err
 		}
@@ -507,7 +507,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 		Invoice:       invoice,
 	}
 	//сохраняем заказ
-	err = orders.Save(&order)
+	err = ordersBucket.Save(&order)
 	if err != nil {
 		return nil, err
 	}
@@ -520,7 +520,7 @@ func (p *ControllerCart) Checkout(cart *Cart, session *Session) (*Cart, error) {
 	//сбрасываем цена
 	cart.DeliveryPrice = 0
 	//сохранить корзину
-	err = carts.Save(cart)
+	err = cartsBucket.Save(cart)
 	//невозможно сохранить
 	if err != nil {
 		return nil, err
